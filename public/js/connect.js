@@ -42,6 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (result.success) {
         localStorage.setItem('profile', JSON.stringify(result.profile));
         updateUI(result.profile);
+        handleWalletConnection(); // Reload the page after successful connection
       } else {
         alert('Authentication failed');
       }
@@ -57,6 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.removeItem('profile');
     web3Modal.clearCachedProvider();
     updateUI(null);
+    handleWalletConnection(); // Reload the page after disconnection
   }
 
   function updateUI(profile) {
@@ -91,6 +93,11 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       throw new Error('Authentication failed');
     }
+  }
+
+  function handleWalletConnection() {
+    // Reload the page to reflect the updated ownership status
+    window.location.reload();
   }
 
   const walletConnectButton = document.getElementById('wallet-connect');

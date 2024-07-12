@@ -4,27 +4,104 @@ document.addEventListener("DOMContentLoaded", () => {
       const profile = JSON.parse(localStorage.getItem('profile'));
       const username = window.location.pathname.split('/').pop();
 
-      const response = await fetch(`/api/users/profile?username=${username}`);
+      const response = await fetch(`/api/users/profile/${username}`);
       const result = await response.json();
 
       if (result.success) {
-        document.getElementById('wallet-address').textContent = result.user.address;
-        document.getElementById('display-name').textContent = result.user.name;
-        document.getElementById('display-bio').textContent = result.user.bio;
-        document.getElementById('profile-picture-display').src = result.user.profilePicture
+        const walletAddressElement = document.getElementById('wallet-address');
+        const displayNameElement = document.getElementById('display-name');
+        const displayBioElement = document.getElementById('display-bio');
+        const profilePictureDisplayElement = document.getElementById('profile-picture-display');
+        const voteCountElement = document.getElementById('vote-count');
+
+        if (walletAddressElement) walletAddressElement.textContent = result.user.address;
+        if (displayNameElement) displayNameElement.textContent = result.user.name;
+        if (displayBioElement) displayBioElement.textContent = result.user.bio;
+        if (profilePictureDisplayElement) profilePictureDisplayElement.src = result.user.profilePicture
           ? `/uploads/${result.user.profilePicture}`
           : '/images/default-profile-picture.png';
-        document.getElementById('vote-count').textContent = result.user.votes || 0;
+        if (voteCountElement) voteCountElement.textContent = result.user.votes || 0;
 
         const profileForm = document.getElementById('profile-form');
         const uploadForm = document.getElementById('upload-form');
 
-        if (!profile || profile.address !== result.user.address) {
+        if (!result.isOwner) {
           if (profileForm) profileForm.style.display = 'none';
           if (uploadForm) uploadForm.style.display = 'none';
         } else {
           if (profileForm) profileForm.style.display = 'block';
           if (uploadForm) uploadForm.style.display = 'block';
+        }
+
+        // Benutzerbilder laden
+        const galleryElement = document.getElementById('uploaded-images');
+        if (galleryElement) {
+          galleryElement.innerHTML = '';
+
+          result.images.forEach(image => {
+            const imageElement = document.createElement('div');
+            imageElement.className = 'gallery-item';
+
+            const img = document.createElement('img');
+            img.src = `/uploads/${image.imagePath}`;
+            img.alt = image.title;
+
+            const infoWrapper = document.createElement('div');
+            infoWrapper.className = 'info-wrapper';
+
+            const title = document.createElement('h3');
+            title.textContent = image.title;
+
+            const description = document.createElement('p');
+            description.textContent = image.description;
+
+            const creator = document.createElement('p');
+            creator.innerHTML = `by <a href="/profile/${image.creatorName}">${image.creatorName}</a>`;
+
+            infoWrapper.appendChild(title);
+            infoWrapper.appendChild(description); // Add description to the infoWrapper
+            infoWrapper.appendChild(creator);
+
+            const voteWrapper = document.createElement('div');
+            voteWrapper.className = 'vote-wrapper';
+
+            const voteButton = document.createElement('button');
+            voteButton.className = 'vote-button';
+            voteButton.setAttribute('data-id', image._id);
+
+            const voteCount = document.createElement('span');
+            voteCount.className = 'vote-count';
+            voteCount.id = `vote-count-${image._id}`;
+
+            voteWrapper.appendChild(voteButton);
+            voteWrapper.appendChild(voteCount);
+
+            const progressBarWrapper = document.createElement('div');
+            progressBarWrapper.className = 'progress-bar-wrapper';
+
+            const progressBar = document.createElement('div');
+            progressBar.className = 'progress-bar';
+            progressBar.id = `progress-bar-${image._id}`;
+
+            progressBarWrapper.appendChild(progressBar);
+
+            imageElement.appendChild(img);
+            imageElement.appendChild(infoWrapper);
+            imageElement.appendChild(voteWrapper);
+            imageElement.appendChild(progressBarWrapper);
+
+            if (result.isOwner) {
+              const deleteButton = document.createElement('button');
+              deleteButton.className = 'delete-button';
+              deleteButton.textContent = 'Delete';
+              deleteButton.addEventListener('click', async () => {
+                await deleteImage(image._id);
+              });
+              imageElement.appendChild(deleteButton);
+            }
+
+            galleryElement.appendChild(imageElement);
+          });
         }
       } else {
         console.error('Failed to load user profile');
@@ -34,73 +111,50 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  async function loadUploadedImages() {
-    try {
-      const username = window.location.pathname.split('/').pop();
+  async function deleteImage(imageId) {
+    const profile = JSON.parse(localStorage.getItem('profile'));
+    const address = profile ? profile.address : null;
 
-      const response = await fetch(`/api/users/images?username=${username}`);
+    if (!address) {
+      showInfoModal('No address found in localStorage', 'error');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/users/delete-image', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ address, imageId }),
+      });
+
       const result = await response.json();
 
       if (result.success) {
-        const galleryElement = document.getElementById('uploaded-images');
-        galleryElement.innerHTML = '';
-
-        result.images.forEach(image => {
-          const imageElement = document.createElement('div');
-          imageElement.className = 'gallery-item';
-
-          const img = document.createElement('img');
-          img.src = `/uploads/${image.imagePath}`;
-          img.alt = image.title;
-
-          const infoWrapper = document.createElement('div');
-          infoWrapper.className = 'info-wrapper';
-
-          const title = document.createElement('h3');
-          title.textContent = image.title;
-
-          const creator = document.createElement('p');
-          creator.innerHTML = `by <a href="/profile/${image.creatorName}">${image.creatorName}</a>`;
-
-          infoWrapper.appendChild(title);
-          infoWrapper.appendChild(creator);
-
-          const voteWrapper = document.createElement('div');
-          voteWrapper.className = 'vote-wrapper';
-
-          const voteButton = document.createElement('button');
-          voteButton.className = 'vote-button';
-          voteButton.setAttribute('data-id', image._id);
-
-          const voteCount = document.createElement('span');
-          voteCount.className = 'vote-count';
-          voteCount.id = `vote-count-${image._id}`;
-
-          voteWrapper.appendChild(voteButton);
-          voteWrapper.appendChild(voteCount);
-
-          const progressBarWrapper = document.createElement('div');
-          progressBarWrapper.className = 'progress-bar-wrapper';
-
-          const progressBar = document.createElement('div');
-          progressBar.className = 'progress-bar';
-          progressBar.id = `progress-bar-${image._id}`;
-
-          progressBarWrapper.appendChild(progressBar);
-
-          imageElement.appendChild(img);
-          imageElement.appendChild(infoWrapper);
-          imageElement.appendChild(voteWrapper);
-          imageElement.appendChild(progressBarWrapper);
-
-          galleryElement.appendChild(imageElement);
-        });
+        showInfoModal('Image deleted successfully', 'success');
+        loadProfile();
       } else {
-        console.error('Failed to load user images');
+        showInfoModal(result.message, 'error');
       }
     } catch (error) {
-      console.error('Failed to fetch user images:', error);
+      console.error('Failed to delete image:', error);
+      showInfoModal('Failed to delete image', 'error');
     }
+  }
+
+  function showInfoModal(message, type) {
+    const infoModal = document.getElementById('infoModal');
+    const infoModalMessage = document.getElementById('infoModalMessage');
+
+    infoModal.classList.add(type);
+    infoModalMessage.textContent = message;
+    infoModal.style.display = 'block';
+
+    setTimeout(() => {
+      infoModal.style.display = 'none';
+      infoModal.classList.remove(type);
+    }, 3000);
   }
 
   async function submitProfileForm(event) {
@@ -157,7 +211,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const result = await response.json();
 
       if (result.success) {
-        loadUploadedImages();
+        loadProfile();
       } else {
         alert(result.message);
       }
@@ -178,5 +232,4 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   loadProfile();
-  loadUploadedImages();
 });

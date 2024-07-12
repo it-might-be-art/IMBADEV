@@ -21,7 +21,12 @@ const storage = multer.diskStorage({
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
+    let ext = '';
+    if (file.fieldname === 'image') {
+      ext = '.png';
+    } else if (file.fieldname === 'imba') {
+      ext = '.imba';
+    }
     cb(null, `${Date.now()}${ext}`);
   },
 });
@@ -39,6 +44,14 @@ async function authenticateUser(address) {
     await usersCollection.insertOne(user);
   }
   return user;
+}
+// Middleware zur Authentifizierung
+function ensureAuthenticated(req, res, next) {
+  if (req.session.profile) {
+    return next();
+  } else {
+    res.status(403).json({ success: false, message: 'Forbidden' });
+  }
 }
 
 // Route zum Abrufen der Galerie-Bilder
@@ -197,21 +210,30 @@ router.post('/authenticate', async (req, res) => {
 // Route zum Abrufen des Benutzerprofils
 router.get('/profile/:username', async (req, res) => {
   const username = req.params.username;
+  const profile = req.session.profile;
+
   try {
     const db = await connectToDatabase();
     const usersCollection = db.collection('users');
+    const imagesCollection = db.collection('images');
     const user = await usersCollection.findOne({ name: username });
 
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
 
-    res.json({ success: true, user });
+    const isOwner = profile && profile.address === user.address;
+
+    // Bilder des Benutzers abrufen
+    const images = await imagesCollection.find({ address: user.address }).toArray();
+
+    res.json({ success: true, user, isOwner, images });
   } catch (error) {
     console.error('Error fetching user profile:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 });
+
 
 // Route zum Aktualisieren des Benutzerprofils
 router.post('/update-profile', upload.single('profilePicture'), async (req, res) => {
@@ -249,17 +271,17 @@ router.post('/update-profile', upload.single('profilePicture'), async (req, res)
   }
 });
 
-// Route zum Hochladen eines Bildes
-router.post('/upload-image', upload.single('image'), async (req, res) => {
-  const address = req.body.address;
+// Route zum Hochladen eines Bildes (mit Authentifizierungsmiddleware)
+router.post('/upload-image', ensureAuthenticated, upload.fields([{ name: 'image' }, { name: 'imba' }]), async (req, res) => {
+  const { address, title, description } = req.body;
   const profile = req.session.profile;
 
   if (!profile || profile.address !== address) {
     return res.status(403).json({ success: false, message: 'Forbidden' });
   }
 
-  const title = req.body.title;
-  const imagePath = req.file.filename;
+  const imagePath = req.files.image[0].filename;
+  const imbaPath = req.files.imba[0].filename;
 
   try {
     const db = await connectToDatabase();
@@ -271,7 +293,9 @@ router.post('/upload-image', upload.single('image'), async (req, res) => {
     const newImage = {
       address,
       title,
+      description,
       imagePath,
+      imbaPath,
       creator: user.address,
       creatorName: user.name,
       createdAt: new Date(),

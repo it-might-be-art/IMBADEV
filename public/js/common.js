@@ -23,6 +23,9 @@ async function loadImages(apiEndpoint, galleryElementId) {
       const title = document.createElement('h3');
       title.textContent = image.title;
 
+      const description = document.createElement('p');
+      description.textContent = image.description;
+
       const creatorParagraph = document.createElement('p');
       if (image.creatorName) {
         const creatorLink = document.createElement('a');
@@ -33,6 +36,7 @@ async function loadImages(apiEndpoint, galleryElementId) {
       }
 
       infoWrapper.appendChild(title);
+      infoWrapper.appendChild(description); // Add description to the infoWrapper
       infoWrapper.appendChild(creatorParagraph);
 
       const voteWrapper = document.createElement('div');

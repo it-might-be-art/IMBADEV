@@ -60,21 +60,6 @@
 
       <div class="content-wrapper">
 
-        <% if (isOwner) { %>
-        <form id="upload-form" enctype="multipart/form-data">
-          <div class="form-block">
-            <label for="image">upload image:</label>
-            <input type="file" id="image" name="image" accept="image/*" required>
-          </div>
-          <div class="form-block">
-            <label for="title">title:</label>
-            <input type="text" id="title" name="title" required>
-          </div>
-
-          <button class="upload-sub" type="submit">upload</button>
-        </form>
-        <% } %>
-
         <div class="sub-wrapper">
           <h2>submissions</h2>
           <div id="uploaded-images"></div>
@@ -84,6 +69,13 @@
 
     </div>
   </section>
+
+  <div id="infoModal" class="info-modal">
+  <div class="info-modal-content">
+    <span id="infoModalClose" class="info-modal-close">&times;</span>
+    <p id="infoModalMessage"></p>
+  </div>
+</div>
 
   <%- include('partials/footer') %>
   <script src="/js/common.js"></script>
