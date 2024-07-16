@@ -27,10 +27,6 @@ app.use(express.static(path.join(__dirname, '..', 'public')));
 const usersRouter = require('./routes/users');
 app.use('/api/users', usersRouter);
 
-app.get('/', (req, res) => {
-  res.render('index', { title: 'Home', profile: req.session.profile });
-});
-
 app.get('/profile/:username', async (req, res) => {
   try {
     const username = req.params.username;
@@ -45,12 +41,16 @@ app.get('/profile/:username', async (req, res) => {
   }
 });
 
+app.get('/', (req, res) => {
+  res.render('index', { title: 'Home', currentPage: 'home', profile: req.session.profile });
+});
+
 app.get('/create', (req, res) => {
-  res.render('create', { title: 'create', profile: req.session.profile });
+  res.render('create', { title: 'create', currentPage: 'gallery', profile: req.session.profile });
 });
 
 app.get('/gallery', (req, res) => {
-  res.render('gallery', { title: 'gallery', profile: req.session.profile });
+  res.render('gallery', { title: 'gallery', currentPage: 'gallery', profile: req.session.profile });
 });
 
 app.listen(PORT, () => {

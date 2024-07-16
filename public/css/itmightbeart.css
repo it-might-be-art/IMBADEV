@@ -155,8 +155,9 @@ nav a {
     display: inline-block;
     position: relative;
 }
-nav a:hover {
-  color: #0ff;
+nav a:hover,
+nav a.current {
+  color: #fff;
 }
 
 input, textarea {
@@ -166,6 +167,11 @@ input, textarea {
     color: var(--grey);
     padding: 8px;
     min-height: 40px;
+}
+
+.head-wrapper h1,
+.head-wrapper h2 {
+  text-align: center;
 }
 
 .navbar {
@@ -196,7 +202,6 @@ input, textarea {
     text-align: left;
     width: 30%;
     margin-bottom: 0;
-    font-family: Ibmplexmono, sans-serif;
     font-weight: 400;
 }
 
@@ -363,16 +368,20 @@ input, textarea {
     top: 20px;
     left: 50%;
     transform: translateX(-50%);
-    padding: 16px;
+    padding: 8px;
     color: #fff;
-    font-size: 16px;
     z-index: 1000;
     display: none;
+    border-radius: 8px;
   }
   .info-modal-content {
-    padding: 10px;
+    padding: 8px 16px;
     text-align: center;
     color: white;
+  }
+  .info-modal-content p {
+    margin-bottom: 0px;
+    font-size: 14px;
   }
   #modalImageContainer img {
     max-width: 800px;
@@ -380,8 +389,8 @@ input, textarea {
   }
   .info-modal-close {
     position: absolute;
-    top: 5px;
-    right: 10px;
+    top: 1px;
+    right: 8px;
     cursor: pointer;
     color: white;
   }
@@ -743,8 +752,6 @@ input, textarea {
     max-width: 1200px;
     margin-left: auto;
     margin-right: auto;
-    padding-top: 80px;
-    padding-bottom: 80px;
     display: flex;
     position: relative;
 }
@@ -779,7 +786,6 @@ input, textarea {
     text-align: left;
     width: 47%;
     margin-bottom: 0;
-    font-family: Ibmplexmono, sans-serif;
     font-weight: 400;
 }
 .ideas-papp {
@@ -814,6 +820,11 @@ input, textarea {
     display: flex;
     position: relative;
 }
+.hero {
+    height: 50vh;
+    display: flec;
+    justify-content: center;
+}
 .sub-heading {
     text-align: left;
     font-size: 24px;
@@ -823,7 +834,6 @@ input, textarea {
     text-align: left;
     width: 30%;
     margin-bottom: 0;
-    font-family: Ibmplexmono, sans-serif;
     font-weight: 400;
 }
 
@@ -1324,7 +1334,6 @@ input, textarea {
   justify-content: flex-end;
   align-items: stretch;
   width: 48%;
-  font-family: Ibmplexmono, sans-serif;
   display: flex;
 }
 
@@ -1401,7 +1410,6 @@ input, textarea {
   align-items: center;
   width: 100%;
   height: 60px;
-  font-family: Ibmplexmono, sans-serif;
   display: flex;
 }
 
@@ -1546,7 +1554,6 @@ input, textarea {
 
 .disclaimer {
   color: #868686;
-  font-family: Ibmplexmono, sans-serif;
   font-size: 10px;
   line-height: 14px;
 }
@@ -1555,7 +1562,6 @@ input, textarea {
   align-items: center;
   width: 100%;
   height: 60px;
-  font-family: Ibmplexmono, sans-serif;
   display: flex;
 }
 
@@ -1582,7 +1588,6 @@ input, textarea {
 
 .footer-text {
   color: #868686;
-  font-family: Ibmplexmono, sans-serif;
 }
 
 .heading-2 {
