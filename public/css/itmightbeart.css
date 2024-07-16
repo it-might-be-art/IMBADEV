@@ -21,7 +21,6 @@ body {
 
 h1 {
   color: var(--white);
-  text-transform: uppercase;
   margin-top: 0;
   margin-bottom: 0;
   font-size: 40px;
@@ -49,7 +48,6 @@ h3 {
 
 h4 {
   color: var(--white);
-  text-transform: uppercase;
   margin-top: 10px;
   margin-bottom: 10px;
   font-size: 18px;
@@ -265,6 +263,9 @@ input, textarea {
   align-content: flex-start;
   align-items: stretch;
 }
+.gallery-item a {
+    border-bottom: 1px solid var(--border-grey);
+}
 .info-wrapper {
   width: 70%;
 }
@@ -319,10 +320,23 @@ input, textarea {
     flex-direction: column;
     align-items: center;
 }
+
 #profile-info {
   width: 100%;
   /*aspect-ratio: 1/1;*/
 }
+
+.social-links {
+    padding-top: 16px;
+    margin-top: 16px;
+    border-top: 1px solid var(--border-grey);
+}
+
+.social-logo {
+    width: 16px;
+    height: 16px;
+}
+
 .pfp {
   position: relative;
   text-align: center;
