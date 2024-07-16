@@ -21,14 +21,27 @@ document.addEventListener('DOMContentLoaded', function() {
     let isErasing = false;
     let undoStack = [];
     let redoStack = [];
-    let gridSize = 32;
+    let gridSize = 8;
+
+    function showInfoModal(message, type) {
+        const infoModal = document.getElementById('infoModal');
+        const infoModalMessage = document.getElementById('infoModalMessage');
+        
+        infoModalMessage.innerText = message;
+        infoModal.className = `info-modal ${type}`;
+        infoModal.style.display = 'block';
+
+        setTimeout(() => {
+            infoModal.style.display = 'none';
+        }, 3000);
+    }
 
     submitButton.addEventListener('click', (e) => {
         e.preventDefault();
         const profile = JSON.parse(localStorage.getItem('profile'));
 
         if (!profile) {
-            window.uploadModule.showInfoModal('Please log in to submit your artwork.', 'error');
+            showInfoModal('Please log in to submit your artwork.', 'error');
         } else {
             walletMessage.style.display = 'none';
             window.uploadModule.showSubmitModal(grid, gridSize, backgroundColor);
@@ -46,11 +59,11 @@ document.addEventListener('DOMContentLoaded', function() {
         swatches: predefinedSwatches,
         components: {
             preview: true,
-            opacity: true,
+            opacity: false,
             hue: true,
             interaction: {
                 hex: true,
-                rgba: true,
+                rgba: false,
                 input: true,
                 clear: true
             }
@@ -64,11 +77,11 @@ document.addEventListener('DOMContentLoaded', function() {
         swatches: predefinedSwatches,
         components: {
             preview: true,
-            opacity: true,
+            opacity: false,
             hue: true,
             interaction: {
                 hex: true,
-                rgba: true,
+                rgba: false,
                 input: true,
                 clear: true
             }
@@ -438,21 +451,6 @@ document.addEventListener('DOMContentLoaded', function() {
             reader.readAsText(file);
         }
     });
-
-    function showInfoModal(message, type) {
-        const infoModal = document.getElementById('infoModal');
-        const infoModalMessage = document.getElementById('infoModalMessage');
-        
-        infoModalMessage.innerText = message;
-        infoModal.className = `info-modal ${type}`;
-        infoModal.style.display = 'block';
-
-        setTimeout(() => {
-            infoModal.style.display = 'none';
-        }, 3000);
-    }
-
-    window.showInfoModal = showInfoModal; // Make it accessible globally
 
     undoButton.addEventListener('click', undo);
     redoButton.addEventListener('click', redo);

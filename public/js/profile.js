@@ -30,13 +30,23 @@ document.addEventListener("DOMContentLoaded", () => {
           if (uploadForm) uploadForm.style.display = 'none';
         } else {
           if (profileForm) profileForm.style.display = 'block';
-          if (uploadForm) uploadForm.style.display = 'block';
+          if (uploadForm) profileForm.style.display = 'block';
         }
+
+        // Populate social media fields
+        const social = result.user.social || {};
+        if (document.getElementById('xUsername')) document.getElementById('xUsername').value = social.x || '';
+        if (document.getElementById('warpcastUsername')) document.getElementById('warpcastUsername').value = social.warpcast || '';
+        if (document.getElementById('lensUsername')) document.getElementById('lensUsername').value = social.lens || '';
+        if (document.getElementById('instagramUsername')) document.getElementById('instagramUsername').value = social.instagram || '';
 
         // Benutzerbilder laden
         const galleryElement = document.getElementById('uploaded-images');
         if (galleryElement) {
           galleryElement.innerHTML = '';
+
+          // Sort images by createdAt date descending
+          result.images.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
           result.images.forEach(image => {
             const imageElement = document.createElement('div');
@@ -49,7 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const infoWrapper = document.createElement('div');
             infoWrapper.className = 'info-wrapper';
 
-            const title = document.createElement('h3');
+            const title = document.createElement('h4');
             title.textContent = image.title;
 
             const description = document.createElement('p');
@@ -60,7 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             infoWrapper.appendChild(title);
             infoWrapper.appendChild(description); // Add description to the infoWrapper
-            infoWrapper.appendChild(creator);
+            //infoWrapper.appendChild(creator);
 
             const voteWrapper = document.createElement('div');
             voteWrapper.className = 'vote-wrapper';
@@ -88,7 +98,7 @@ document.addEventListener("DOMContentLoaded", () => {
             imageElement.appendChild(img);
             imageElement.appendChild(infoWrapper);
             imageElement.appendChild(voteWrapper);
-            imageElement.appendChild(progressBarWrapper);
+            //imageElement.appendChild(progressBarWrapper);
 
             if (result.isOwner) {
               const deleteButton = document.createElement('button');

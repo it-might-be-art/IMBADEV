@@ -45,6 +45,7 @@ async function authenticateUser(address) {
   }
   return user;
 }
+
 // Middleware zur Authentifizierung
 function ensureAuthenticated(req, res, next) {
   if (req.session.profile) {
@@ -61,7 +62,7 @@ router.get('/gallery', async (req, res) => {
     const imagesCollection = db.collection('images');
     const usersCollection = db.collection('users');
 
-    const images = await imagesCollection.find().toArray();
+    const images = await imagesCollection.find().sort({ createdAt: -1 }).toArray();
 
     const imagesWithCreatorNames = await Promise.all(images.map(async (image) => {
       const user = await usersCollection.findOne({ address: image.address });
@@ -90,14 +91,13 @@ router.get('/images', async (req, res) => {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
 
-    const images = await imagesCollection.find({ address: user.address }).toArray();
+    const images = await imagesCollection.find({ address: user.address }).sort({ createdAt: -1 }).toArray();
     res.json({ success: true, images });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 });
 
-// Route zum Voten
 router.post('/vote', async (req, res) => {
   const { address, imageId } = req.body;
   try {
@@ -128,10 +128,10 @@ router.post('/vote', async (req, res) => {
     // Erhöhen der Stimmenzahl des Benutzers
     await usersCollection.updateOne({ address }, { $inc: { votes: 1 } });
 
-    res.json({ success: true, votesCount });
+    res.json({ success: true, votesCount, message: 'Vote recorded successfully.' });
   } catch (error) {
     console.error('Error saving vote:', error);
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Error saving vote. Please try again later.' });
   }
 });
 
@@ -227,13 +227,15 @@ router.get('/profile/:username', async (req, res) => {
     // Bilder des Benutzers abrufen
     const images = await imagesCollection.find({ address: user.address }).toArray();
 
+    // Sicherstellen, dass das social-Objekt immer definiert ist
+    user.social = user.social || {};
+
     res.json({ success: true, user, isOwner, images });
   } catch (error) {
     console.error('Error fetching user profile:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 });
-
 
 // Route zum Aktualisieren des Benutzerprofils
 router.post('/update-profile', upload.single('profilePicture'), async (req, res) => {
@@ -244,22 +246,28 @@ router.post('/update-profile', upload.single('profilePicture'), async (req, res)
     return res.status(403).json({ success: false, message: 'Forbidden' });
   }
 
-  const { name, bio } = req.body;
+  const { name, bio, xUsername, warpcastUsername, lensUsername, instagramUsername } = req.body;
   const profilePicture = req.file ? req.file.filename : null;
 
   try {
     const db = await connectToDatabase();
     const usersCollection = db.collection('users');
 
-    const updateData = { name, bio };
+    const updateData = {
+      name,
+      bio,
+      social: {
+        x: xUsername,
+        warpcast: warpcastUsername,
+        lens: lensUsername,
+        instagram: instagramUsername,
+      },
+    };
     if (profilePicture) {
       updateData.profilePicture = profilePicture;
     }
 
-    const result = await usersCollection.updateOne(
-      { address },
-      { $set: updateData }
-    );
+    const result = await usersCollection.updateOne({ address }, { $set: updateData });
 
     if (result.modifiedCount > 0) {
       res.json({ success: true });
@@ -270,6 +278,8 @@ router.post('/update-profile', upload.single('profilePicture'), async (req, res)
     res.status(500).json({ success: false, message: error.message });
   }
 });
+
+
 
 // Route zum Hochladen eines Bildes (mit Authentifizierungsmiddleware)
 router.post('/upload-image', ensureAuthenticated, upload.fields([{ name: 'image' }, { name: 'imba' }]), async (req, res) => {
@@ -344,5 +354,20 @@ router.get('/check-nft', async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 });
+
+// Route zum Abrufen von zufälligen Bildern
+router.get('/random-images', async (req, res) => {
+  const count = parseInt(req.query.count) || 4; // Standardanzahl der Bilder ist 4
+  try {
+    const db = await connectToDatabase();
+    const imagesCollection = db.collection('images');
+
+    const images = await imagesCollection.aggregate([{ $sample: { size: count } }]).toArray();
+    res.json({ success: true, images });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 
 module.exports = router;

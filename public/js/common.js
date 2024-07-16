@@ -9,18 +9,26 @@ async function loadImages(apiEndpoint, galleryElementId) {
     const profile = JSON.parse(localStorage.getItem('profile'));
     const address = profile ? profile.address : null;
 
+    // Sort images by createdAt date descending
+    result.images.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
     result.images.forEach(async (image) => {
       const imageElement = document.createElement('div');
       imageElement.className = 'gallery-item';
 
+      const imgLink = document.createElement('a');
+      imgLink.href = `/profile/${image.creatorName}`;
+
       const img = document.createElement('img');
       img.src = `/uploads/${image.imagePath}`;
       img.alt = image.title;
+      
+      imgLink.appendChild(img);
 
       const infoWrapper = document.createElement('div');
       infoWrapper.className = 'info-wrapper';
 
-      const title = document.createElement('h3');
+      const title = document.createElement('h4');
       title.textContent = image.title;
 
       const description = document.createElement('p');
@@ -36,8 +44,8 @@ async function loadImages(apiEndpoint, galleryElementId) {
       }
 
       infoWrapper.appendChild(title);
-      infoWrapper.appendChild(description); // Add description to the infoWrapper
-      infoWrapper.appendChild(creatorParagraph);
+      //infoWrapper.appendChild(description); // Add description to the infoWrapper
+      //infoWrapper.appendChild(creatorParagraph);
 
       const voteWrapper = document.createElement('div');
       voteWrapper.className = 'vote-wrapper';
@@ -87,10 +95,10 @@ async function loadImages(apiEndpoint, galleryElementId) {
 
       progressBarWrapper.appendChild(progressBar);
 
-      imageElement.appendChild(img);
+      imageElement.appendChild(imgLink); // Append the image link to the gallery item
       imageElement.appendChild(infoWrapper);
       imageElement.appendChild(voteWrapper);
-      imageElement.appendChild(progressBarWrapper);
+      //imageElement.appendChild(progressBarWrapper);
 
       galleryElement.appendChild(imageElement);
     });
@@ -101,6 +109,10 @@ async function loadImages(apiEndpoint, galleryElementId) {
 
 async function voteImage(imageId) {
   const profile = JSON.parse(localStorage.getItem('profile'));
+  if (!profile) {
+    showInfoModal('Please log in to vote.', 'error');
+    return;
+  }
   const address = profile.address;
   const response = await fetch('/api/users/vote', {
     method: 'POST',
@@ -108,8 +120,8 @@ async function voteImage(imageId) {
     body: JSON.stringify({ address, imageId })
   });
 
-  const result = await response.json();
-  if (result.success) {
+  if (response.ok) {
+    const result = await response.json();
     const voteCount = document.getElementById(`vote-count-${imageId}`);
     voteCount.textContent = result.votesCount;
 
@@ -120,7 +132,8 @@ async function voteImage(imageId) {
 
     updateProgressBar(imageId, result.votesCount);
   } else {
-    alert(result.message);
+    const result = await response.json();
+    showInfoModal(result.message, 'error');
   }
 }
 
@@ -131,6 +144,19 @@ function updateProgressBar(imageId, votesCount) {
     const percentage = (votesCount / maxVotes) * 100;
     progressBar.style.width = `${percentage}%`;
   }
+}
+
+function showInfoModal(message, type) {
+  const infoModal = document.getElementById('infoModal');
+  const infoModalMessage = document.getElementById('infoModalMessage');
+
+  infoModalMessage.innerText = message;
+  infoModal.className = `info-modal ${type}`;
+  infoModal.style.display = 'block';
+
+  setTimeout(() => {
+    infoModal.style.display = 'none';
+  }, 3000);
 }
 
 document.addEventListener("DOMContentLoaded", () => {

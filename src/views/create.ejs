@@ -31,9 +31,10 @@
           <div id="color-picker-container" class="tools">
             <div class="tools-wrapper">
               <select class="select-grid" id="gridSizeSelector">
-                <option value="32">32x32</option>
-                <option value="16">16x16</option>
                 <option value="8">8x8</option>
+                <option value="16">16x16</option>
+                <option value="32">32x32</option>
+                
               </select>
               <button class="btn-grid" id="clearCanvasButton">clear canvas</button>
               <button id="toggleGridButton" href="#" class="btn-grid w-inline-block">hide grid</button>
@@ -43,7 +44,6 @@
               </div>
             </div>
 
-            <div class="tool-block-wrapper"></div>
             <div class="tool-block-wrapper">
               <div class="tool-block">
                 <p class="tool-title">color</p>
@@ -137,10 +137,12 @@
       <div id="modalImageContainer">
         <!-- SVG image will be inserted here -->
       </div>
+
       <!-- <label for="imageTitle">Title</label> -->
       <input type="text" id="imageTitle" name="imageTitle" placeholder="title" required>
       <!-- <label for="imageDescription">Description (optional, max 100 characters):</label> --> 
       <input type="text" id="imageDescription" placeholder="description" maxlength="100">
+      <p id="input-length">0/100</p>
       <div id="walletMessage" style="color: red; display: none;">
         Please connect your wallet to submit.
       </div>
