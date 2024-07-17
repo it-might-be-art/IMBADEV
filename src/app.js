@@ -35,8 +35,9 @@ app.get('/profile/:username', async (req, res) => {
       return res.status(404).send('user not found');
     }
     const isOwner = req.session.profile && req.session.profile.address === user.address;
-    res.render('profile', { title: `${user.name}'s Profile`, user, isOwner, profile: req.session.profile });
+    res.render('profile', { title: `${user.name}'s Profile`, user, isOwner, profile: req.session.profile, currentPage: 'profile' });
   } catch (error) {
+    console.error('Error fetching profile:', error);
     res.status(500).send(error.message);
   }
 });
@@ -46,7 +47,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/create', (req, res) => {
-  res.render('create', { title: 'create', currentPage: 'gallery', profile: req.session.profile });
+  res.render('create', { title: 'create', currentPage: 'create', profile: req.session.profile });
 });
 
 app.get('/gallery', (req, res) => {

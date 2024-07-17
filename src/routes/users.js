@@ -196,8 +196,20 @@ router.post('/authenticate', async (req, res) => {
 
     let user = await usersCollection.findOne({ address });
     if (!user) {
-      user = { address, createdAt: new Date(), name: `user${Date.now()}`, profilePicture: '' };
+      const hasNFT = await checkIfUserHasNFT(address);
+      user = {
+        address,
+        createdAt: new Date(),
+        name: `user${Date.now()}`,
+        profilePicture: '',
+        hasNFT,
+      };
       await usersCollection.insertOne(user);
+    } else {
+      // Aktualisieren Sie das hasNFT-Feld jedes Mal, wenn der Benutzer sich authentifiziert
+      const hasNFT = await checkIfUserHasNFT(address);
+      await usersCollection.updateOne({ address }, { $set: { hasNFT } });
+      user.hasNFT = hasNFT;
     }
 
     req.session.profile = user;
@@ -208,34 +220,41 @@ router.post('/authenticate', async (req, res) => {
 });
 
 // Route zum Abrufen des Benutzerprofils
-router.get('/profile/:username', async (req, res) => {
+router.get('/profile-data/:username', async (req, res) => {
   const username = req.params.username;
-  const profile = req.session.profile;
 
   try {
     const db = await connectToDatabase();
     const usersCollection = db.collection('users');
     const imagesCollection = db.collection('images');
+    const votesCollection = db.collection('votes');
     const user = await usersCollection.findOne({ name: username });
 
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
 
-    const isOwner = profile && profile.address === user.address;
-
-    // Bilder des Benutzers abrufen
     const images = await imagesCollection.find({ address: user.address }).toArray();
 
-    // Sicherstellen, dass das social-Objekt immer definiert ist
+    // Füge die Anzahl der Votes für jedes Bild hinzu
+    const imagesWithVotes = await Promise.all(images.map(async (image) => {
+      const votesCount = await votesCollection.countDocuments({ imageId: image._id });
+      return {
+        ...image,
+        votesCount
+      };
+    }));
+
     user.social = user.social || {};
 
-    res.json({ success: true, user, isOwner, images });
+    res.json({ success: true, user, images: imagesWithVotes });
   } catch (error) {
     console.error('Error fetching user profile:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 });
+
+
 
 // Route zum Aktualisieren des Benutzerprofils
 router.post('/update-profile', upload.single('profilePicture'), async (req, res) => {
@@ -266,6 +285,10 @@ router.post('/update-profile', upload.single('profilePicture'), async (req, res)
     if (profilePicture) {
       updateData.profilePicture = profilePicture;
     }
+
+    // Aktualisieren Sie das hasNFT-Feld jedes Mal, wenn das Profil aktualisiert wird
+    const hasNFT = await checkIfUserHasNFT(address);
+    updateData.hasNFT = hasNFT;
 
     const result = await usersCollection.updateOne({ address }, { $set: updateData });
 

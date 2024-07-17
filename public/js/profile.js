@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const profile = JSON.parse(localStorage.getItem('profile'));
       const username = window.location.pathname.split('/').pop();
 
-      const response = await fetch(`/api/users/profile/${username}`);
+      const response = await fetch(`/api/users/profile-data/${username}`);
       const result = await response.json();
 
       if (result.success) {
@@ -30,15 +30,21 @@ document.addEventListener("DOMContentLoaded", () => {
           if (uploadForm) uploadForm.style.display = 'none';
         } else {
           if (profileForm) profileForm.style.display = 'block';
-          if (uploadForm) profileForm.style.display = 'block';
+          if (uploadForm) uploadForm.style.display = 'block';
         }
 
         // Populate social media fields
-        const social = result.user.social || {};
-        if (document.getElementById('xUsername')) document.getElementById('xUsername').value = social.x || '';
-        if (document.getElementById('warpcastUsername')) document.getElementById('warpcastUsername').value = social.warpcast || '';
-        if (document.getElementById('lensUsername')) document.getElementById('lensUsername').value = social.lens || '';
-        if (document.getElementById('instagramUsername')) document.getElementById('instagramUsername').value = social.instagram || '';
+        if (result.user.social) {
+          const xUsernameInput = document.getElementById('xUsername');
+          const warpcastUsernameInput = document.getElementById('warpcastUsername');
+          const lensUsernameInput = document.getElementById('lensUsername');
+          const instagramUsernameInput = document.getElementById('instagramUsername');
+
+          if (xUsernameInput) xUsernameInput.value = result.user.social.x || '';
+          if (warpcastUsernameInput) warpcastUsernameInput.value = result.user.social.warpcast || '';
+          if (lensUsernameInput) lensUsernameInput.value = result.user.social.lens || '';
+          if (instagramUsernameInput) instagramUsernameInput.value = result.user.social.instagram || '';
+        }
 
         // Benutzerbilder laden
         const galleryElement = document.getElementById('uploaded-images');
@@ -82,6 +88,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const voteCount = document.createElement('span');
             voteCount.className = 'vote-count';
             voteCount.id = `vote-count-${image._id}`;
+            voteCount.textContent = image.votesCount || 0;
 
             voteWrapper.appendChild(voteButton);
             voteWrapper.appendChild(voteCount);

@@ -4,7 +4,7 @@
   <%- include('partials/header', { title: title }) %>
 </head>
 <body>
-  <%- include('partials/navigation', { profile: profile }) %>
+  <%- include('partials/navigation', { profile: profile, currentPage: currentPage }) %>
 
 <% if (!user) { %>
     <script>
@@ -19,6 +19,9 @@
         <div class="profile-block">
           <div id="profile-info" class="pfp">
             <img id="profile-picture-display" src="<%= user.profilePicture ? `/uploads/${user.profilePicture}` : '/images/default-profile-picture.png' %>" alt="Profile Picture" />
+            <% if (user.hasNFT) { %>
+              <img src="/images/nft-badge.svg" alt="PunkApepen Holder" class="nft-badge" />
+            <% } %>
           </div>
 
           <div id="vote-info">
