@@ -14,7 +14,7 @@ on:
         type: string
 
 env:
-  DEPLOYMENT_FOLDER: build  # Setze den Pfad auf das Build-Verzeichnis
+  DEPLOYMENT_FOLDER: ./
 
 jobs:
 # Please do not rename this job
