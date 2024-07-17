@@ -47,14 +47,6 @@ jobs:
       - name: Build project
         run: npm run build
 
-      - name: Ensure deployment folder exists
-        run: mkdir -p ${{ env.DEPLOYMENT_FOLDER }}
-
-      - name: List deployment folder contents for debugging
-        run: ls -alh ${{ env.DEPLOYMENT_FOLDER }}
-
-      - name: List root directory contents for debugging
-        run: ls -alh /
 
 # Please do not touch the following action
       - name: Store deployment content
