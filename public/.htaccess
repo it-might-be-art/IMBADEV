@@ -1,0 +1,9 @@
+# .htaccess Beispiel
+Options +FollowSymLinks
+RewriteEngine On
+
+# Erlaube den Zugriff auf alle Dateien
+<FilesMatch ".*">
+    Order allow,deny
+    Allow from all
+</FilesMatch>
