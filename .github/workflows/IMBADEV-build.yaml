@@ -14,7 +14,7 @@ on:
         type: string
 
 env:
-  DEPLOYMENT_FOLDER: /it-might-be-art
+  DEPLOYMENT_FOLDER: /kunden/homepages/42/d70874679/htdocs/it-might-be-art/it-might-be-art
 
 jobs:
 # Please do not rename this job
