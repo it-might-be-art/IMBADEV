@@ -22,7 +22,7 @@ jobs:
     name: build IMBADEV
     runs-on: ubuntu-latest
     steps:
-      - name: checkout
+      - name: checkout repository
         uses: actions/checkout@v4
         with:
           submodules: 'recursive'
@@ -47,15 +47,15 @@ jobs:
       - name: Build project
         run: npm run build
 
-      - name: List project root directory contents for debugging
-        run: ls -alh ${{ github.workspace }}
+      - name: Ensure deployment folder exists
+        run: mkdir -p ${{ env.DEPLOYMENT_FOLDER }}
+
+      - name: List deployment folder contents for debugging
+        run: ls -alh ${{ env.DEPLOYMENT_FOLDER }}
 
       - name: List root directory contents for debugging
         run: ls -alh /
 
-      - name: List deployment folder contents for debugging after build
-        run: ls -alh ${{ env.DEPLOYMENT_FOLDER }}
-        
 # Please do not touch the following action
       - name: Store deployment content
         uses: ionos-deploy-now/artifact-action@v1
