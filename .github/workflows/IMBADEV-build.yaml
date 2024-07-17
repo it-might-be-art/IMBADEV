@@ -38,12 +38,24 @@ jobs:
       - name: List deployment folder contents for debugging
         run: ls -alh ${{ env.DEPLOYMENT_FOLDER }}
 
-      - name: Build Node assets
-        env:
-          CI: true
-          SITE_URL: ${{ inputs.site-url }}
-        run: npm ci
+      - name: Install dependencies
+        run: npm install
 
+      - name: Run tests
+        run: npm test
+
+      - name: Build project
+        run: npm run build
+
+      - name: List project root directory contents for debugging
+        run: ls -alh ${{ github.workspace }}
+
+      - name: List root directory contents for debugging
+        run: ls -alh /
+
+      - name: List deployment folder contents for debugging after build
+        run: ls -alh ${{ env.DEPLOYMENT_FOLDER }}
+        
 # Please do not touch the following action
       - name: Store deployment content
         uses: ionos-deploy-now/artifact-action@v1
