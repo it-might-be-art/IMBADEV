@@ -33,7 +33,7 @@
           <% if (isOwner) { %>
           <form id="profile-form">
             <label for="profilePicture">Profile Picture:</label>
-            <input type="file" id="profilePicture" name="profilePicture" accept="image/*">
+            <input class="file-upload" type="file" id="profilePicture" name="profilePicture" accept="image/*">
             <label for="name">name:</label>
             <input type="text" id="name" name="name" value="<%= user.name %>" required>
             <label for="bio">bio:</label>
@@ -55,6 +55,7 @@
           </form>
           <% } %>
 
+          <% if (!isOwner) { %>
           <div id="profile-info">
             <div class="profile-details">
               <p><span id="display-name"><%= user.name %></span></p>
@@ -84,6 +85,7 @@
               <% } %>
             </div>
           </div>
+          <% } %>
         </div>
       </div>
 

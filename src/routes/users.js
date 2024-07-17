@@ -222,6 +222,7 @@ router.post('/authenticate', async (req, res) => {
 // Route zum Abrufen des Benutzerprofils
 router.get('/profile-data/:username', async (req, res) => {
   const username = req.params.username;
+  const profile = req.session.profile;
 
   try {
     const db = await connectToDatabase();
@@ -233,6 +234,8 @@ router.get('/profile-data/:username', async (req, res) => {
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
+
+    const isOwner = profile && profile.address === user.address;
 
     const images = await imagesCollection.find({ address: user.address }).toArray();
 
@@ -247,13 +250,45 @@ router.get('/profile-data/:username', async (req, res) => {
 
     user.social = user.social || {};
 
-    res.json({ success: true, user, images: imagesWithVotes });
+    res.json({ success: true, user, images: imagesWithVotes, isOwner });
+  } catch (error) {
+    console.error('Error fetching user profile data:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+
+router.get('/profile/:username', async (req, res) => {
+  const username = req.params.username;
+  const profile = req.session.profile;
+
+  try {
+    const db = await connectToDatabase();
+    const usersCollection = db.collection('users');
+    const imagesCollection = db.collection('images');
+    const user = await usersCollection.findOne({ name: username });
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    const isOwner = profile && profile.address === user.address;
+
+    // Bilder des Benutzers abrufen
+    const images = await imagesCollection.find({ address: user.address }).toArray();
+
+    // Sicherstellen, dass das social-Objekt immer definiert ist
+    user.social = user.social || {};
+
+    // Überprüfen, ob der Benutzer ein PunkApepen-NFT besitzt
+    const hasNFT = user.hasNFT;
+
+    res.render('profile', { title: 'Profile', user, isOwner, images, hasNFT, profile, currentPage: 'profile' });
   } catch (error) {
     console.error('Error fetching user profile:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 });
-
 
 
 // Route zum Aktualisieren des Benutzerprofils

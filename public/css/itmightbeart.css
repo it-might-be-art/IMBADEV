@@ -101,8 +101,15 @@ label {
   font-weight: 400;
   display: block;
 }
-
-button {
+/*
+input[type="file"] {
+  display: none;
+}
+*/
+button,
+.file-upload,
+input::file-selector-button,
+input[type="file"] {
     grid-column-gap: 8px;
     grid-row-gap: 8px;
     color: #000;
@@ -120,29 +127,11 @@ button {
     display: flex;
 }
 
-input::file-selector-button {
-    grid-column-gap: 8px;
-    grid-row-gap: 8px;
-    color: #000;
-    background-color: #7c7c7c;
-    border: 2px solid #7c7c7c;
-    align-items: center;
-    width: auto;
-    margin-top: 0;
-    margin-bottom: 1px;
-    margin-left: 0;
-    padding: 8px 16px;
-    font-size: 12px;
-    text-decoration: none;
-    display: flex;
-    transition: all .4s ease-in;
-}
+
+button:hover,
 input::file-selector-button:hover {
     background-color: rgba(124, 124, 124, .6);
-}
-
-button:hover {
-    background-color: rgba(124, 124, 124, .6);
+    color: #fff;
 }
 
 button[disabled], html input[disabled] {
@@ -152,6 +141,7 @@ button[disabled], html input[disabled] {
 button[disabled]:hover, html input[disabled]:hover {
     background-color: #7c7c7c;
 }
+
 
 nav {
   width: 100%;
@@ -240,8 +230,12 @@ input, textarea {
 }
 
 .delete-button {
-  background-color: #ff0000;
+  background-color: #EA3A2D;
+  border-color: #EA3A2D;
+  padding: 4px 16px;
+  margin-top: 4px;
 }
+
 .vote-button:hover,
 .vote-button.active {
     background-color: transparent;
@@ -265,6 +259,16 @@ input, textarea {
 }
 #vote-info p {
   margin-bottom: 0;
+}
+
+.text-content {
+    max-width: 800px;
+    text-align: center;
+}
+.text-content h2 {
+    color: #fff;
+    font-size: 18px;
+    margin: 16px 0px 8px 0px;
 }
 
 #gallery,
@@ -486,7 +490,7 @@ input, textarea {
 }
 
  #profile-picture-display {
-  width: 100%;
+  width: 80%;
   border-radius: 50%;
  }
  .checkmark {
@@ -508,6 +512,10 @@ input, textarea {
   display: flex;
   position: relative;
   overflow: hidden;
+}
+
+.section-top {
+    margin: 80px 0;
 }
 
 .padding-top {
@@ -749,6 +757,7 @@ input, textarea {
     align-items: center;
     width: 100%;
     padding-top: 40px;
+    margin-top: 80px;
     display: flex;
 }
 
@@ -835,7 +844,7 @@ input, textarea {
     max-width: 100%;
     margin-left: 0;
     margin-right: 0;
-    padding-top: 0;
+    padding-top: 80px;
     padding-bottom: 0;
 }
 .text-block.ideas {
@@ -1392,8 +1401,8 @@ input, textarea {
 }
 
 .footer-nav-wrapper {
-  justify-content: flex-end;
-  align-items: stretch;
+  justify-content: center;
+    align-items: stretch;
   width: 48%;
   display: flex;
 }
@@ -1401,22 +1410,20 @@ input, textarea {
 .smiley {
   width: 24px;
   height: 24px;
-  margin-bottom: 24px;
-  margin-right: 24px;
   position: absolute;
   top: auto;
-  bottom: 0%;
+  bottom: 40px;
   left: auto;
-  right: 0%;
+  right: 40px;
+  z-index: 666;
 }
-
+.smiley img {
+    width: 100%;
+}
 .paragraph-2 {
   font-size: 12px;
 }
 
-.full-block {
-  width: 48%;
-}
 
 .footer {
   flex-wrap: wrap;
@@ -1427,6 +1434,7 @@ input, textarea {
   padding-top: 40px;
   padding-left: 24px;
   padding-right: 24px;
+  padding-bottom: 24px;
   display: flex;
   position: relative;
   margin-top: 80px;
@@ -1448,7 +1456,8 @@ input, textarea {
   grid-column-gap: 24px;
   grid-row-gap: 24px;
   flex-direction: row;
-  justify-content: center;
+  display: flex;
+  justify-content: space-between;
   align-items: center;
   width: 100%;
   max-width: 1200px;
@@ -1464,12 +1473,13 @@ input, textarea {
   margin-bottom: 16px;
   font-size: 12px;
   display: flex;
+  flex-wrap: wrap;
 }
 
 .footer-signatur {
   justify-content: center;
   align-items: center;
-  width: 100%;
+  width: 20%;
   height: 60px;
   display: flex;
 }
@@ -1544,6 +1554,10 @@ input, textarea {
   margin-bottom: 8px;
   padding: 16px;
   display: flex;
+}
+
+.share-wrapper p {
+    margin-bottom: 0px; 
 }
 
 .share-text {
@@ -1683,6 +1697,20 @@ input, textarea {
     flex-direction: column;
     align-items: center;
 }
+.container-2.footer {
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+}
+    .footer-nav-wrapper, 
+    .full-block,
+    .footer-signatur,
+    .text-wrapper  {
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+    }
 
 }
 
@@ -1830,9 +1858,6 @@ input, textarea {
     margin-top: 0;
   }
 
-  .footer-nav-wrapper, .full-block {
-    width: 46%;
-  }
 
   .footer-signatur {
     margin-left: 0;
@@ -1946,19 +1971,11 @@ input, textarea {
     font-size: 12px;
   }
 
-  .footer-nav-wrapper {
-    flex-flow: wrap;
-    justify-content: center;
-    width: 100%;
-  }
 
   .paragraph-2 {
     text-align: center;
   }
 
-  .full-block {
-    width: 100%;
-  }
 
   .footer {
     padding-left: 16px;

@@ -75,8 +75,7 @@ document.addEventListener("DOMContentLoaded", () => {
             creator.innerHTML = `by <a href="/profile/${image.creatorName}">${image.creatorName}</a>`;
 
             infoWrapper.appendChild(title);
-            infoWrapper.appendChild(description); // Add description to the infoWrapper
-            //infoWrapper.appendChild(creator);
+            infoWrapper.appendChild(description);
 
             const voteWrapper = document.createElement('div');
             voteWrapper.className = 'vote-wrapper';
@@ -105,7 +104,6 @@ document.addEventListener("DOMContentLoaded", () => {
             imageElement.appendChild(img);
             imageElement.appendChild(infoWrapper);
             imageElement.appendChild(voteWrapper);
-            //imageElement.appendChild(progressBarWrapper);
 
             if (result.isOwner) {
               const deleteButton = document.createElement('button');
