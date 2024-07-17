@@ -20,13 +20,15 @@
           <div id="profile-info" class="pfp">
             <img id="profile-picture-display" src="<%= user.profilePicture ? `/uploads/${user.profilePicture}` : '/images/default-profile-picture.png' %>" alt="Profile Picture" />
             <% if (user.hasNFT) { %>
-              <img src="/images/nft-badge.svg" alt="PunkApepen Holder" class="nft-badge" />
+              <img src="/images/checkmark.svg" alt="PunkApepen Holder" class="checkmark" />
             <% } %>
           </div>
 
+          <!--
           <div id="vote-info">
             <p>Total Votes: <span id="vote-count">0</span></p>
           </div>
+          -->
 
           <% if (isOwner) { %>
           <form id="profile-form">
@@ -55,8 +57,8 @@
 
           <div id="profile-info">
             <div class="profile-details">
-              <p>Name: <span id="display-name"><%= user.name %></span></p>
-              <p>Bio: <span id="display-bio"><%= user.bio %></span></p>
+              <p><span id="display-name"><%= user.name %></span></p>
+              <p><span id="display-bio"><%= user.bio %></span></p>
             </div>
             <!-- Social Media Links -->
             <div class="social-links">
@@ -87,7 +89,6 @@
 
       <div class="content-wrapper">
         <div class="sub-wrapper">
-          <h2>submissions</h2>
           <div id="uploaded-images"></div>
         </div>
       </div>

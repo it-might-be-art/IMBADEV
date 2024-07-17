@@ -54,6 +54,14 @@ app.get('/gallery', (req, res) => {
   res.render('gallery', { title: 'gallery', currentPage: 'gallery', profile: req.session.profile });
 });
 
+app.get('/imprint', (req, res) => {
+  res.render('imprint', { title: 'imprint', currentPage: 'imprint', profile: req.session.profile });
+});
+
+app.get('/data-privacy', (req, res) => {
+  res.render('data-privacy', { title: 'data-privacy', currentPage: 'data-privacy', profile: req.session.profile });
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

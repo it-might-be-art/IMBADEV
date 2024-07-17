@@ -11,6 +11,21 @@
   --flex-gap: 16px;
 }
 
+@font-face {
+  font-family: 'Ibmplexmono';
+  src: url('../fonts/IBMPlexMono-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Ibmplexmono';
+  src: url('../fonts/IBMPlexMono-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 body {
   color: var(--grey);
   background-color: #000;
@@ -320,6 +335,7 @@ input, textarea {
   padding: 16px;
   position: sticky;
   top: 20px;
+  gap: 24px;
   
   display: flex;
     flex-direction: column;
@@ -328,7 +344,13 @@ input, textarea {
 
 #profile-info {
   width: 100%;
-  /*aspect-ratio: 1/1;*/
+  text-align: center;
+}
+
+#display-name {
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
 }
 
 .social-links {
@@ -345,6 +367,7 @@ input, textarea {
 .pfp {
   position: relative;
   text-align: center;
+
 }
 .pfp-over {
   position: absolute;
@@ -353,6 +376,32 @@ input, textarea {
   background: url(../images/pfp-overlay.svg);
   background-size: contain;
   background-position: 50%;
+}
+
+#cookie-consent {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: var(--imba-green);
+    padding: 15px;
+    text-align: center;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    align-items: center;
+    gap: 40px;
+}
+#cookie-consent p {margin-bottom: 0;}
+#cookie-consent button {
+    background-color: var(--black);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
 }
 
 #profile-form input, 
@@ -438,6 +487,14 @@ input, textarea {
 
  #profile-picture-display {
   width: 100%;
+  border-radius: 50%;
+ }
+ .checkmark {
+    width: 18px;
+    height: 18px;
+    position: absolute;
+    top: 0px;
+    right: 0px;
  }
 
 .section {
@@ -451,6 +508,10 @@ input, textarea {
   display: flex;
   position: relative;
   overflow: hidden;
+}
+
+.padding-top {
+    padding-top: 80px;
 }
 
 .section.creations {
@@ -496,8 +557,8 @@ input, textarea {
     color: #000;
     background-color: #7c7c7c;
     width: 100%;
-    padding-top: 8px;
-    padding-bottom: 8px;
+    padding: 8px 16px;
+    font-size: 12px;
 }
 .btn-grid {
     grid-column-gap: 8px;
@@ -2035,32 +2096,6 @@ input, textarea {
       font-size: 1.5em;
     }
 
-    @keyframes loading {
-      0% { opacity: 0; }
-      50% { opacity: 1; }
-      100% { opacity: 0; }
-    }
-
-    @media (min-width: 768px) {
-      .hero-grid {
-        grid-template-columns: repeat(6, 1fr);
-        grid-template-rows: repeat(4, 1fr);
-      }
-    }
-
-    @media (max-width: 767px) {
-      .hero-grid {
-        grid-template-columns: repeat(3, 1fr);
-        grid-template-rows: repeat(4, 1fr);
-      }
-    }
-
-    @media (max-width: 480px) {
-      .hero-grid {
-        grid-template-columns: repeat(2, 1fr);
-        grid-template-rows: repeat(4, 1fr);
-      }
-    }
 
 .progress-bar-wrapper {
   width: 100%;
@@ -2077,17 +2112,3 @@ input, textarea {
 }
 
 
-@font-face {
-  font-family: 'Ibmplexmono';
-  src: url('../fonts/IBMPlexMono-Regular.ttf') format('truetype');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Ibmplexmono';
-  src: url('../fonts/IBMPlexMono-Bold.ttf') format('truetype');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
