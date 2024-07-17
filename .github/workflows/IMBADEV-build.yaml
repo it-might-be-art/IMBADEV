@@ -14,7 +14,7 @@ on:
         type: string
 
 env:
-  DEPLOYMENT_FOLDER: ./
+  DEPLOYMENT_FOLDER: build  # Setze den Pfad auf das Build-Verzeichnis
 
 jobs:
 # Please do not rename this job
@@ -22,7 +22,7 @@ jobs:
     name: build IMBADEV
     runs-on: ubuntu-latest
     steps:
-      - name: checkout repository
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           submodules: 'recursive'
@@ -38,6 +38,14 @@ jobs:
       - name: Build project
         run: npm run build
 
+      - name: Remove node_modules
+        run: rm -rf node_modules
+
+      - name: List deployment folder contents for debugging
+        run: ls -alh ${{ env.DEPLOYMENT_FOLDER }}
+
+      - name: Calculate deployment folder size
+        run: du -sh ${{ env.DEPLOYMENT_FOLDER }}
 
 # Please do not touch the following action
       - name: Store deployment content
