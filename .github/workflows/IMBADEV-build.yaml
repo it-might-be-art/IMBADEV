@@ -32,6 +32,12 @@ jobs:
         with:
           node-version: v22.x
 
+      - name: Ensure deployment folder exists
+        run: mkdir -p ${{ env.DEPLOYMENT_FOLDER }}
+
+      - name: List deployment folder contents for debugging
+        run: ls -alh ${{ env.DEPLOYMENT_FOLDER }}
+
       - name: Build Node assets
         env:
           CI: true
