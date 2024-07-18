@@ -5,7 +5,7 @@ const path = require('path');
 // Clear the build directory
 const buildDir = path.join(__dirname, 'build');
 if (fs.existsSync(buildDir)) {
-  fs.rmdirSync(buildDir, { recursive: true });
+  fs.rmSync(buildDir, { recursive: true });
 }
 fs.mkdirSync(buildDir);
 
@@ -22,6 +22,25 @@ execSync('npm install --production', { cwd: buildDir, stdio: 'inherit' });
 const srcDir = path.join(__dirname, 'src');
 const destDir = path.join(buildDir, 'src');
 execSync(`cp -R ${srcDir} ${destDir}`);
+
+// Remove unnecessary files and directories
+const unnecessaryDirs = ['node_modules', 'logs', 'tests'];
+unnecessaryDirs.forEach(dir => {
+  const dirPath = path.join(buildDir, dir);
+  if (fs.existsSync(dirPath)) {
+    fs.rmSync(dirPath, { recursive: true });
+  }
+});
+
+const unnecessaryFiles = ['*.log'];
+unnecessaryFiles.forEach(pattern => {
+  const files = execSync(`find ${buildDir} -name "${pattern}" -type f`).toString().split('\n');
+  files.forEach(file => {
+    if (file) {
+      fs.unlinkSync(file);
+    }
+  });
+});
 
 // Create .env file
 const envContent = `
