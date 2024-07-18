@@ -10,7 +10,7 @@ if (fs.existsSync(buildDir)) {
 fs.mkdirSync(buildDir);
 
 // Copy necessary files to build directory
-const filesToCopy = ['package.json', 'package-lock.json', '.env'];
+const filesToCopy = ['package.json', 'package-lock.json'];
 filesToCopy.forEach(file => {
   fs.copyFileSync(path.join(__dirname, file), path.join(buildDir, file));
 });
@@ -22,5 +22,12 @@ execSync('npm install --production', { cwd: buildDir, stdio: 'inherit' });
 const srcDir = path.join(__dirname, 'src');
 const destDir = path.join(buildDir, 'src');
 execSync(`cp -R ${srcDir} ${destDir}`);
+
+// Create .env file
+const envContent = `
+MONGODB_URI=${process.env.MONGODB_URI}
+SESSION_SECRET=${process.env.SESSION_SECRET}
+`;
+fs.writeFileSync(path.join(buildDir, '.env'), envContent);
 
 console.log('Build script executed');
