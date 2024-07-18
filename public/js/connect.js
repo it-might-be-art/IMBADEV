@@ -15,6 +15,21 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  async function updateNavigation() {
+  const profile = JSON.parse(localStorage.getItem('profile'));
+  if (profile) {
+    const profileLink = document.getElementById('profile-link');
+    profileLink.href = `/profile/${profile.name}`;
+    profileLink.style.display = 'block';
+    document.getElementById('wallet-connect').style.display = 'none';
+    document.getElementById('wallet-disconnect').style.display = 'block';
+  } else {
+    document.getElementById('profile-link').style.display = 'none';
+    document.getElementById('wallet-connect').style.display = 'block';
+    document.getElementById('wallet-disconnect').style.display = 'none';
+  }
+}
+
   async function connectWallet() {
     try {
       const provider = await web3Modal.connect();
@@ -109,6 +124,9 @@ document.addEventListener("DOMContentLoaded", () => {
   if (walletDisconnectButton) {
     walletDisconnectButton.addEventListener('click', disconnectWallet);
   }
+
+  // Initiale Navigation aktualisieren, wenn die Seite geladen wird
+  document.addEventListener('DOMContentLoaded', updateNavigation);
 
   // Check connection status on page load
   const profile = JSON.parse(localStorage.getItem('profile'));
