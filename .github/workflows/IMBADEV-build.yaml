@@ -14,7 +14,7 @@ on:
         type: string
 
 env:
-  DEPLOYMENT_FOLDER: dist
+  DEPLOYMENT_FOLDER: ./
 
 jobs:
 # Please do not rename this job
@@ -42,6 +42,17 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: v22.x
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build project
+        run: npm run build
+
+      - name: Create .env file
+        run: |
+          echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" > .env
+          echo "SESSION_SECRET=${{ secrets.SESSION_SECRET }}" >> .env
 
       - name: Build Node assets
         env:
