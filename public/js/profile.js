@@ -236,6 +236,39 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  async function submitProfileForm(event) {
+  event.preventDefault();
+
+  const formData = new FormData(event.target);
+  const profile = JSON.parse(localStorage.getItem('profile'));
+  const address = profile ? profile.address : null;
+
+  if (!address) {
+    alert('No address found in localStorage');
+    return;
+  }
+
+  try {
+    const response = await fetch(`/api/users/update-profile?address=${address}`, {
+      method: 'POST',
+      body: formData
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      localStorage.setItem('profile', JSON.stringify(result.profile));
+      loadProfile();
+      updateNavigation(); // Navigation aktualisieren
+    } else {
+      alert(result.message);
+    }
+  } catch (error) {
+    console.error('Failed to update profile:', error);
+    alert('Failed to update profile');
+  }
+}
+
   const profileForm = document.getElementById('profile-form');
   if (profileForm) {
     profileForm.addEventListener('submit', submitProfileForm);

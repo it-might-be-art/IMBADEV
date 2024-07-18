@@ -1,0 +1,6 @@
+start:
+  command: npm start
+  port: 3000
+  environment:
+    - MONGODB_URI
+    - SESSION_SECRET
