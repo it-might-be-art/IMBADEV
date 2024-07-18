@@ -14,7 +14,7 @@ on:
         type: string
 
 env:
-  DEPLOYMENT_FOLDER: ./
+  DEPLOYMENT_FOLDER: ./build
 
 jobs:
 # Please do not rename this job
@@ -33,12 +33,22 @@ jobs:
           node-version: '22'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
+
+      - name: Build project
+        run: npm run build
 
       - name: Create .env file
         run: |
           echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" > .env
           echo "SESSION_SECRET=${{ secrets.SESSION_SECRET }}" >> .env
+      
+      - name: Clean up unnecessary files
+        run: |
+          rm -rf build/node_modules
+          rm -rf build/logs
+          rm -rf build/tests
+          find build -name "*.log" -type f -delete
 
 # Please do not touch the following action
       - name: Store deployment content
