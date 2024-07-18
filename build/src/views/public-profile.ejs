@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('partials/header', { title: title }) %>
+</head>
+<body>
+  <%- include('partials/navigation', { profile: profile }) %>
+
+  <section class="section">
+    <div class="container hero">
+      <div class="logo-wrapper"><img src="/images/smiley-svg.svg" loading="lazy" alt="" height="90">
+        <h1 class="heading"><%= user.name %>'s Public Profile</h1>
+      </div>
+      <div class="info-block">
+        <p>Wallet Address: <span id="wallet-address"><%= user.address %></span></p>
+        <div id="profile-info">
+          <img id="profile-picture-display" src="<%= user.profilePicture ? `/uploads/${user.profilePicture}` : '/images/default-profile-picture.png' %>" alt="Profile Picture" />
+          <div class="profile-details">
+            <p>Name: <span id="display-name"><%= user.name %></span></p>
+            <p>Bio: <span id="display-bio"><%= user.bio %></span></p>
+            <div id="vote-info">
+              <p>Total Votes: <span id="vote-count">0</span></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container hero">
+      <h2>Uploaded Images</h2>
+      <div id="uploaded-images"></div>
+    </div>
+  </section>
+
+  <%- include('partials/footer') %>
+  <script src="/js/common.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      const address = '<%= user.address %>';
+      await loadImages(`/api/users/images?address=${address}`, 'uploaded-images');
+    });
+  </script>
+</body>
+</html>
