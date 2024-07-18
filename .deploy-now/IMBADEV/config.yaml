@@ -1,3 +1,4 @@
+version: "1.0"  # Versionsnummer hinzufügen
 start:
   command: npm start
   port: 3000
