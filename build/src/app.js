@@ -53,7 +53,6 @@ app.get('/profile/:username', async (req, res) => {
   }
 });
 
-// Render views for different routes
 app.get('/create', (req, res) => {
   res.render('create', { title: 'Create', currentPage: 'create', profile: req.session.profile });
 });
