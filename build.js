@@ -48,7 +48,7 @@ if (fs.existsSync(publicDir)) {
 execSync('npm install --omit=dev', { cwd: buildDir, stdio: 'inherit' });
 
 // Remove unnecessary files and directories
-const unnecessaryDirs = ['logs', 'tests'];
+const unnecessaryDirs = ['logs', 'tests', 'node_modules'];
 unnecessaryDirs.forEach(dir => {
   const dirPath = path.join(buildDir, dir);
   if (fs.existsSync(dirPath)) {
@@ -56,7 +56,7 @@ unnecessaryDirs.forEach(dir => {
   }
 });
 
-const unnecessaryFiles = ['*.log'];
+const unnecessaryFiles = ['*.log', 'README.md', '.gitignore'];
 unnecessaryFiles.forEach(pattern => {
   const files = execSync(`find ${buildDir} -name "${pattern}" -type f`).toString().split('\n');
   files.forEach(file => {
@@ -76,6 +76,7 @@ SESSION_SECRET=${process.env.SESSION_SECRET}
   fs.writeFileSync(envPath, envContent);
 }
 
+// List all files in the build directory
 console.log('Files in build directory:');
 console.log(execSync(`ls -R ${buildDir}`).toString());
 
