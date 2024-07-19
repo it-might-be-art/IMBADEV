@@ -41,6 +41,13 @@ jobs:
       - name: Install production dependencies in build folder
         run: npm install --omit=dev --prefix build
 
+      - name: Prune node_modules
+        run: npm prune --production --prefix build
+
+      - name: Remove unnecessary files
+        run: |
+          find build/node_modules -type f \( -name "*.md" -o -name "*.ts" -o -name "*.map" \) -delete
+
       - name: Ensure .env file
         run: |
           echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" > build/.env
