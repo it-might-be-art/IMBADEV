@@ -32,20 +32,16 @@ jobs:
         with:
           node-version: v22.x
 
-      - name: Build Node assets
-        env:
-          CI: true
-          SITE_URL: ${{ inputs.site-url }}
-        run: |
-          npm ci
-          npm run build
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
+        run: npm run build
 
       - name: Ensure .env file
         run: |
-          if [ ! -f .env ]; then
-            echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" >> .env
-            echo "SESSION_SECRET=${{ secrets.SESSION_SECRET }}" >> .env
-          fi
+          echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" >> .env
+          echo "SESSION_SECRET=${{ secrets.SESSION_SECRET }}" >> .env
 
 # Please do not touch the following action
       - name: Store deployment content
