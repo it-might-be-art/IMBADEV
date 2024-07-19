@@ -1,4 +1,4 @@
-version: "1.0"  # Versionsnummer hinzufügen
+version: "1.0"
 start:
   command: node src/app.js
   port: 3000
