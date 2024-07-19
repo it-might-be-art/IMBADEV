@@ -44,6 +44,18 @@ if (fs.existsSync(publicDir)) {
   console.log(`Warning: ${publicDir} does not exist`);
 }
 
+// Ensure uploads directory exists
+const uploadsDir = path.join(publicDestDir, 'uploads');
+if (fs.existsSync(uploadsDir)) {
+  // Remove all files inside the uploads directory
+  fs.readdirSync(uploadsDir).forEach(file => {
+    const filePath = path.join(uploadsDir, file);
+    fs.rmSync(filePath, { recursive: true, force: true });
+  });
+} else {
+  fs.mkdirSync(uploadsDir);
+}
+
 // Install dependencies in build directory
 execSync('npm install --omit=dev', { cwd: buildDir, stdio: 'inherit' });
 
@@ -75,6 +87,20 @@ SESSION_SECRET=${process.env.SESSION_SECRET}
   `;
   fs.writeFileSync(envPath, envContent);
 }
+
+// Set permissions for all files in the build directory
+function setPermissions(dir) {
+  fs.readdirSync(dir).forEach(file => {
+    const fullPath = path.join(dir, file);
+    if (fs.lstatSync(fullPath).isDirectory()) {
+      setPermissions(fullPath);
+    } else {
+      fs.chmodSync(fullPath, '644'); // rw-r--r--
+    }
+  });
+}
+
+setPermissions(buildDir);
 
 // List all files in the build directory
 console.log('Files in build directory:');
