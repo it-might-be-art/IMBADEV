@@ -32,13 +32,16 @@ jobs:
         with:
           node-version: v22.x
 
-      - name: Build Node assets
-        env:
-          CI: true
-          MONGODB_URI: mongodb+srv://IMBA-Admin:J9aDWD22cqvqD@imba.rxfpayf.mongodb.net/?retryWrites=true&w=majority&appName=IMBA
-          SESSION_SECRET: nfqNHQRzs6rb8HqynxskZ3eece
-          SITE_URL: ${{ inputs.site-url }}
+      - name: Install dependencies
         run: npm ci
+
+      - name: Build project
+        run: npm run build
+
+      - name: Ensure .env file
+        run: |
+          echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" >> build/.env
+          echo "SESSION_SECRET=${{ secrets.SESSION_SECRET }}" >> build/.env
 
 # Please do not touch the following action
       - name: Store deployment content
