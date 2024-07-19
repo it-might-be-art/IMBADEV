@@ -37,6 +37,9 @@ jobs:
 
       - name: Build project
         run: npm run build
+        
+      - name: Copy node_modules to build folder
+        run: cp -R node_modules build/
 
       - name: Ensure .env file
         run: |
