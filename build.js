@@ -12,19 +12,43 @@ fs.mkdirSync(buildDir);
 // Copy necessary files to build directory
 const filesToCopy = ['package.json', 'package-lock.json'];
 filesToCopy.forEach(file => {
-  fs.copyFileSync(path.join(__dirname, file), path.join(buildDir, file));
+  const srcPath = path.join(__dirname, file);
+  const destPath = path.join(buildDir, file);
+  if (fs.existsSync(srcPath)) {
+    fs.copyFileSync(srcPath, destPath);
+  } else {
+    console.log(`Warning: ${srcPath} does not exist`);
+  }
 });
-
-// Install dependencies in build directory
-execSync('npm install --production', { cwd: buildDir, stdio: 'inherit' });
 
 // Copy src directory to build directory
 const srcDir = path.join(__dirname, 'src');
 const destDir = path.join(buildDir, 'src');
 execSync(`cp -R ${srcDir} ${destDir}`);
 
+// Copy utils directory to build directory (root level)
+const utilsDir = path.join(__dirname, 'utils');
+const utilsDestDir = path.join(buildDir, 'utils');
+if (fs.existsSync(utilsDir)) {
+  execSync(`cp -R ${utilsDir} ${utilsDestDir}`);
+} else {
+  console.log(`Warning: ${utilsDir} does not exist`);
+}
+
+// Copy public directory directly to build directory
+const publicDir = path.join(__dirname, 'public');
+const publicDestDir = path.join(buildDir, 'public');
+if (fs.existsSync(publicDir)) {
+  execSync(`cp -R ${publicDir} ${publicDestDir}`);
+} else {
+  console.log(`Warning: ${publicDir} does not exist`);
+}
+
+// Install dependencies in build directory
+execSync('npm install --omit=dev', { cwd: buildDir, stdio: 'inherit' });
+
 // Remove unnecessary files and directories
-const unnecessaryDirs = ['node_modules', 'logs', 'tests'];
+const unnecessaryDirs = ['logs', 'tests'];
 unnecessaryDirs.forEach(dir => {
   const dirPath = path.join(buildDir, dir);
   if (fs.existsSync(dirPath)) {
@@ -42,11 +66,17 @@ unnecessaryFiles.forEach(pattern => {
   });
 });
 
-// Create .env file
-const envContent = `
+// Create .env file if it doesn't already exist in the build directory
+const envPath = path.join(buildDir, '.env');
+if (!fs.existsSync(envPath)) {
+  const envContent = `
 MONGODB_URI=${process.env.MONGODB_URI}
 SESSION_SECRET=${process.env.SESSION_SECRET}
-`;
-fs.writeFileSync(path.join(buildDir, '.env'), envContent);
+  `;
+  fs.writeFileSync(envPath, envContent);
+}
+
+console.log('Files in build directory:');
+console.log(execSync(`ls -R ${buildDir}`).toString());
 
 console.log('Build script executed');
