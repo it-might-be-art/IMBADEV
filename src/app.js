@@ -8,6 +8,9 @@ const { MongoClient } = require('mongodb');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+console.log('Starting server...');
+console.log(`Environment variables: MONGODB_URI=${process.env.MONGODB_URI}, SESSION_SECRET=${process.env.SESSION_SECRET}`);
+
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
@@ -30,6 +33,7 @@ app.use(express.static(path.join(__dirname, '..', 'public')));
 
 // Define a default route for the home page
 app.get('/', (req, res) => {
+  console.log('Serving home page');
   res.render('index', { title: 'Home', currentPage: 'home', profile: req.session.profile });
 });
 
