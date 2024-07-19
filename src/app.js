@@ -1,12 +1,9 @@
+require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
 const path = require('path');
-const multer = require('multer');
 const bodyParser = require('body-parser');
-const dotenv = require('dotenv');
 const { MongoClient } = require('mongodb');
-
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -22,6 +19,13 @@ app.use(session({
   saveUninitialized: true,
 }));
 
+// Middleware to log requests
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url}`);
+  next();
+});
+
+// Serve static files from the public directory
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
 const usersRouter = require('./routes/users');
@@ -32,7 +36,7 @@ app.get('/profile/:username', async (req, res) => {
     const username = req.params.username;
     const user = await getUserByName(username);
     if (!user) {
-      return res.status(404).send('user not found');
+      return res.status(404).send('User not found');
     }
     const isOwner = req.session.profile && req.session.profile.address === user.address;
     res.render('profile', { title: `${user.name}'s Profile`, user, isOwner, profile: req.session.profile, currentPage: 'profile' });
@@ -47,19 +51,19 @@ app.get('/', (req, res) => {
 });
 
 app.get('/create', (req, res) => {
-  res.render('create', { title: 'create', currentPage: 'create', profile: req.session.profile });
+  res.render('create', { title: 'Create', currentPage: 'create', profile: req.session.profile });
 });
 
 app.get('/gallery', (req, res) => {
-  res.render('gallery', { title: 'gallery', currentPage: 'gallery', profile: req.session.profile });
+  res.render('gallery', { title: 'Gallery', currentPage: 'gallery', profile: req.session.profile });
 });
 
 app.get('/imprint', (req, res) => {
-  res.render('imprint', { title: 'imprint', currentPage: 'imprint', profile: req.session.profile });
+  res.render('imprint', { title: 'Imprint', currentPage: 'imprint', profile: req.session.profile });
 });
 
 app.get('/data-privacy', (req, res) => {
-  res.render('data-privacy', { title: 'data-privacy', currentPage: 'data-privacy', profile: req.session.profile });
+  res.render('data-privacy', { title: 'Data Privacy', currentPage: 'data-privacy', profile: req.session.profile });
 });
 
 app.listen(PORT, () => {
