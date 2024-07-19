@@ -38,10 +38,9 @@ jobs:
       - name: Build project
         run: npm run build
 
-      - name: Ensure .env file
+      - name: Copy .env file to build folder
         run: |
-          echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" >> .env
-          echo "SESSION_SECRET=${{ secrets.SESSION_SECRET }}" >> .env
+          cp .env build/.env
 
 # Please do not touch the following action
       - name: Store deployment content
