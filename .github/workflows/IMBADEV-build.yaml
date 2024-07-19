@@ -38,11 +38,6 @@ jobs:
       - name: Build project
         run: npm run build
 
-      - name: Ensure .env file
-        run: |
-          echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" >> build/.env
-          echo "SESSION_SECRET=${{ secrets.SESSION_SECRET }}" >> build/.env
-
 # Please do not touch the following action
       - name: Store deployment content
         uses: ionos-deploy-now/artifact-action@v1
