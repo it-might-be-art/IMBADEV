@@ -32,20 +32,16 @@ jobs:
         with:
           node-version: v22.x
 
-      - name: Build Node assets
-        env:
-          CI: true
-          SITE_URL: ${{ inputs.site-url }}
-        run: |
-          npm ci
-          npm run build
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
+        run: npm run build
 
       - name: Ensure .env file
         run: |
-          if [ ! -f .env ]; then
-            echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" >> .env
-            echo "SESSION_SECRET=${{ secrets.SESSION_SECRET }}" >> .env
-          fi
+          echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" >> build/.env
+          echo "SESSION_SECRET=${{ secrets.SESSION_SECRET }}" >> build/.env
 
 # Please do not touch the following action
       - name: Store deployment content
@@ -53,7 +49,7 @@ jobs:
         with:
           api-key: ${{ secrets.IONOS_API_KEY }}
           service-host: api-eu.ionos.space
-          project-id: 7a42739c-d74f-4263-8512-067cb299e738
+          project-id: d9c35c7c-9cea-4791-b37b-78a8d37a81ca
           branch-id: ${{ inputs.branch-id }}
           version: ${{ github.sha }}
           folder: ${{ env.DEPLOYMENT_FOLDER }}
