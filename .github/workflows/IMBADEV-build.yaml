@@ -38,13 +38,6 @@ jobs:
       - name: Build project
         run: npm run build
 
-      - name: Clean up unnecessary files
-        run: |
-          rm -rf build/node_modules
-          rm -rf build/logs
-          rm -rf build/tests
-          find build -name "*.log" -type f -delete
-
 # Please do not touch the following action
       - name: Store deployment content
         uses: ionos-deploy-now/artifact-action@v1
