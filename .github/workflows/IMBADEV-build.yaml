@@ -45,6 +45,7 @@ jobs:
           if [ ! -f .env ]; then
             echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" >> .env
             echo "SESSION_SECRET=${{ secrets.SESSION_SECRET }}" >> .env
+          fi
 
 # Please do not touch the following action
       - name: Store deployment content
