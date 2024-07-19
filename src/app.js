@@ -30,6 +30,7 @@ app.use(express.static(path.join(__dirname, '..', 'public')));
 
 // Define a default route for the home page
 app.get('/', (req, res) => {
+  console.log('Serving index.html');
   res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
 
@@ -41,6 +42,7 @@ app.get('/profile/:username', async (req, res) => {
     const username = req.params.username;
     const user = await getUserByName(username);
     if (!user) {
+      console.log('User not found:', username);
       return res.status(404).send('User not found');
     }
     const isOwner = req.session.profile && req.session.profile.address === user.address;
@@ -70,6 +72,7 @@ app.get('/data-privacy', (req, res) => {
 
 // Test route to check server functionality
 app.get('/test', (req, res) => {
+  console.log('Test route accessed');
   res.send('Test route is working');
 });
 
