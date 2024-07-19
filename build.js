@@ -59,6 +59,12 @@ if (fs.existsSync(uploadsDir)) {
 // Install dependencies in build directory
 execSync('npm install --omit=dev', { cwd: buildDir, stdio: 'inherit' });
 
+// Remove node_modules directory from build directory
+const nodeModulesDir = path.join(buildDir, 'node_modules');
+if (fs.existsSync(nodeModulesDir)) {
+  fs.rmSync(nodeModulesDir, { recursive: true });
+}
+
 // Remove unnecessary files and directories
 const unnecessaryDirs = ['logs', 'tests'];
 unnecessaryDirs.forEach(dir => {
