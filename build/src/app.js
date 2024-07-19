@@ -21,17 +21,17 @@ app.use(session({
 
 // Middleware to log requests
 app.use((req, res, next) => {
-  console.log(`${req.method} ${req.url}`);
+  console.log(`Received ${req.method} request for ${req.url}`);
   next();
-});
-
-app.use(express.static(path.join(__dirname, '..', 'public')));
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
 
 // Serve static files from the public directory
 app.use(express.static(path.join(__dirname, '..', 'public')));
+
+// Define a default route for the home page
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
+});
 
 const usersRouter = require('./routes/users');
 app.use('/api/users', usersRouter);
@@ -51,10 +51,7 @@ app.get('/profile/:username', async (req, res) => {
   }
 });
 
-app.get('/', (req, res) => {
-  res.render('index', { title: 'Home', currentPage: 'home', profile: req.session.profile });
-});
-
+// Render views for different routes
 app.get('/create', (req, res) => {
   res.render('create', { title: 'Create', currentPage: 'create', profile: req.session.profile });
 });
@@ -69,6 +66,11 @@ app.get('/imprint', (req, res) => {
 
 app.get('/data-privacy', (req, res) => {
   res.render('data-privacy', { title: 'Data Privacy', currentPage: 'data-privacy', profile: req.session.profile });
+});
+
+// Test route to check server functionality
+app.get('/test', (req, res) => {
+  res.send('Test route is working');
 });
 
 app.listen(PORT, () => {
