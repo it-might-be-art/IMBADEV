@@ -10,6 +10,9 @@ const PORT = process.env.PORT || 3000;
 
 console.log('Starting server...');
 console.log(`Environment variables: MONGODB_URI=${process.env.MONGODB_URI}, SESSION_SECRET=${process.env.SESSION_SECRET}`);
+// Log current directory and view path
+console.log(`Current directory: ${__dirname}`);
+console.log(`View path: ${path.join(__dirname, 'views')}`);
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
