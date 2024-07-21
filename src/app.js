@@ -10,7 +10,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 console.log('Starting server...');
-console.log(`Environment variables: MONGODB_URI=${process.env.MONGODB_URI}, SESSION_SECRET=${process.env.SESSION_SECRET}`);
+console.log(`Environment variables: MONGODB_URI=${process.env.MONGODB_URI ? 'set' : 'not set'}, SESSION_SECRET=${process.env.SESSION_SECRET ? 'set' : 'not set'}`);
 
 console.log(`Current directory: ${__dirname}`);
 console.log(`View path: ${path.join(__dirname, 'views')}`);
@@ -32,21 +32,27 @@ if (fs.existsSync(viewsPath)) {
 app.set('view engine', 'ejs');
 app.set('views', viewsPath);
 
+// Middleware
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(session({
-  secret: process.env.SESSION_SECRET,
+  secret: process.env.SESSION_SECRET || 'fallback_secret', // Fallback für Testzwecke
   resave: false,
   saveUninitialized: true,
 }));
 
+// Logging middleware
 app.use((req, res, next) => {
-  console.log(`Received ${req.method} request for ${req.url}`);
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
   next();
 });
 
-app.use(express.static(path.join(__dirname, '..', 'public')));
+// Statische Dateien
+const publicPath = path.join(__dirname, '..', 'public');
+console.log(`Serving static files from: ${publicPath}`);
+app.use(express.static(publicPath));
 
+// Routes
 app.get('/', (req, res) => {
   console.log('Serving home page');
   res.render('index', { title: 'Home', currentPage: 'home', profile: req.session.profile }, (err, html) => {
@@ -103,9 +109,16 @@ app.get('/test', (req, res) => {
   res.send('Test route is working');
 });
 
+// 404 handler
 app.use((req, res, next) => {
-  console.log(`Unhandled route: ${req.method} ${req.url}`);
+  console.log(`404 Not Found: ${req.method} ${req.url}`);
   res.status(404).send('Not Found');
+});
+
+// Error handler
+app.use((err, req, res, next) => {
+  console.error('Server error:', err);
+  res.status(500).send('Internal Server Error');
 });
 
 app.listen(PORT, () => {
