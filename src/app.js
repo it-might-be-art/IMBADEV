@@ -4,18 +4,34 @@ const session = require('express-session');
 const path = require('path');
 const bodyParser = require('body-parser');
 const { MongoClient } = require('mongodb');
+const fs = require('fs');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 console.log('Starting server...');
 console.log(`Environment variables: MONGODB_URI=${process.env.MONGODB_URI}, SESSION_SECRET=${process.env.SESSION_SECRET}`);
-// Log current directory and view path
+
 console.log(`Current directory: ${__dirname}`);
 console.log(`View path: ${path.join(__dirname, 'views')}`);
+console.log(`Public path: ${path.join(__dirname, '..', 'public')}`);
+
+// Verify views directory and index.ejs existence
+const viewsPath = path.join(__dirname, 'views');
+const indexPath = path.join(viewsPath, 'index.ejs');
+if (fs.existsSync(viewsPath)) {
+  console.log('Views directory exists');
+  if (fs.existsSync(indexPath)) {
+    console.log('index.ejs exists');
+  } else {
+    console.log('index.ejs does not exist');
+  }
+} else {
+  console.log('Views directory does not exist');
+}
 
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
+app.set('views', viewsPath);
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
