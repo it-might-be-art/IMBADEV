@@ -1,6 +1,0 @@
-version: "1.0"
-start:
-  command: node src/app.js
-  environment:
-    - MONGODB_URI
-    - SESSION_SECRET
