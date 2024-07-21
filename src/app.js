@@ -6,8 +6,14 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const { MongoClient } = require('mongodb');
 const fs = require('fs');
+const cors = require('cors');
 
 const app = express();
+
+app.use(cors({
+  origin: 'https://home-5016105409.app-ionos.space',
+  optionsSuccessStatus: 200
+}));
 
 console.log('Starting server...');
 console.log(`Environment variables: MONGODB_URI=${process.env.MONGODB_URI ? 'set' : 'not set'}, SESSION_SECRET=${process.env.SESSION_SECRET ? 'set' : 'not set'}`);
@@ -145,7 +151,10 @@ function normalizePort(val) {
   return false;
 }
 
-const port = normalizePort(process.env.PORT || '3000');
+const port = process.env.PORT || 3000;
+server.listen(port, '0.0.0.0', () => {
+  console.log(`Server is running on port ${port}`);
+});
 app.set('port', port);
 
 // Server creation
