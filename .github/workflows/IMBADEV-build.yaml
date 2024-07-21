@@ -15,6 +15,7 @@ on:
 
 env:
   DEPLOYMENT_FOLDER: build
+  IONOS_DEPLOYMENT_TEST: false  # You can change this to true when needed
 
 jobs:
 # Please do not rename this job
@@ -38,6 +39,7 @@ jobs:
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
           SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
           SITE_URL: ${{ inputs.site-url }}
+          IONOS_DEPLOYMENT_TEST: ${{ env.IONOS_DEPLOYMENT_TEST }}
         run: |
           npm ci
           npm run build
