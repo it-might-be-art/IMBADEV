@@ -16,7 +16,6 @@ console.log(`Current directory: ${__dirname}`);
 console.log(`View path: ${path.join(__dirname, 'views')}`);
 console.log(`Public path: ${path.join(__dirname, '..', 'public')}`);
 
-// Verify views directory and index.ejs existence
 const viewsPath = path.join(__dirname, 'views');
 const indexPath = path.join(viewsPath, 'index.ejs');
 if (fs.existsSync(viewsPath)) {
@@ -41,31 +40,13 @@ app.use(session({
   saveUninitialized: true,
 }));
 
-// Middleware to log requests
 app.use((req, res, next) => {
   console.log(`Received ${req.method} request for ${req.url}`);
   next();
 });
 
-// Serve static files from the public directory
-const publicPath = path.join(__dirname, '..', 'public');
-app.use(express.static(publicPath));
+app.use(express.static(path.join(__dirname, '..', 'public')));
 
-// Log static file serving
-app.use((req, res, next) => {
-  if (req.url.startsWith('/public')) {
-    console.log(`Serving static file: ${req.url}`);
-  }
-  next();
-});
-
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error('An error occurred:', err);
-  res.status(500).send('An error occurred');
-});
-
-// Define a default route for the home page
 app.get('/', (req, res) => {
   console.log('Serving home page');
   res.render('index', { title: 'Home', currentPage: 'home', profile: req.session.profile }, (err, html) => {
@@ -97,7 +78,6 @@ app.get('/profile/:username', async (req, res) => {
   }
 });
 
-// Render views for different routes
 app.get('/create', (req, res) => {
   console.log('Serving create page');
   res.render('create', { title: 'Create', currentPage: 'create', profile: req.session.profile });
@@ -118,7 +98,6 @@ app.get('/data-privacy', (req, res) => {
   res.render('data-privacy', { title: 'Data Privacy', currentPage: 'data-privacy', profile: req.session.profile });
 });
 
-// Test route to check server functionality
 app.get('/test', (req, res) => {
   console.log('Test route accessed');
   res.send('Test route is working');
