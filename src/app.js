@@ -9,6 +9,7 @@ const fs = require('fs');
 const cors = require('cors');
 
 const app = express();
+const PORT = process.env.PORT || 3000;
 
 console.log('Starting server...');
 console.log(`Environment variables: MONGODB_URI=${process.env.MONGODB_URI ? 'set' : 'not set'}, SESSION_SECRET=${process.env.SESSION_SECRET ? 'set' : 'not set'}`);
@@ -34,6 +35,7 @@ app.set('view engine', 'ejs');
 app.set('views', viewsPath);
 
 // Middleware
+app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(session({
@@ -42,19 +44,13 @@ app.use(session({
   saveUninitialized: true,
 }));
 
-// CORS middleware
-app.use(cors({
-  origin: 'https://home-5016105409.app-ionos.space',
-  optionsSuccessStatus: 200
-}));
-
 // Logging middleware
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
   next();
 });
 
-// Statische Dateien
+// Serve static files
 const publicPath = path.join(__dirname, '..', 'public');
 console.log(`Serving static files from: ${publicPath}`);
 app.use(express.static(publicPath));
@@ -111,13 +107,13 @@ app.get('/data-privacy', (req, res) => {
   res.render('data-privacy', { title: 'Data Privacy', currentPage: 'data-privacy', profile: req.session.profile });
 });
 
-app.get('/test', (req, res) => {
+app.get('/api/test', (req, res) => {
   console.log('Test route accessed');
-  res.send('Test route is working');
+  res.json({ message: 'API is working' });
 });
 
 // 404 handler
-app.use((req, res, next) => {
+app.use((req, res) => {
   console.log(`404 Not Found: ${req.method} ${req.url}`);
   res.status(404).send('Not Found');
 });
@@ -145,11 +141,10 @@ async function getUserByName(name) {
 }
 
 // Server creation and start
-const port = process.env.PORT || 3000;
 const server = http.createServer(app);
 
-server.listen(port, '0.0.0.0', () => {
-  console.log(`Server is running on port ${port}`);
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server is running on port ${PORT}`);
 });
 
 // Error handling for server
@@ -158,9 +153,9 @@ server.on('error', (error) => {
     throw error;
   }
 
-  const bind = typeof port === 'string'
-    ? 'Pipe ' + port
-    : 'Port ' + port;
+  const bind = typeof PORT === 'string'
+    ? 'Pipe ' + PORT
+    : 'Port ' + PORT;
 
   switch (error.code) {
     case 'EACCES':
