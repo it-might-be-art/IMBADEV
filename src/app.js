@@ -34,7 +34,13 @@ app.use(express.static(path.join(__dirname, '..', 'public')));
 // Define a default route for the home page
 app.get('/', (req, res) => {
   console.log('Serving home page');
-  res.render('index', { title: 'Home', currentPage: 'home', profile: req.session.profile });
+  res.render('index', { title: 'Home', currentPage: 'home', profile: req.session.profile }, (err, html) => {
+    if (err) {
+      console.error('Error rendering index.ejs:', err);
+      return res.status(500).send('Error rendering page');
+    }
+    res.send(html);
+  });
 });
 
 const usersRouter = require('./routes/users');
