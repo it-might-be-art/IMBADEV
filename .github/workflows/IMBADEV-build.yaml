@@ -22,7 +22,7 @@ jobs:
     name: build IMBADEV
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: checkout
         uses: actions/checkout@v4
         with:
           submodules: 'recursive'
@@ -41,29 +41,10 @@ jobs:
       - name: Install production dependencies in build folder
         run: npm install --omit=dev --prefix build
 
-      - name: Prune node_modules
-        run: npm prune --production --prefix build
-
-      - name: Remove unnecessary files
-        run: |
-          find build/node_modules -type f \( -name "*.md" -o -name "*.ts" -o -name "*.map" \) -delete
-
       - name: Ensure .env file
         run: |
           echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" > build/.env
           echo "SESSION_SECRET=${{ secrets.SESSION_SECRET }}" >> build/.env
-
-      - name: Verify build folder contents
-        run: ls -l build
-        continue-on-error: true
-
-      - name: Verify .env file contents
-        run: cat build/.env
-        continue-on-error: true
-
-      - name: Verify node_modules size
-        run: du -sh build/node_modules
-        continue-on-error: true
 
 # Please do not touch the following action
       - name: Store deployment content
