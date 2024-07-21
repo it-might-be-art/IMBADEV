@@ -70,18 +70,22 @@ app.get('/profile/:username', async (req, res) => {
 
 // Render views for different routes
 app.get('/create', (req, res) => {
+  console.log('Serving create page');
   res.render('create', { title: 'Create', currentPage: 'create', profile: req.session.profile });
 });
 
 app.get('/gallery', (req, res) => {
+  console.log('Serving gallery page');
   res.render('gallery', { title: 'Gallery', currentPage: 'gallery', profile: req.session.profile });
 });
 
 app.get('/imprint', (req, res) => {
+  console.log('Serving imprint page');
   res.render('imprint', { title: 'Imprint', currentPage: 'imprint', profile: req.session.profile });
 });
 
 app.get('/data-privacy', (req, res) => {
+  console.log('Serving data privacy page');
   res.render('data-privacy', { title: 'Data Privacy', currentPage: 'data-privacy', profile: req.session.profile });
 });
 
