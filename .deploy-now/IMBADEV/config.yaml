@@ -1,6 +1,6 @@
 version: "1.0"
 start:
-  command: node src/app.js
+  command: npm start
   port: 3000
   environment:
     - MONGODB_URI
