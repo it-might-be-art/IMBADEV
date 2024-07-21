@@ -47,6 +47,10 @@ jobs:
           echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" > build/.env
           echo "SESSION_SECRET=${{ secrets.SESSION_SECRET }}" >> build/.env
 
+      - name: Start the application
+        run: build/node src/app.js &
+        continue-on-error: true
+
 # Please do not touch the following action
       - name: Store deployment content
         uses: ionos-deploy-now/artifact-action@v1
