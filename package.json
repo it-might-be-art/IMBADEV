@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node src/app.js",
-    "build": "mkdir -p build && cp -R src public package.json package-lock.json build/"
+    "build": "node build.js"
   },
   "keywords": [],
   "author": "",
