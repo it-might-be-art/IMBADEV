@@ -59,12 +59,6 @@ if (fs.existsSync(uploadsDir)) {
 // Install dependencies in build directory
 execSync('npm install --omit=dev', { cwd: buildDir, stdio: 'inherit' });
 
-// Remove node_modules directory from build directory
-const nodeModulesDir = path.join(buildDir, 'node_modules');
-if (fs.existsSync(nodeModulesDir)) {
-  fs.rmSync(nodeModulesDir, { recursive: true });
-}
-
 // Remove unnecessary files and directories
 const unnecessaryDirs = ['logs', 'tests'];
 unnecessaryDirs.forEach(dir => {
@@ -86,13 +80,11 @@ unnecessaryFiles.forEach(pattern => {
 
 // Create .env file if it doesn't already exist in the build directory
 const envPath = path.join(buildDir, '.env');
-if (!fs.existsSync(envPath)) {
-  const envContent = `
+const envContent = `
 MONGODB_URI=${process.env.MONGODB_URI}
 SESSION_SECRET=${process.env.SESSION_SECRET}
-  `;
-  fs.writeFileSync(envPath, envContent);
-}
+`;
+fs.writeFileSync(envPath, envContent);
 
 // Set permissions for all files in the build directory
 function setPermissions(dir) {
