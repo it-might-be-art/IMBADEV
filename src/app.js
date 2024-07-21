@@ -103,6 +103,11 @@ app.get('/test', (req, res) => {
   res.send('Test route is working');
 });
 
+app.use((req, res, next) => {
+  console.log(`Unhandled route: ${req.method} ${req.url}`);
+  res.status(404).send('Not Found');
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
