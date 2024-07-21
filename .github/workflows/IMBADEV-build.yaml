@@ -50,8 +50,18 @@ jobs:
           echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" > build/.env
           echo "SESSION_SECRET=${{ secrets.SESSION_SECRET }}" >> build/.env
 
+      - name: Verify build folder contents
+        run: ls -l build
+        continue-on-error: true
+
+      - name: Verify node_modules size
+        run: du -sh build/node_modules
+        continue-on-error: true
+
       - name: Start the application
-        run: node build/src/app.js
+        run: |
+          cd build
+          npm start
         continue-on-error: true
 
 # Please do not touch the following action
