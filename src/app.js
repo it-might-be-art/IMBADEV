@@ -8,11 +8,21 @@ const { MongoClient } = require('mongodb');
 const fs = require('fs');
 const cors = require('cors');
 
+console.log('Starting server initialization...');
+
+// IONOS Deployment Test
+const isIonosDeployment = process.env.IONOS_DEPLOYMENT_TEST === 'true';
+if (isIonosDeployment) {
+  console.log('IONOS Deployment Test: Configuration detected and working.');
+} else {
+  console.log('IONOS Deployment Test: Configuration not detected.');
+}
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 console.log('Starting server...');
-console.log(`Environment variables: MONGODB_URI=${process.env.MONGODB_URI ? 'set' : 'not set'}, SESSION_SECRET=${process.env.SESSION_SECRET ? 'set' : 'not set'}`);
+console.log(`Environment variables: MONGODB_URI=${process.env.MONGODB_URI ? 'set' : 'not set'}, SESSION_SECRET=${process.env.SESSION_SECRET ? 'set' : 'not set'}, IONOS_DEPLOYMENT_TEST=${process.env.IONOS_DEPLOYMENT_TEST ? 'set' : 'not set'}`);
 
 console.log(`Current directory: ${__dirname}`);
 console.log(`View path: ${path.join(__dirname, 'views')}`);
@@ -58,7 +68,13 @@ app.use(express.static(publicPath));
 // Routes
 app.get('/', (req, res) => {
   console.log('Serving home page');
-  res.render('index', { title: 'Home', currentPage: 'home', profile: req.session.profile }, (err, html) => {
+  const ionosTest = process.env.IONOS_DEPLOYMENT_TEST ? 'IONOS config detected' : 'IONOS config not detected';
+  res.render('index', { 
+    title: 'Home', 
+    currentPage: 'home', 
+    profile: req.session.profile,
+    ionosTest: ionosTest
+  }, (err, html) => {
     if (err) {
       console.error('Error rendering index.ejs:', err);
       return res.status(500).send('Error rendering page');
@@ -109,7 +125,7 @@ app.get('/data-privacy', (req, res) => {
 
 app.get('/api/test', (req, res) => {
   console.log('Test route accessed');
-  res.json({ message: 'API is working' });
+  res.json({ message: 'API is working', ionosTest: process.env.IONOS_DEPLOYMENT_TEST ? 'IONOS config detected' : 'IONOS config not detected' });
 });
 
 // 404 handler
@@ -170,3 +186,5 @@ server.on('error', (error) => {
       throw error;
   }
 });
+
+console.log('Server initialization complete.');

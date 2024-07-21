@@ -83,6 +83,7 @@ const envPath = path.join(buildDir, '.env');
 const envContent = `
 MONGODB_URI=${process.env.MONGODB_URI}
 SESSION_SECRET=${process.env.SESSION_SECRET}
+IONOS_DEPLOYMENT_TEST=${process.env.IONOS_DEPLOYMENT_TEST || 'false'}
 `;
 fs.writeFileSync(envPath, envContent);
 
