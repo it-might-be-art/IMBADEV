@@ -46,11 +46,11 @@ jobs:
         run: |
           find build/node_modules -type f \( -name "*.md" -o -name "*.ts" -o -name "*.map" \) -delete
 
-      - name: Start the application
+      - name: Prepare for deployment
         run: |
-          cd build
-          node src/app.js &
-        continue-on-error: true
+          cp .deploy-now/IMBADEV/config.yaml build/
+          cp package.json build/
+          cp package-lock.json build/
 
 # Please do not touch the following action
       - name: Store deployment content
