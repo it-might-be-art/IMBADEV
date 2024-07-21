@@ -64,6 +64,7 @@ app.get('/', (req, res) => {
       console.error('Error rendering index.ejs:', err);
       return res.status(500).send('Error rendering page');
     }
+    console.log('Rendered index.ejs successfully');
     res.send(html);
   });
 });
