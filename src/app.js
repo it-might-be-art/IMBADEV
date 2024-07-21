@@ -85,10 +85,16 @@ app.listen(PORT, () => {
 
 async function getUserByName(name) {
   const client = new MongoClient(process.env.MONGODB_URI);
-  await client.connect();
-  const db = client.db('IMBA');
-  const usersCollection = db.collection('users');
-  const user = await usersCollection.findOne({ name });
-  await client.close();
-  return user;
+  try {
+    await client.connect();
+    const db = client.db('IMBA');
+    const usersCollection = db.collection('users');
+    const user = await usersCollection.findOne({ name });
+    return user;
+  } catch (error) {
+    console.error('Database connection error:', error);
+    throw error;
+  } finally {
+    await client.close();
+  }
 }
