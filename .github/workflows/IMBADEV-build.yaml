@@ -48,7 +48,7 @@ jobs:
           echo "SESSION_SECRET=${{ secrets.SESSION_SECRET }}" >> build/.env
 
       - name: Start the application
-        run: build/node src/app.js &
+        run: node build/src/app.js &
         continue-on-error: true
 
 # Please do not touch the following action
