@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const http = require('http');
 const session = require('express-session');
 const path = require('path');
 const bodyParser = require('body-parser');
@@ -7,7 +8,6 @@ const { MongoClient } = require('mongodb');
 const fs = require('fs');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
 console.log('Starting server...');
 console.log(`Environment variables: MONGODB_URI=${process.env.MONGODB_URI ? 'set' : 'not set'}, SESSION_SECRET=${process.env.SESSION_SECRET ? 'set' : 'not set'}`);
@@ -121,10 +121,6 @@ app.use((err, req, res, next) => {
   res.status(500).send('Internal Server Error');
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
-
 async function getUserByName(name) {
   const client = new MongoClient(process.env.MONGODB_URI);
   try {
@@ -140,6 +136,20 @@ async function getUserByName(name) {
     await client.close();
   }
 }
+
+// Port setup
+function normalizePort(val) {
+  const port = parseInt(val, 10);
+  if (isNaN(port)) return val;
+  if (port >= 0) return port;
+  return false;
+}
+
+const port = normalizePort(process.env.PORT || '3000');
+app.set('port', port);
+
+// Server creation
+const server = http.createServer(app);
 
 function onError(error) {
   if (error.syscall !== 'listen') throw error;
@@ -166,10 +176,6 @@ function onListening() {
   console.log('Listening on ' + bind);
 }
 
-server.listen(port);
+server.listen(port, '0.0.0.0');
 server.on('error', onError);
 server.on('listening', onListening);
-
-app.listen(PORT, '0.0.0.0', () => {
-     console.log(`Server running on port ${PORT}`);
-   });
