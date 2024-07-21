@@ -52,7 +52,6 @@ jobs:
 
     - name: Start the application
         run: |
-          cd build
           npm start
         continue-on-error: true
 
