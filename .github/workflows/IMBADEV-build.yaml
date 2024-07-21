@@ -22,7 +22,7 @@ jobs:
     name: build IMBADEV
     runs-on: ubuntu-latest
     steps:
-      - name: checkout
+      - name: Checkout code
         uses: actions/checkout@v4
         with:
           submodules: 'recursive'
@@ -55,6 +55,10 @@ jobs:
 
       - name: Verify build folder contents
         run: ls -l build
+        continue-on-error: true
+
+      - name: Verify .env file contents
+        run: cat build/.env
         continue-on-error: true
 
       - name: Verify node_modules size
