@@ -10,11 +10,6 @@ const cors = require('cors');
 
 const app = express();
 
-app.use(cors({
-  origin: 'https://home-5016105409.app-ionos.space',
-  optionsSuccessStatus: 200
-}));
-
 console.log('Starting server...');
 console.log(`Environment variables: MONGODB_URI=${process.env.MONGODB_URI ? 'set' : 'not set'}, SESSION_SECRET=${process.env.SESSION_SECRET ? 'set' : 'not set'}`);
 
@@ -42,9 +37,15 @@ app.set('views', viewsPath);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'fallback_secret', // Fallback für Testzwecke
+  secret: process.env.SESSION_SECRET || 'fallback_secret',
   resave: false,
   saveUninitialized: true,
+}));
+
+// CORS middleware
+app.use(cors({
+  origin: 'https://home-5016105409.app-ionos.space',
+  optionsSuccessStatus: 200
 }));
 
 // Logging middleware
@@ -143,27 +144,23 @@ async function getUserByName(name) {
   }
 }
 
-// Port setup
-function normalizePort(val) {
-  const port = parseInt(val, 10);
-  if (isNaN(port)) return val;
-  if (port >= 0) return port;
-  return false;
-}
-
+// Server creation and start
 const port = process.env.PORT || 3000;
+const server = http.createServer(app);
+
 server.listen(port, '0.0.0.0', () => {
   console.log(`Server is running on port ${port}`);
 });
-app.set('port', port);
 
-// Server creation
-const server = http.createServer(app);
+// Error handling for server
+server.on('error', (error) => {
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
 
-function onError(error) {
-  if (error.syscall !== 'listen') throw error;
-  
-  const bind = typeof port === 'string' ? 'Pipe ' + port : 'Port ' + port;
+  const bind = typeof port === 'string'
+    ? 'Pipe ' + port
+    : 'Port ' + port;
 
   switch (error.code) {
     case 'EACCES':
@@ -177,14 +174,4 @@ function onError(error) {
     default:
       throw error;
   }
-}
-
-function onListening() {
-  const addr = server.address();
-  const bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port;
-  console.log('Listening on ' + bind);
-}
-
-server.listen(port, '0.0.0.0');
-server.on('error', onError);
-server.on('listening', onListening);
+});
