@@ -31,7 +31,7 @@ if (fs.existsSync(viewsPath)) {
 }
 
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
+app.set('views', viewsPath);
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -48,7 +48,16 @@ app.use((req, res, next) => {
 });
 
 // Serve static files from the public directory
-app.use(express.static(path.join(__dirname, '..', 'public')));
+const publicPath = path.join(__dirname, '..', 'public');
+app.use(express.static(publicPath));
+
+// Log static file serving
+app.use((req, res, next) => {
+  if (req.url.startsWith('/public')) {
+    console.log(`Serving static file: ${req.url}`);
+  }
+  next();
+});
 
 // Error handling middleware
 app.use((err, req, res, next) => {
