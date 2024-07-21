@@ -14,7 +14,7 @@ on:
         type: string
 
 env:
-  DEPLOYMENT_FOLDER: ./build
+  DEPLOYMENT_FOLDER: .
 
 jobs:
 # Please do not rename this job
@@ -49,11 +49,6 @@ jobs:
         run: |
           echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" > build/.env
           echo "SESSION_SECRET=${{ secrets.SESSION_SECRET }}" >> build/.env
-
-    - name: Start the application
-        run: |
-          npm start
-        continue-on-error: true
 
 # Please do not touch the following action
       - name: Store deployment content
