@@ -41,7 +41,12 @@ jobs:
         run: |
           npm ci
           npm run build
-          npm run start
+
+      - name: Start the application
+        run: |
+          cd build
+          node src/app.js &
+        continue-on-error: true
 
 # Please do not touch the following action
       - name: Store deployment content
