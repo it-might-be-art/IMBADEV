@@ -31,6 +31,12 @@ app.use((req, res, next) => {
 // Serve static files from the public directory
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('An error occurred:', err);
+  res.status(500).send('An error occurred');
+});
+
 // Define a default route for the home page
 app.get('/', (req, res) => {
   console.log('Serving home page');
