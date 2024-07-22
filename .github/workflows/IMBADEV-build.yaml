@@ -43,6 +43,16 @@ jobs:
           npm ci
           npm run build
 
+      - name: Remove unnecessary files
+        run: |
+          find build/node_modules -type f \( -name "*.md" -o -name "*.ts" -o -name "*.map" \) -delete
+
+      - name: Prepare for deployment
+        run: |
+          cp .deploy-now/IMBADEV/config.yaml build/
+          cp package.json build/
+          cp package-lock.json build/
+
 # Please do not touch the following action
       - name: Store deployment content
         uses: ionos-deploy-now/artifact-action@v1
