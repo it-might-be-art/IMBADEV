@@ -12,11 +12,7 @@ console.log('Starting server initialization...');
 
 // IONOS Deployment Test
 const isIonosDeployment = process.env.IONOS_DEPLOYMENT_TEST === 'true';
-if (isIonosDeployment) {
-  console.log('IONOS Deployment Test: Configuration detected and working.');
-} else {
-  console.log('IONOS Deployment Test: Configuration not detected.');
-}
+console.log(`IONOS Deployment Test: ${isIonosDeployment ? 'Configuration detected' : 'Configuration not detected'}`);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -65,15 +61,20 @@ const publicPath = path.join(__dirname, '..', 'public');
 console.log(`Serving static files from: ${publicPath}`);
 app.use(express.static(publicPath));
 
+// Test route
+app.get('/test', (req, res) => {
+  console.log('Test route accessed');
+  res.send('Server is running. IONOS Deployment Test: ' + (isIonosDeployment ? 'Detected' : 'Not Detected'));
+});
+
 // Routes
 app.get('/', (req, res) => {
-  console.log('Serving home page');
-  const ionosTest = process.env.IONOS_DEPLOYMENT_TEST ? 'IONOS config detected' : 'IONOS config not detected';
+  console.log('Attempting to serve home page');
   res.render('index', { 
     title: 'Home', 
     currentPage: 'home', 
     profile: req.session.profile,
-    ionosTest: ionosTest
+    ionosTest: isIonosDeployment ? 'IONOS config detected' : 'IONOS config not detected'
   }, (err, html) => {
     if (err) {
       console.error('Error rendering index.ejs:', err);
@@ -88,6 +89,7 @@ const usersRouter = require('./routes/users');
 app.use('/api/users', usersRouter);
 
 app.get('/profile/:username', async (req, res) => {
+  console.log(`Attempting to fetch profile for ${req.params.username}`);
   try {
     const username = req.params.username;
     const user = await getUserByName(username);
@@ -124,8 +126,8 @@ app.get('/data-privacy', (req, res) => {
 });
 
 app.get('/api/test', (req, res) => {
-  console.log('Test route accessed');
-  res.json({ message: 'API is working', ionosTest: process.env.IONOS_DEPLOYMENT_TEST ? 'IONOS config detected' : 'IONOS config not detected' });
+  console.log('API test route accessed');
+  res.json({ message: 'API is working', ionosTest: isIonosDeployment ? 'IONOS config detected' : 'IONOS config not detected' });
 });
 
 // 404 handler
@@ -141,18 +143,22 @@ app.use((err, req, res, next) => {
 });
 
 async function getUserByName(name) {
+  console.log(`Attempting to fetch user: ${name}`);
   const client = new MongoClient(process.env.MONGODB_URI);
   try {
     await client.connect();
+    console.log('Connected to MongoDB');
     const db = client.db('IMBA');
     const usersCollection = db.collection('users');
     const user = await usersCollection.findOne({ name });
+    console.log(user ? `User found: ${name}` : `User not found: ${name}`);
     return user;
   } catch (error) {
     console.error('Database connection error:', error);
     throw error;
   } finally {
     await client.close();
+    console.log('Closed MongoDB connection');
   }
 }
 
@@ -165,6 +171,7 @@ server.listen(PORT, '0.0.0.0', () => {
 
 // Error handling for server
 server.on('error', (error) => {
+  console.error('Server startup error:', error);
   if (error.syscall !== 'listen') {
     throw error;
   }
@@ -185,6 +192,10 @@ server.on('error', (error) => {
     default:
       throw error;
   }
+});
+
+server.on('listening', () => {
+  console.log('Server is now listening for incoming requests');
 });
 
 console.log('Server initialization complete.');
