@@ -102,9 +102,10 @@ function setPermissions(dir) {
   fs.readdirSync(dir).forEach(file => {
     const fullPath = path.join(dir, file);
     if (fs.lstatSync(fullPath).isDirectory()) {
-      setPermissions(fullPath);
+      fs.chmodSync(fullPath, '755'); // rwxr-xr-x for directories
+      setPermissions(fullPath); // Recurse into subdirectories
     } else {
-      fs.chmodSync(fullPath, '644'); // rw-r--r--
+      fs.chmodSync(fullPath, '644'); // rw-r--r-- for files
     }
   });
 }

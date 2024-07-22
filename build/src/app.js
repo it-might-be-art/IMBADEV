@@ -9,6 +9,7 @@ const fs = require('fs');
 const cors = require('cors');
 
 console.log('Starting server initialization...');
+console.log('Environment variables at startup:', process.env);
 
 // IONOS Deployment Test
 const isIonosDeployment = process.env.IONOS_DEPLOYMENT_TEST === 'true';
