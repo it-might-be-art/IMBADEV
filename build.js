@@ -21,6 +21,16 @@ filesToCopy.forEach(file => {
   }
 });
 
+// Copy config.yaml to build directory
+const configSrcPath = path.join(__dirname, '.deploy-now', 'IMBADEV', 'config.yaml');
+const configDestPath = path.join(buildDir, 'config.yaml');
+if (fs.existsSync(configSrcPath)) {
+  fs.copyFileSync(configSrcPath, configDestPath);
+  console.log('config.yaml copied to build directory');
+} else {
+  console.log('Warning: config.yaml does not exist at path:', configSrcPath);
+}
+
 // Copy src directory to build directory
 const srcDir = path.join(__dirname, 'src');
 const destDir = path.join(buildDir, 'src');
@@ -104,5 +114,22 @@ setPermissions(buildDir);
 // List all files in the build directory
 console.log('Files in build directory:');
 console.log(execSync(`ls -R ${buildDir}`).toString());
+
+// After all copying is done, log the contents of the build directory
+console.log('Contents of build directory:');
+function logDirectoryContents(dir, indent = '') {
+  const items = fs.readdirSync(dir);
+  items.forEach(item => {
+    const fullPath = path.join(dir, item);
+    const stats = fs.statSync(fullPath);
+    if (stats.isDirectory()) {
+      console.log(`${indent}${item}/`);
+      logDirectoryContents(fullPath, indent + '  ');
+    } else {
+      console.log(`${indent}${item}`);
+    }
+  });
+}
+logDirectoryContents(buildDir);
 
 console.log('Build script executed');
