@@ -1,7 +1,6 @@
 const express = require('express');
 const session = require('express-session');
 const path = require('path');
-const multer = require('multer');
 const bodyParser = require('body-parser');
 const dotenv = require('dotenv');
 const { MongoClient } = require('mongodb');
@@ -12,10 +11,6 @@ const fs = require('fs');
 dotenv.config();
 
 const app = express();
-
-// Logging für Debugging
-console.log('Current directory:', __dirname);
-console.log('Netlify function root:', process.env.LAMBDA_TASK_ROOT);
 
 console.log('Starting ssr.js');
 console.log('Current directory:', __dirname);
@@ -29,7 +24,6 @@ console.log('EJS module path:', require.resolve('ejs'));
 app.engine('ejs', ejs.renderFile);
 app.set('view engine', 'ejs');
 app.set('views', path.join(process.env.LAMBDA_TASK_ROOT, 'src', 'views'));
-
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -48,7 +42,7 @@ app.get('/profile/:username', async (req, res) => {
     const username = req.params.username;
     const user = await getUserByName(username);
     if (!user) {
-      return res.status(404).send('user not found');
+      return res.status(404).send('User not found');
     }
     const isOwner = req.session.profile && req.session.profile.address === user.address;
     res.render('profile', { title: `${user.name}'s Profile`, user, isOwner, profile: req.session.profile, currentPage: 'profile' });
@@ -60,10 +54,10 @@ app.get('/profile/:username', async (req, res) => {
 
 app.get('/', (req, res) => {
   console.log('Attempting to render index view');
-  res.render('index', { 
-    title: 'Home', 
-    currentPage: 'home', 
-    profile: req.session.profile 
+  res.render('index', {
+    title: 'Home',
+    currentPage: 'home',
+    profile: req.session.profile
   }, (err, html) => {
     if (err) {
       console.error('Error rendering index view:', err);
@@ -75,19 +69,19 @@ app.get('/', (req, res) => {
 });
 
 app.get('/create', (req, res) => {
-  res.render('create', { title: 'create', currentPage: 'create', profile: req.session.profile });
+  res.render('create', { title: 'Create', currentPage: 'create', profile: req.session.profile });
 });
 
 app.get('/gallery', (req, res) => {
-  res.render('gallery', { title: 'gallery', currentPage: 'gallery', profile: req.session.profile });
+  res.render('gallery', { title: 'Gallery', currentPage: 'gallery', profile: req.session.profile });
 });
 
 app.get('/imprint', (req, res) => {
-  res.render('imprint', { title: 'imprint', currentPage: 'imprint', profile: req.session.profile });
+  res.render('imprint', { title: 'Imprint', currentPage: 'imprint', profile: req.session.profile });
 });
 
 app.get('/data-privacy', (req, res) => {
-  res.render('data-privacy', { title: 'data-privacy', currentPage: 'data-privacy', profile: req.session.profile });
+  res.render('data-privacy', { title: 'Data Privacy', currentPage: 'data-privacy', profile: req.session.profile });
 });
 
 // Database function
