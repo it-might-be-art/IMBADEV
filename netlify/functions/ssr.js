@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const dotenv = require('dotenv');
 const { MongoClient } = require('mongodb');
 const serverless = require('serverless-http');
+const ejs = require('ejs');
 const fs = require('fs');
 
 dotenv.config();
@@ -16,19 +17,11 @@ const app = express();
 console.log('Current directory:', __dirname);
 console.log('Netlify function root:', process.env.LAMBDA_TASK_ROOT);
 
-// Funktion zum Lesen von EJS-Dateien
-function readEjsFile(filename) {
-  return fs.readFileSync(path.join(process.env.LAMBDA_TASK_ROOT, 'src', 'views', filename), 'utf8');
-}
+// EJS Setup
+app.engine('ejs', ejs.renderFile);
+app.set('view engine', 'ejs');
+app.set('views', path.join(process.env.LAMBDA_TASK_ROOT, 'src', 'views'));
 
-// Einfache EJS-Rendering-Funktion
-function renderEjs(template, data) {
-  return template.replace(/<%=\s*([^%>]+)\s*%>/g, (match, p1) => {
-    return data[p1.trim()] || '';
-  }).replace(/<%-([\s\S]+?)%>/g, (match, p1) => {
-    return eval(p1);
-  });
-}
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -50,15 +43,7 @@ app.get('/profile/:username', async (req, res) => {
       return res.status(404).send('user not found');
     }
     const isOwner = req.session.profile && req.session.profile.address === user.address;
-    const template = readEjsFile('profile.ejs');
-    const html = renderEjs(template, { 
-      title: `${user.name}'s Profile`, 
-      user, 
-      isOwner, 
-      profile: req.session.profile, 
-      currentPage: 'profile' 
-    });
-    res.send(html);
+    res.render('profile', { title: `${user.name}'s Profile`, user, isOwner, profile: req.session.profile, currentPage: 'profile' });
   } catch (error) {
     console.error('Error fetching profile:', error);
     res.status(500).send(error.message);
@@ -67,45 +52,37 @@ app.get('/profile/:username', async (req, res) => {
 
 app.get('/', (req, res) => {
   console.log('Attempting to render index view');
-  try {
-    const template = readEjsFile('index.ejs');
-    const html = renderEjs(template, { 
-      title: 'Home', 
-      currentPage: 'home', 
-      profile: req.session.profile 
-    });
+  res.render('index', { 
+    title: 'Home', 
+    currentPage: 'home', 
+    profile: req.session.profile 
+  }, (err, html) => {
+    if (err) {
+      console.error('Error rendering index view:', err);
+      return res.status(500).send('Error rendering view: ' + err.message);
+    }
     console.log('Index view rendered successfully');
     res.send(html);
-  } catch (err) {
-    console.error('Error rendering index view:', err);
-    res.status(500).send('Error rendering view: ' + err.message);
-  }
+  });
 });
 
 app.get('/create', (req, res) => {
-  const template = readEjsFile('create.ejs');
-  const html = renderEjs(template, { title: 'create', currentPage: 'create', profile: req.session.profile });
-  res.send(html);
+  res.render('create', { title: 'create', currentPage: 'create', profile: req.session.profile });
 });
 
 app.get('/gallery', (req, res) => {
-  const template = readEjsFile('gallery.ejs');
-  const html = renderEjs(template, { title: 'gallery', currentPage: 'gallery', profile: req.session.profile });
-  res.send(html);
+  res.render('gallery', { title: 'gallery', currentPage: 'gallery', profile: req.session.profile });
 });
 
 app.get('/imprint', (req, res) => {
-  const template = readEjsFile('imprint.ejs');
-  const html = renderEjs(template, { title: 'imprint', currentPage: 'imprint', profile: req.session.profile });
-  res.send(html);
+  res.render('imprint', { title: 'imprint', currentPage: 'imprint', profile: req.session.profile });
 });
 
 app.get('/data-privacy', (req, res) => {
-  const template = readEjsFile('data-privacy.ejs');
-  const html = renderEjs(template, { title: 'data-privacy', currentPage: 'data-privacy', profile: req.session.profile });
-  res.send(html);
+  res.render('data-privacy', { title: 'data-privacy', currentPage: 'data-privacy', profile: req.session.profile });
 });
 
+// Database function
 async function getUserByName(name) {
   const client = new MongoClient(process.env.MONGODB_URI);
   try {
