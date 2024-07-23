@@ -25,25 +25,25 @@ filesToCopy.forEach(file => {
   }
 });
 
-// Copy src directory to build directory
+// Copy src directory to netlify/functions directory
 const srcDir = path.join(__dirname, 'src');
-const destDir = path.join(buildDir, 'src');
-execSync(`cp -R ${srcDir} ${destDir}`);
+const destDir = path.join(buildDir, 'netlify', 'functions');
+fs.cpSync(srcDir, destDir, { recursive: true });
 
 // Copy utils directory to build directory (root level)
 const utilsDir = path.join(__dirname, 'utils');
 const utilsDestDir = path.join(buildDir, 'utils');
 if (fs.existsSync(utilsDir)) {
-  execSync(`cp -R ${utilsDir} ${utilsDestDir}`);
+  fs.cpSync(utilsDir, utilsDestDir, { recursive: true });
 } else {
   console.log(`Warning: ${utilsDir} does not exist`);
 }
 
-// Copy public directory directly to build directory
+// Copy public directory to netlify/functions directory
 const publicDir = path.join(__dirname, 'public');
-const publicDestDir = path.join(buildDir, 'public');
+const publicDestDir = path.join(buildDir, 'netlify', 'functions', 'public');
 if (fs.existsSync(publicDir)) {
-  execSync(`cp -R ${publicDir} ${publicDestDir}`);
+  fs.cpSync(publicDir, publicDestDir, { recursive: true });
 } else {
   console.log(`Warning: ${publicDir} does not exist`);
 }
@@ -60,6 +60,16 @@ if (fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir);
 }
 
+// Copy netlify.toml to build directory
+const netlifyTomlPath = path.join(__dirname, 'netlify.toml');
+const netlifyTomlDestPath = path.join(buildDir, 'netlify.toml');
+if (fs.existsSync(netlifyTomlPath)) {
+  fs.copyFileSync(netlifyTomlPath, netlifyTomlDestPath);
+  console.log('netlify.toml copied to build directory');
+} else {
+  console.log('Warning: netlify.toml does not exist in the root directory');
+}
+
 // Create ssr.js in the functions directory
 const ssrContent = `
 const express = require('express');
@@ -71,30 +81,53 @@ const app = express();
 
 app.engine('ejs', ejs.renderFile);
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, '..', '..', 'src', 'views'));
 
-app.use(express.static(path.join(__dirname, '..', '..', 'public')));
+// Logging für Debugging
+console.log('Current directory:', __dirname);
+console.log('Netlify function root:', process.env.LAMBDA_TASK_ROOT);
 
-// Add your routes here
+// Setzen Sie den Pfad zu den Views
+app.set('views', path.join(process.env.LAMBDA_TASK_ROOT, 'src', 'views'));
+
+// Logging des gesetzten View-Pfads
+console.log('Views directory set to:', app.get('views'));
+
+// Statische Dateien
+app.use(express.static(path.join(process.env.LAMBDA_TASK_ROOT, 'public')));
+
+// Routen
 app.get('/', (req, res) => {
-  res.render('index', { title: 'Home', currentPage: 'home', profile: {} });
+  console.log('Attempting to render index view');
+  res.render('index', { 
+    title: 'Home', 
+    currentPage: 'home', 
+    profile: {} 
+  }, (err, html) => {
+    if (err) {
+      console.error('Error rendering index view:', err);
+      return res.status(500).send('Error rendering view');
+    }
+    res.send(html);
+  });
 });
 
-// Add other routes as needed
+// Weitere Routen hier hinzufügen
+
+// 404 Handler
+app.use((req, res) => {
+  res.status(404).send('404 Not Found');
+});
+
+// Error Handler
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).send('Internal Server Error');
+});
 
 module.exports.handler = serverless(app);
 `;
 
 fs.writeFileSync(path.join(functionsDir, 'ssr.js'), ssrContent);
-
-// Copy netlify.toml to build directory
-const netlifyTomlPath = path.join(__dirname, 'netlify.toml');
-const netlifyTomlDestPath = path.join(buildDir, 'netlify.toml');
-if (fs.existsSync(netlifyTomlPath)) {
-  fs.copyFileSync(netlifyTomlPath, netlifyTomlDestPath);
-} else {
-  console.log('Warning: netlify.toml does not exist in the root directory');
-}
 
 // Install dependencies in build directory
 execSync('npm install --omit=dev', { cwd: buildDir, stdio: 'inherit' });
@@ -141,11 +174,7 @@ function setPermissions(dir) {
 }
 setPermissions(buildDir);
 
-// List all files in the build directory
-console.log('Files in build directory:');
-console.log(execSync(`ls -R ${buildDir}`).toString());
-
-// After all copying is done, log the contents of the build directory
+// Log the final build directory structure
 console.log('Final build directory structure:');
 function logDirectoryStructure(dir, level = 0) {
   const indent = ' '.repeat(level * 2);

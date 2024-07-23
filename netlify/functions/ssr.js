@@ -10,13 +10,16 @@ app.set('view engine', 'ejs');
 
 // Logging für Debugging
 console.log('Current directory:', __dirname);
-console.log('Attempting to set views directory to:', path.join(__dirname, '..', '..', 'src', 'views'));
+console.log('Netlify function root:', process.env.LAMBDA_TASK_ROOT);
 
 // Setzen Sie den Pfad zu den Views
-app.set('views', path.join(__dirname, '..', '..', 'src', 'views'));
+app.set('views', path.join(process.env.LAMBDA_TASK_ROOT, 'src', 'views'));
+
+// Logging des gesetzten View-Pfads
+console.log('Views directory set to:', app.get('views'));
 
 // Statische Dateien
-app.use(express.static(path.join(__dirname, '..', '..', 'public')));
+app.use(express.static(path.join(process.env.LAMBDA_TASK_ROOT, 'public')));
 
 // Routen
 app.get('/', (req, res) => {

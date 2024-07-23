@@ -8,15 +8,47 @@ const app = express();
 
 app.engine('ejs', ejs.renderFile);
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, '..', '..', 'src', 'views'));
 
-app.use(express.static(path.join(__dirname, '..', '..', 'public')));
+// Logging für Debugging
+console.log('Current directory:', __dirname);
+console.log('Netlify function root:', process.env.LAMBDA_TASK_ROOT);
 
-// Add your routes here
+// Setzen Sie den Pfad zu den Views
+app.set('views', path.join(process.env.LAMBDA_TASK_ROOT, 'src', 'views'));
+
+// Logging des gesetzten View-Pfads
+console.log('Views directory set to:', app.get('views'));
+
+// Statische Dateien
+app.use(express.static(path.join(process.env.LAMBDA_TASK_ROOT, 'public')));
+
+// Routen
 app.get('/', (req, res) => {
-  res.render('index', { title: 'Home', currentPage: 'home', profile: {} });
+  console.log('Attempting to render index view');
+  res.render('index', { 
+    title: 'Home', 
+    currentPage: 'home', 
+    profile: {} 
+  }, (err, html) => {
+    if (err) {
+      console.error('Error rendering index view:', err);
+      return res.status(500).send('Error rendering view');
+    }
+    res.send(html);
+  });
 });
 
-// Add other routes as needed
+// Weitere Routen hier hinzufügen
+
+// 404 Handler
+app.use((req, res) => {
+  res.status(404).send('404 Not Found');
+});
+
+// Error Handler
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).send('Internal Server Error');
+});
 
 module.exports.handler = serverless(app);
