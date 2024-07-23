@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const dotenv = require('dotenv');
 const { MongoClient } = require('mongodb');
 const serverless = require('serverless-http');
+const ejs = require('ejs');
 
 dotenv.config();
 
