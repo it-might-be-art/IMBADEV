@@ -49,6 +49,10 @@ if (fs.existsSync(routesDir)) {
   console.log(`Warning: ${routesDir} does not exist`);
 }
 
+const viewsDir = path.join(__dirname, 'src', 'views');
+const viewsDestDir = path.join(buildDir, 'netlify', 'functions', 'src', 'views');
+fs.cpSync(viewsDir, viewsDestDir, { recursive: true });
+
 // Copy public directory to netlify/functions directory
 const publicDir = path.join(__dirname, 'public');
 const publicDestDir = path.join(buildDir, 'netlify', 'functions', 'public');
