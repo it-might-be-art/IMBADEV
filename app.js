@@ -59,7 +59,7 @@ app.get('/', (req, res) => {
   });
 });
 
-const usersRouter = require('./routes/users');
+const usersRouter = require('./src/routes/users');
 app.use('/api/users', usersRouter);
 
 app.get('/profile/:username', async (req, res) => {

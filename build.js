@@ -61,7 +61,7 @@ if (fs.existsSync(uploadsDir)) {
 }
 
 // Copy app.js as ssr.js to the functions directory
-const appJsPath = path.join(__dirname, 'src', 'app.js');
+const appJsPath = path.join(__dirname, 'app.js');
 const ssrJsDestPath = path.join(functionsDir, 'ssr.js');
 fs.copyFileSync(appJsPath, ssrJsDestPath);
 
