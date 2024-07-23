@@ -30,11 +30,12 @@ const srcDir = path.join(__dirname, 'src');
 const destDir = path.join(buildDir, 'netlify', 'functions');
 fs.cpSync(srcDir, destDir, { recursive: true });
 
-// Copy utils directory to build directory (root level)
+// Copy utils directory to netlify/functions directory
 const utilsDir = path.join(__dirname, 'utils');
-const utilsDestDir = path.join(buildDir, 'utils');
+const utilsDestDir = path.join(buildDir, 'netlify', 'functions', 'utils');
 if (fs.existsSync(utilsDir)) {
   fs.cpSync(utilsDir, utilsDestDir, { recursive: true });
+  console.log('Utils directory copied to netlify/functions');
 } else {
   console.log(`Warning: ${utilsDir} does not exist`);
 }

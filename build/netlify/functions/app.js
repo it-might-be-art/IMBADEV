@@ -5,14 +5,14 @@ const multer = require('multer');
 const bodyParser = require('body-parser');
 const dotenv = require('dotenv');
 const { MongoClient } = require('mongodb');
+const serverless = require('serverless-http');
 
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3001;
 
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
+app.set('views', path.join(__dirname, 'src', 'views'));
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -22,7 +22,7 @@ app.use(session({
   saveUninitialized: true,
 }));
 
-app.use(express.static(path.join(__dirname, '..', 'public')));
+app.use(express.static(path.join(__dirname, 'public')));
 
 const usersRouter = require('./routes/users');
 app.use('/api/users', usersRouter);
@@ -62,10 +62,6 @@ app.get('/data-privacy', (req, res) => {
   res.render('data-privacy', { title: 'data-privacy', currentPage: 'data-privacy', profile: req.session.profile });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
-
 async function getUserByName(name) {
   const client = new MongoClient(process.env.MONGODB_URI);
   await client.connect();
@@ -75,3 +71,6 @@ async function getUserByName(name) {
   await client.close();
   return user;
 }
+
+// Fügen Sie diese Zeile am Ende der Datei hinzu
+module.exports.handler = serverless(app);
