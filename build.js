@@ -7,7 +7,7 @@ const buildDir = path.join(__dirname, 'build');
 if (fs.existsSync(buildDir)) {
   fs.rmSync(buildDir, { recursive: true });
 }
-fs.mkdirSync(buildDir);
+fs.mkdirSync(buildDir, { recursive: true });
 
 // Create netlify/functions directory
 const functionsDir = path.join(buildDir, 'netlify', 'functions');
@@ -30,18 +30,18 @@ const srcDir = path.join(__dirname, 'src');
 const destDir = path.join(buildDir, 'netlify', 'functions', 'src');
 fs.cpSync(srcDir, destDir, { recursive: true });
 
-// Copy utils directory to netlify/functions directory
+// Copy utils directory to netlify/functions/src directory
 const utilsDir = path.join(__dirname, 'utils');
-const utilsDestDir = path.join(buildDir, 'netlify', 'functions', 'utils');
+const utilsDestDir = path.join(buildDir, 'netlify', 'functions', 'src', 'utils');
 if (fs.existsSync(utilsDir)) {
   fs.cpSync(utilsDir, utilsDestDir, { recursive: true });
 } else {
   console.log(`Warning: ${utilsDir} does not exist`);
 }
 
-// Copy public directory to netlify/functions directory
+// Copy public directory to netlify/functions/src directory
 const publicDir = path.join(__dirname, 'public');
-const publicDestDir = path.join(buildDir, 'netlify', 'functions', 'public');
+const publicDestDir = path.join(buildDir, 'netlify', 'functions', 'src', 'public');
 if (fs.existsSync(publicDir)) {
   fs.cpSync(publicDir, publicDestDir, { recursive: true });
 } else {
