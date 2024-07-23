@@ -39,7 +39,7 @@ app.use(session({
 }));
 app.use(express.static(path.join(process.env.LAMBDA_TASK_ROOT, 'public')));
 
-const usersRouter = require('./src/routes/users');
+const usersRouter = require('src/routes/users');
 app.use('/api/users', usersRouter);
 
 app.get('/profile/:username', async (req, res) => {
