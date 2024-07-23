@@ -3,7 +3,7 @@ const router = express.Router();
 const { MongoClient, ObjectId } = require('mongodb');
 const multer = require('multer');
 const path = require('path');
-const { checkIfUserHasNFT } = rrequire('../utils/nftUtils');
+const { checkIfUserHasNFT } = require('../utils/nftUtils');
 
 const uri = process.env.MONGODB_URI;
 const client = new MongoClient(uri);
