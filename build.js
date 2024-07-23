@@ -75,8 +75,8 @@ const appJsPath = path.join(__dirname, 'src', 'app.js');
 const ssrJsDestPath = path.join(functionsDir, 'ssr.js');
 fs.copyFileSync(appJsPath, ssrJsDestPath);
 
-// Install dependencies in build directory
-execSync('npm install --omit=dev', { cwd: buildDir, stdio: 'inherit' });
+console.log('Installing dependencies...');
+execSync('npm install', { cwd: buildDir, stdio: 'inherit' });
 
 // Remove unnecessary files and directories
 const unnecessaryDirs = ['logs', 'tests'];
@@ -137,5 +137,8 @@ function logDirectoryStructure(dir, level = 0) {
   });
 }
 logDirectoryStructure(buildDir);
+
+const buildPackageJson = require(path.join(buildDir, 'package.json'));
+console.log('Build directory dependencies:', buildPackageJson.dependencies);
 
 console.log('Build script executed');

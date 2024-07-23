@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const dotenv = require('dotenv');
 const { MongoClient } = require('mongodb');
 const serverless = require('serverless-http');
+const ejs = require('ejs');
 
 dotenv.config();
 
@@ -99,5 +100,7 @@ app.use((err, req, res, next) => {
 app.use((req, res, next) => {
   res.status(404).send("Sorry, that route doesn't exist.");
 });
+
+console.log('Loaded modules:', Object.keys(require.cache));
 
 module.exports.handler = serverless(app);
