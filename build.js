@@ -79,7 +79,6 @@ const appJsPath = path.join(__dirname, 'src', 'app.js');
 const ssrJsDestPath = path.join(functionsDir, 'ssr.js');
 fs.copyFileSync(appJsPath, ssrJsDestPath);
 
-// Installation von ejs sicherstellen
 console.log('Installing dependencies in the functions directory...');
 execSync('npm install ejs', { 
   cwd: path.join(buildDir, 'netlify', 'functions'), 

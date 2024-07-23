@@ -1,9 +1,12 @@
 [build]
   command = "npm install && node build.js"
   functions = "build/netlify/functions"
+  publish = "build"
+
 [functions]
   node_bundler = "esbuild"
   included_files = ["src/views/**"]
+
 [[redirects]]
   from = "/*"
   to = "/.netlify/functions/ssr"
