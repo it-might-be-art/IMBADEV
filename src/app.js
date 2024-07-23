@@ -12,10 +12,6 @@ const server = http.createServer(app);
 console.log('Starting server initialization...');
 console.log('Environment variables at startup:', process.env);
 
-// IONOS Deployment Test
-const isIonosDeployment = process.env.IONOS_DEPLOYMENT_TEST === 'true';
-console.log(`IONOS Deployment Test: ${isIonosDeployment ? 'Configuration detected' : 'Configuration not detected'}`);
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -163,17 +159,6 @@ async function getUserByName(name) {
     console.log('Closed MongoDB connection');
   }
 }
-
-// Server creation and start
-const server = http.createServer(app);
-
-server.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server is running on port ${PORT}`);
-  console.log(`Environment: ${process.env.NODE_ENV}`);
-  console.log(`MongoDB URI: ${process.env.MONGODB_URI ? 'Set' : 'Not Set'}`);
-  console.log(`Session Secret: ${process.env.SESSION_SECRET ? 'Set' : 'Not Set'}`);
-  console.log(`IONOS Deployment Test: ${process.env.IONOS_DEPLOYMENT_TEST}`);
-});
 
 // Error handling for server
 server.on('error', (error) => {
