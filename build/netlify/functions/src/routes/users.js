@@ -3,7 +3,12 @@ const router = express.Router();
 const { MongoClient, ObjectId } = require('mongodb');
 const multer = require('multer');
 const path = require('path');
-const { checkIfUserHasNFT } = require('../utils/nftUtils');
+
+// Dynamically determine the base path
+const basePath = process.env.LAMBDA_TASK_ROOT ? path.join(process.env.LAMBDA_TASK_ROOT, 'utils') : path.join(__dirname, '../../utils');
+
+// Require the necessary module
+const { checkIfUserHasNFT } = require(basePath + '/nftUtils');
 
 const uri = process.env.MONGODB_URI;
 const client = new MongoClient(uri);

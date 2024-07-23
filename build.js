@@ -39,20 +39,6 @@ if (fs.existsSync(utilsDir)) {
   console.log(`Warning: ${utilsDir} does not exist`);
 }
 
-// Copy routes directory to netlify/functions directory
-const routesDir = path.join(__dirname, 'src', 'routes');
-const routesDestDir = path.join(buildDir, 'netlify', 'functions', 'routes');
-if (fs.existsSync(routesDir)) {
-  fs.cpSync(routesDir, routesDestDir, { recursive: true });
-  console.log('Routes directory copied to netlify/functions');
-} else {
-  console.log(`Warning: ${routesDir} does not exist`);
-}
-
-const viewsDir = path.join(__dirname, 'src', 'views');
-const viewsDestDir = path.join(buildDir, 'netlify', 'functions', 'src', 'views');
-fs.cpSync(viewsDir, viewsDestDir, { recursive: true });
-
 // Copy public directory to netlify/functions directory
 const publicDir = path.join(__dirname, 'public');
 const publicDestDir = path.join(buildDir, 'netlify', 'functions', 'public');
