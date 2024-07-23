@@ -27,7 +27,7 @@ filesToCopy.forEach(file => {
 
 // Copy src directory to netlify/functions directory
 const srcDir = path.join(__dirname, 'src');
-const destDir = path.join(buildDir, 'netlify', 'functions');
+const destDir = path.join(buildDir, 'netlify', 'functions', 'src');
 fs.cpSync(srcDir, destDir, { recursive: true });
 
 // Copy utils directory to netlify/functions directory
@@ -35,7 +35,6 @@ const utilsDir = path.join(__dirname, 'utils');
 const utilsDestDir = path.join(buildDir, 'netlify', 'functions', 'utils');
 if (fs.existsSync(utilsDir)) {
   fs.cpSync(utilsDir, utilsDestDir, { recursive: true });
-  console.log('Utils directory copied to netlify/functions');
 } else {
   console.log(`Warning: ${utilsDir} does not exist`);
 }
@@ -61,74 +60,10 @@ if (fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir);
 }
 
-// Copy netlify.toml to build directory
-const netlifyTomlPath = path.join(__dirname, 'netlify.toml');
-const netlifyTomlDestPath = path.join(buildDir, 'netlify.toml');
-if (fs.existsSync(netlifyTomlPath)) {
-  fs.copyFileSync(netlifyTomlPath, netlifyTomlDestPath);
-  console.log('netlify.toml copied to build directory');
-} else {
-  console.log('Warning: netlify.toml does not exist in the root directory');
-}
-
-// Create ssr.js in the functions directory
-const ssrContent = `
-const express = require('express');
-const serverless = require('serverless-http');
-const path = require('path');
-const ejs = require('ejs');
-
-const app = express();
-
-app.engine('ejs', ejs.renderFile);
-app.set('view engine', 'ejs');
-
-// Logging für Debugging
-console.log('Current directory:', __dirname);
-console.log('Netlify function root:', process.env.LAMBDA_TASK_ROOT);
-
-// Setzen Sie den Pfad zu den Views
-app.set('views', path.join(process.env.LAMBDA_TASK_ROOT, 'src', 'views'));
-
-// Logging des gesetzten View-Pfads
-console.log('Views directory set to:', app.get('views'));
-
-// Statische Dateien
-app.use(express.static(path.join(process.env.LAMBDA_TASK_ROOT, 'public')));
-
-// Routen
-app.get('/', (req, res) => {
-  console.log('Attempting to render index view');
-  res.render('index', { 
-    title: 'Home', 
-    currentPage: 'home', 
-    profile: {} 
-  }, (err, html) => {
-    if (err) {
-      console.error('Error rendering index view:', err);
-      return res.status(500).send('Error rendering view');
-    }
-    res.send(html);
-  });
-});
-
-// Weitere Routen hier hinzufügen
-
-// 404 Handler
-app.use((req, res) => {
-  res.status(404).send('404 Not Found');
-});
-
-// Error Handler
-app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(500).send('Internal Server Error');
-});
-
-module.exports.handler = serverless(app);
-`;
-
-fs.writeFileSync(path.join(functionsDir, 'ssr.js'), ssrContent);
+// Copy app.js as ssr.js to the functions directory
+const appJsPath = path.join(__dirname, 'src', 'app.js');
+const ssrJsDestPath = path.join(functionsDir, 'ssr.js');
+fs.copyFileSync(appJsPath, ssrJsDestPath);
 
 // Install dependencies in build directory
 execSync('npm install --omit=dev', { cwd: buildDir, stdio: 'inherit' });

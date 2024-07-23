@@ -1,54 +1,76 @@
-
 const express = require('express');
-const serverless = require('serverless-http');
+const session = require('express-session');
 const path = require('path');
-const ejs = require('ejs');
+const multer = require('multer');
+const bodyParser = require('body-parser');
+const dotenv = require('dotenv');
+const { MongoClient } = require('mongodb');
+const serverless = require('serverless-http');
+
+dotenv.config();
 
 const app = express();
 
-app.engine('ejs', ejs.renderFile);
 app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'src', 'views'));
 
-// Logging für Debugging
-console.log('Current directory:', __dirname);
-console.log('Netlify function root:', process.env.LAMBDA_TASK_ROOT);
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: true,
+}));
 
-// Setzen Sie den Pfad zu den Views
-app.set('views', path.join(process.env.LAMBDA_TASK_ROOT, 'src', 'views'));
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Logging des gesetzten View-Pfads
-console.log('Views directory set to:', app.get('views'));
+const usersRouter = require('./routes/users');
+app.use('/api/users', usersRouter);
 
-// Statische Dateien
-app.use(express.static(path.join(process.env.LAMBDA_TASK_ROOT, 'public')));
-
-// Routen
-app.get('/', (req, res) => {
-  console.log('Attempting to render index view');
-  res.render('index', { 
-    title: 'Home', 
-    currentPage: 'home', 
-    profile: {} 
-  }, (err, html) => {
-    if (err) {
-      console.error('Error rendering index view:', err);
-      return res.status(500).send('Error rendering view');
+app.get('/profile/:username', async (req, res) => {
+  try {
+    const username = req.params.username;
+    const user = await getUserByName(username);
+    if (!user) {
+      return res.status(404).send('user not found');
     }
-    res.send(html);
-  });
+    const isOwner = req.session.profile && req.session.profile.address === user.address;
+    res.render('profile', { title: `${user.name}'s Profile`, user, isOwner, profile: req.session.profile, currentPage: 'profile' });
+  } catch (error) {
+    console.error('Error fetching profile:', error);
+    res.status(500).send(error.message);
+  }
 });
 
-// Weitere Routen hier hinzufügen
-
-// 404 Handler
-app.use((req, res) => {
-  res.status(404).send('404 Not Found');
+app.get('/', (req, res) => {
+  res.render('index', { title: 'Home', currentPage: 'home', profile: req.session.profile });
 });
 
-// Error Handler
-app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(500).send('Internal Server Error');
+app.get('/create', (req, res) => {
+  res.render('create', { title: 'create', currentPage: 'create', profile: req.session.profile });
 });
 
+app.get('/gallery', (req, res) => {
+  res.render('gallery', { title: 'gallery', currentPage: 'gallery', profile: req.session.profile });
+});
+
+app.get('/imprint', (req, res) => {
+  res.render('imprint', { title: 'imprint', currentPage: 'imprint', profile: req.session.profile });
+});
+
+app.get('/data-privacy', (req, res) => {
+  res.render('data-privacy', { title: 'data-privacy', currentPage: 'data-privacy', profile: req.session.profile });
+});
+
+async function getUserByName(name) {
+  const client = new MongoClient(process.env.MONGODB_URI);
+  await client.connect();
+  const db = client.db('IMBA');
+  const usersCollection = db.collection('users');
+  const user = await usersCollection.findOne({ name });
+  await client.close();
+  return user;
+}
+
+// Fügen Sie diese Zeile am Ende der Datei hinzu
 module.exports.handler = serverless(app);
