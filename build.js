@@ -21,16 +21,6 @@ filesToCopy.forEach(file => {
   }
 });
 
-// Copy config.yaml to build directory
-const configSrcPath = path.join(__dirname, '.deploy-now', 'IMBADEV', 'config.yaml');
-const configDestPath = path.join(buildDir, 'config.yaml');
-if (fs.existsSync(configSrcPath)) {
-  fs.copyFileSync(configSrcPath, configDestPath);
-  console.log('config.yaml copied to build directory');
-} else {
-  console.log('Warning: config.yaml does not exist at path:', configSrcPath);
-}
-
 // Copy src directory to build directory
 const srcDir = path.join(__dirname, 'src');
 const destDir = path.join(buildDir, 'src');
