@@ -32,7 +32,7 @@ fs.cpSync(srcDir, destDir, { recursive: true });
 
 // Copy utils directory to netlify/functions/src directory
 const utilsDir = path.join(__dirname, 'utils');
-const utilsDestDir = path.join(buildDir, 'netlify', 'functions', 'src', 'utils');
+const utilsDestDir = path.join(buildDir, 'netlify', 'functions', 'utils');
 if (fs.existsSync(utilsDir)) {
   fs.cpSync(utilsDir, utilsDestDir, { recursive: true });
 } else {
