@@ -9,6 +9,10 @@ if (fs.existsSync(buildDir)) {
 }
 fs.mkdirSync(buildDir);
 
+// Create netlify/functions directory
+const functionsDir = path.join(buildDir, 'netlify', 'functions');
+fs.mkdirSync(functionsDir, { recursive: true });
+
 // Copy necessary files to build directory
 const filesToCopy = ['package.json', 'package-lock.json'];
 filesToCopy.forEach(file => {
@@ -56,6 +60,42 @@ if (fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir);
 }
 
+// Create ssr.js in the functions directory
+const ssrContent = `
+const express = require('express');
+const serverless = require('serverless-http');
+const path = require('path');
+const ejs = require('ejs');
+
+const app = express();
+
+app.engine('ejs', ejs.renderFile);
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, '..', '..', 'src', 'views'));
+
+app.use(express.static(path.join(__dirname, '..', '..', 'public')));
+
+// Add your routes here
+app.get('/', (req, res) => {
+  res.render('index', { title: 'Home', currentPage: 'home', profile: {} });
+});
+
+// Add other routes as needed
+
+module.exports.handler = serverless(app);
+`;
+
+fs.writeFileSync(path.join(functionsDir, 'ssr.js'), ssrContent);
+
+// Copy netlify.toml to build directory
+const netlifyTomlPath = path.join(__dirname, 'netlify.toml');
+const netlifyTomlDestPath = path.join(buildDir, 'netlify.toml');
+if (fs.existsSync(netlifyTomlPath)) {
+  fs.copyFileSync(netlifyTomlPath, netlifyTomlDestPath);
+} else {
+  console.log('Warning: netlify.toml does not exist in the root directory');
+}
+
 // Install dependencies in build directory
 execSync('npm install --omit=dev', { cwd: buildDir, stdio: 'inherit' });
 
@@ -99,7 +139,6 @@ function setPermissions(dir) {
     }
   });
 }
-
 setPermissions(buildDir);
 
 // List all files in the build directory
