@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('partials/header', { title: title }) %>
+</head>
+<body>
+  <%- include('partials/navigation', { profile: profile, currentPage: currentPage }) %>
+
+<% if (!user) { %>
+    <script>
+      window.location.href = "/error";
+    </script>
+  <% } %>
+
+  <section class="section">
+    <div class="container-wide">
+      <div class="profile-wrapper">
+
+        <div class="profile-block">
+          <div id="profile-info" class="pfp">
+            <img id="profile-picture-display" src="<%= user.profilePicture ? `/uploads/${user.profilePicture}` : '/images/default-profile-picture.png' %>" alt="Profile Picture" />
+            <% if (user.hasNFT) { %>
+              <img src="/images/checkmark.svg" alt="PunkApepen Holder" class="checkmark" />
+            <% } %>
+          </div>
+
+          <!--
+          <div id="vote-info">
+            <p>Total Votes: <span id="vote-count">0</span></p>
+          </div>
+          -->
+
+          <% if (isOwner) { %>
+          <form id="profile-form">
+            <label for="profilePicture">Profile Picture:</label>
+            <input class="file-upload" type="file" id="profilePicture" name="profilePicture" accept="image/*">
+            <label for="name">name:</label>
+            <input type="text" id="name" name="name" value="<%= user.name %>" required>
+            <label for="bio">bio:</label>
+            <textarea id="bio" name="bio"><%= user.bio %></textarea>
+            
+            <!-- Social Media Links -->
+            <label for="xUsername">X Username:</label>
+            <input type="text" id="xUsername" name="xUsername" value="<%= user.social && user.social.x ? user.social.x : '' %>">
+            
+            <label for="warpcastUsername">Warpcast Username:</label>
+            <input type="text" id="warpcastUsername" name="warpcastUsername" value="<%= user.social && user.social.warpcast ? user.social.warpcast : '' %>">
+            
+            <label for="lensUsername">Lens Username:</label>
+            <input type="text" id="lensUsername" name="lensUsername" value="<%= user.social && user.social.lens ? user.social.lens : '' %>">
+            
+            <label for="instagramUsername">Instagram Username:</label>
+            <input type="text" id="instagramUsername" name="instagramUsername" value="<%= user.social && user.social.instagram ? user.social.instagram : '' %>">
+            <button type="submit">save profile</button>
+          </form>
+          <% } %>
+
+          <% if (!isOwner) { %>
+          <div id="profile-info">
+            <div class="profile-details">
+              <p><span id="display-name"><%= user.name %></span></p>
+              <p><span id="display-bio"><%= user.bio %></span></p>
+            </div>
+            <!-- Social Media Links -->
+            <div class="social-links">
+              <% if (user.social && user.social.x) { %>
+                <a href="https://x.com/<%= user.social.x %>" target="_blank">
+                  <img class="social-logo" src="/images/x-logo.svg" alt="X">
+                </a>
+              <% } %>
+              <% if (user.social && user.social.warpcast) { %>
+                <a href="https://warpcast.com/<%= user.social.warpcast %>" target="_blank">
+                  <img class="social-logo" src="/images/warpcast-logo.svg" alt="Warpcast">
+                </a>
+              <% } %>
+              <% if (user.social && user.social.lens) { %>
+                <a href="https://lens.xyz/u/<%= user.social.lens %>" target="_blank">
+                  <img class="social-logo" src="/images/lens-logo.svg" alt="Lens">
+                </a>
+              <% } %>
+              <% if (user.social && user.social.instagram) { %>
+                <a href="https://instagram.com/<%= user.social.instagram %>" target="_blank">
+                  <img class="social-logo" src="/images/instagram-logo.svg" alt="Instagram">
+                </a>
+              <% } %>
+            </div>
+          </div>
+          <% } %>
+        </div>
+      </div>
+
+      <div class="content-wrapper">
+        <div class="sub-wrapper">
+          <div id="uploaded-images"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div id="infoModal" class="info-modal">
+    <div class="info-modal-content">
+      <span id="infoModalClose" class="info-modal-close">&times;</span>
+      <p id="infoModalMessage"></p>
+    </div>
+  </div>
+
+  <%- include('partials/footer') %>
+  
+  <script src="/js/profile.js"></script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+<div data-animation="over-left" class="navbar w-nav" data-easing2="ease" data-easing="ease" data-collapse="tiny" role="banner" data-no-scroll="1" data-duration="400" data-doc-height="1">
+  <div class="nav-container">
+    <a href="/" class="logo w-nav-brand"><img src="/images/smiley.svg" loading="lazy" alt="smiley"></a>
+    <nav role="navigation" class="nav-menu-3 w-nav-menu">
+      <div class="menu">
+        <a class="<%= currentPage === 'home' ? 'current' : '' %>" href="/">home</a>
+        <a class="<%= currentPage === 'create' ? 'current' : '' %>" href="/create">create</a>
+        <a class="<%= currentPage === 'gallery' ? 'current' : '' %>" href="/gallery">gallery</a>
+      </div>
+
+      <div class="nav-profile" id="nav-profile">
+        <a class="<%= currentPage === 'profile' ? 'current' : '' %>" href="#" id="profile-link" style="display:none;">profil</a>
+        <a href="#" id="wallet-disconnect" style="display:none;">disconnect</a>
+        <a href="#"id="wallet-connect" style="display:block;">connect wallet</a>
+      </div>
+    </nav>
+    <div class="menu-button w-nav-button" style="-webkit-user-select: text;" aria-label="menu" role="button" tabindex="0" aria-controls="w-nav-overlay-0" aria-haspopup="menu" aria-expanded="false">
+      <div class="w-icon-nav-menu"></div>
+    </div>
+  </div>
+</div>
+

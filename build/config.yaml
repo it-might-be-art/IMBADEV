@@ -1,0 +1,8 @@
+version: "1.0"
+start:
+  command: node src/app.js
+  port: 3000
+environment:
+  - MONGODB_URI
+  - SESSION_SECRET
+  - IONOS_DEPLOYMENT_TEST
