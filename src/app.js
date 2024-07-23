@@ -7,6 +7,7 @@ const bodyParser = require('body-parser');
 const { MongoClient } = require('mongodb');
 const fs = require('fs');
 const cors = require('cors');
+const server = http.createServer(app);
 
 console.log('Starting server initialization...');
 console.log('Environment variables at startup:', process.env);
@@ -168,6 +169,10 @@ const server = http.createServer(app);
 
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`Server is running on port ${PORT}`);
+  console.log(`Environment: ${process.env.NODE_ENV}`);
+  console.log(`MongoDB URI: ${process.env.MONGODB_URI ? 'Set' : 'Not Set'}`);
+  console.log(`Session Secret: ${process.env.SESSION_SECRET ? 'Set' : 'Not Set'}`);
+  console.log(`IONOS Deployment Test: ${process.env.IONOS_DEPLOYMENT_TEST}`);
 });
 
 // Error handling for server
