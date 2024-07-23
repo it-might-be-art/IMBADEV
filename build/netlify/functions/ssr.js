@@ -5,12 +5,20 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const { MongoClient } = require('mongodb');
 const fs = require('fs');
+const serverless = require('serverless-http');
+const ejs = require('ejs');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+console.log('Starting server initialization...');
+
+// IONOS Deployment Test
+const isIonosDeployment = process.env.IONOS_DEPLOYMENT_TEST === 'true';
+console.log(`IONOS Deployment Test: ${isIonosDeployment ? 'Configuration detected' : 'Configuration not detected'}`);
+
 console.log('Starting server...');
-console.log(`Environment variables: MONGODB_URI=${process.env.MONGODB_URI}, SESSION_SECRET=${process.env.SESSION_SECRET}`);
+console.log(`Environment variables: MONGODB_URI=${process.env.MONGODB_URI ? 'set' : 'not set'}, SESSION_SECRET=${process.env.SESSION_SECRET ? 'set' : 'not set'}, IONOS_DEPLOYMENT_TEST=${process.env.IONOS_DEPLOYMENT_TEST ? 'set' : 'not set'}`);
 
 console.log(`Current directory: ${__dirname}`);
 console.log(`View path: ${path.join(__dirname, 'views')}`);
@@ -48,8 +56,13 @@ app.use((req, res, next) => {
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
 app.get('/', (req, res) => {
-  console.log('Serving home page');
-  res.render('index', { title: 'Home', currentPage: 'home', profile: req.session.profile }, (err, html) => {
+  console.log('Attempting to serve home page');
+  res.render('index', { 
+    title: 'Home', 
+    currentPage: 'home', 
+    profile: req.session.profile,
+    ionosTest: isIonosDeployment ? 'IONOS config detected' : 'IONOS config not detected'
+  }, (err, html) => {
     if (err) {
       console.error('Error rendering index.ejs:', err);
       return res.status(500).send('Error rendering page');
@@ -63,6 +76,7 @@ const usersRouter = require('./src/routes/users');
 app.use('/api/users', usersRouter);
 
 app.get('/profile/:username', async (req, res) => {
+  console.log(`Attempting to fetch profile for ${req.params.username}`);
   try {
     const username = req.params.username;
     const user = await getUserByName(username);
@@ -98,28 +112,74 @@ app.get('/data-privacy', (req, res) => {
   res.render('data-privacy', { title: 'Data Privacy', currentPage: 'data-privacy', profile: req.session.profile });
 });
 
-// Test route to check server functionality
-app.get('/test', (req, res) => {
-  console.log('Test route accessed');
-  res.send('Test route is working');
+app.get('/api/test', (req, res) => {
+  console.log('API test route accessed');
+  res.json({ message: 'API is working', ionosTest: isIonosDeployment ? 'IONOS config detected' : 'IONOS config not detected' });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Something broke!');
+});
+
+app.use((req, res, next) => {
+  res.status(404).send("Sorry, that route doesn't exist.");
 });
 
 async function getUserByName(name) {
+  console.log(`Attempting to fetch user: ${name}`);
   const client = new MongoClient(process.env.MONGODB_URI);
   try {
     await client.connect();
+    console.log('Connected to MongoDB');
     const db = client.db('IMBA');
     const usersCollection = db.collection('users');
     const user = await usersCollection.findOne({ name });
+    console.log(user ? `User found: ${name}` : `User not found: ${name}`);
     return user;
   } catch (error) {
     console.error('Database connection error:', error);
     throw error;
   } finally {
     await client.close();
+    console.log('Closed MongoDB connection');
   }
 }
+
+const server = http.createServer(app);
+
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server is running on port ${PORT}`);
+});
+
+server.on('error', (error) => {
+  console.error('Server startup error:', error);
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+
+  const bind = typeof PORT === 'string'
+    ? 'Pipe ' + PORT
+    : 'Port ' + PORT;
+
+  switch (error.code) {
+    case 'EACCES':
+      console.error(bind + ' requires elevated privileges');
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(bind + ' is already in use');
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+});
+
+server.on('listening', () => {
+  console.log('Server is now listening for incoming requests');
+});
+
+console.log('Server initialization complete.');
+
+module.exports.handler = serverless(app);
