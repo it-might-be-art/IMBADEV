@@ -17,7 +17,7 @@ fs.mkdirSync(functionsDir, { recursive: true });
 const filesToCopy = ['package.json', 'package-lock.json'];
 filesToCopy.forEach(file => {
   const srcPath = path.join(__dirname, file);
-  const destPath = path.join(buildDir, file);
+  const destPath = path.join(buildDir, 'netlify', 'functions', file);
   if (fs.existsSync(srcPath)) {
     fs.copyFileSync(srcPath, destPath);
   } else {
@@ -79,8 +79,11 @@ const appJsPath = path.join(__dirname, 'src', 'app.js');
 const ssrJsDestPath = path.join(functionsDir, 'ssr.js');
 fs.copyFileSync(appJsPath, ssrJsDestPath);
 
-console.log('Installing dependencies...');
-execSync('npm install', { cwd: buildDir, stdio: 'inherit' });
+console.log('Installing dependencies in the functions directory...');
+execSync('npm install', { 
+  cwd: path.join(buildDir, 'netlify', 'functions'), 
+  stdio: 'inherit' 
+});
 
 // Remove unnecessary files and directories
 const unnecessaryDirs = ['logs', 'tests'];
@@ -142,7 +145,13 @@ function logDirectoryStructure(dir, level = 0) {
 }
 logDirectoryStructure(buildDir);
 
-const buildPackageJson = require(path.join(buildDir, 'package.json'));
-console.log('Build directory dependencies:', buildPackageJson.dependencies);
+// Lesen Sie die package.json im functions-Verzeichnis
+const functionsPackageJsonPath = path.join(buildDir, 'netlify', 'functions', 'package.json');
+if (fs.existsSync(functionsPackageJsonPath)) {
+  const functionsPackageJson = require(functionsPackageJsonPath);
+  console.log('Functions directory dependencies:', functionsPackageJson.dependencies);
+} else {
+  console.log('Warning: package.json not found in the functions directory');
+}
 
 console.log('Build script executed');

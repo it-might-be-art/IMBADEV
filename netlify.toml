@@ -3,6 +3,7 @@
   functions = "build/netlify/functions"
 [functions]
   node_bundler = "esbuild"
+  included_files = ["src/views/**"]
 [[redirects]]
   from = "/*"
   to = "/.netlify/functions/ssr"

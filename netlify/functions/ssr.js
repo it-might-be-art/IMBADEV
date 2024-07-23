@@ -17,6 +17,14 @@ const app = express();
 console.log('Current directory:', __dirname);
 console.log('Netlify function root:', process.env.LAMBDA_TASK_ROOT);
 
+console.log('Starting ssr.js');
+console.log('Current directory:', __dirname);
+console.log('Files in current directory:', fs.readdirSync(__dirname));
+console.log('Files in src directory:', fs.readdirSync(path.join(__dirname, 'src')));
+console.log('Files in views directory:', fs.readdirSync(path.join(__dirname, 'src', 'views')));
+console.log('node_modules directory:', fs.readdirSync(path.join(__dirname, 'node_modules')));
+console.log('EJS module path:', require.resolve('ejs'));
+
 // EJS Setup
 app.engine('ejs', ejs.renderFile);
 app.set('view engine', 'ejs');
