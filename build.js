@@ -146,20 +146,21 @@ console.log('Files in build directory:');
 console.log(execSync(`ls -R ${buildDir}`).toString());
 
 // After all copying is done, log the contents of the build directory
-console.log('Contents of build directory:');
-function logDirectoryContents(dir, indent = '') {
-  const items = fs.readdirSync(dir);
-  items.forEach(item => {
-    const fullPath = path.join(dir, item);
-    const stats = fs.statSync(fullPath);
+console.log('Final build directory structure:');
+function logDirectoryStructure(dir, level = 0) {
+  const indent = ' '.repeat(level * 2);
+  const files = fs.readdirSync(dir);
+  files.forEach(file => {
+    const filePath = path.join(dir, file);
+    const stats = fs.statSync(filePath);
     if (stats.isDirectory()) {
-      console.log(`${indent}${item}/`);
-      logDirectoryContents(fullPath, indent + '  ');
+      console.log(`${indent}${file}/`);
+      logDirectoryStructure(filePath, level + 1);
     } else {
-      console.log(`${indent}${item}`);
+      console.log(`${indent}${file}`);
     }
   });
 }
-logDirectoryContents(buildDir);
+logDirectoryStructure(buildDir);
 
 console.log('Build script executed');
