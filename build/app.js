@@ -60,6 +60,8 @@ app.use(session({
     collectionName: 'sessions',
     tls: true,
     tlsInsecure: true, // Set this to false in production if certificates are valid
+    useNewUrlParser: true,
+    useUnifiedTopology: true
   })
 }));
 
@@ -140,6 +142,8 @@ async function getUserByName(name) {
   const client = new MongoClient(process.env.MONGODB_URI, {
     tls: true,
     tlsInsecure: true, // Set this to false in production if certificates are valid
+    useNewUrlParser: true,
+    useUnifiedTopology: true
   });
   try {
     await client.connect();
