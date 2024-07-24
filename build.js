@@ -14,10 +14,10 @@ const functionsDir = path.join(buildDir, 'netlify', 'functions');
 fs.mkdirSync(functionsDir, { recursive: true });
 
 // Copy necessary files to build directory
-const filesToCopy = ['package.json', 'package-lock.json'];
+const filesToCopy = ['package.json', 'package-lock.json', 'app.js'];
 filesToCopy.forEach(file => {
   const srcPath = path.join(__dirname, file);
-  const destPath = path.join(buildDir, 'netlify', 'functions', file);
+  const destPath = path.join(functionsDir, file);
   if (fs.existsSync(srcPath)) {
     fs.copyFileSync(srcPath, destPath);
   } else {
@@ -25,23 +25,23 @@ filesToCopy.forEach(file => {
   }
 });
 
-// Copy src directory to netlify/functions directory
+// Copy src directory to functions directory
 const srcDir = path.join(__dirname, 'src');
-const destDir = path.join(buildDir, 'netlify', 'functions', 'src');
+const destDir = path.join(functionsDir, 'src');
 fs.cpSync(srcDir, destDir, { recursive: true });
 
-// Copy utils directory to netlify/functions/src directory
+// Copy utils directory to functions directory
 const utilsDir = path.join(__dirname, 'utils');
-const utilsDestDir = path.join(buildDir, 'netlify', 'functions', 'utils');
+const utilsDestDir = path.join(functionsDir, 'utils');
 if (fs.existsSync(utilsDir)) {
   fs.cpSync(utilsDir, utilsDestDir, { recursive: true });
 } else {
   console.log(`Warning: ${utilsDir} does not exist`);
 }
 
-// Copy public directory to netlify/functions/src directory
+// Copy public directory to functions directory
 const publicDir = path.join(__dirname, 'public');
-const publicDestDir = path.join(buildDir, 'netlify', 'functions', 'src', 'public');
+const publicDestDir = path.join(functionsDir, 'public');
 if (fs.existsSync(publicDir)) {
   fs.cpSync(publicDir, publicDestDir, { recursive: true });
 } else {
@@ -50,28 +50,13 @@ if (fs.existsSync(publicDir)) {
 
 // Ensure uploads directory exists
 const uploadsDir = path.join(publicDestDir, 'uploads');
-if (fs.existsSync(uploadsDir)) {
-  // Remove all files inside the uploads directory
-  fs.readdirSync(uploadsDir).forEach(file => {
-    const filePath = path.join(uploadsDir, file);
-    fs.rmSync(filePath, { recursive: true, force: true });
-  });
-} else {
-  fs.mkdirSync(uploadsDir);
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
-// Copy app.js as ssr.js to the functions directory
-const appJsPath = path.join(__dirname, 'app.js');
-const ssrJsDestPath = path.join(functionsDir, 'ssr.js');
-fs.copyFileSync(appJsPath, ssrJsDestPath);
-
 console.log('Installing dependencies in the functions directory...');
-execSync('npm install ejs', { 
-  cwd: path.join(buildDir, 'netlify', 'functions'), 
-  stdio: 'inherit' 
-});
 execSync('npm install', { 
-  cwd: path.join(buildDir, 'netlify', 'functions'), 
+  cwd: functionsDir, 
   stdio: 'inherit' 
 });
 
@@ -95,7 +80,7 @@ unnecessaryFiles.forEach(pattern => {
 });
 
 // Create .env file if it doesn't already exist in the build directory
-const envPath = path.join(buildDir, '.env');
+const envPath = path.join(functionsDir, '.env');
 const envContent = `
 MONGODB_URI=${process.env.MONGODB_URI}
 SESSION_SECRET=${process.env.SESSION_SECRET}
@@ -135,8 +120,8 @@ function logDirectoryStructure(dir, level = 0) {
 }
 logDirectoryStructure(buildDir);
 
-// Lesen Sie die package.json im functions-Verzeichnis
-const functionsPackageJsonPath = path.join(buildDir, 'netlify', 'functions', 'package.json');
+// Read the package.json in the functions directory
+const functionsPackageJsonPath = path.join(functionsDir, 'package.json');
 if (fs.existsSync(functionsPackageJsonPath)) {
   const functionsPackageJson = require(functionsPackageJsonPath);
   console.log('Functions directory dependencies:', functionsPackageJson.dependencies);
