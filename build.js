@@ -103,19 +103,12 @@ function setPermissions(dir) {
 setPermissions(buildDir);
 
 // Log the final build directory structure
-console.log('Final build directory structure:');
 function logDirectoryStructure(dir, level = 0) {
   const indent = ' '.repeat(level * 2);
   const files = fs.readdirSync(dir);
   files.forEach(file => {
     const filePath = path.join(dir, file);
     const stats = fs.statSync(filePath);
-    if (stats.isDirectory()) {
-      console.log(`${indent}${file}/`);
-      logDirectoryStructure(filePath, level + 1);
-    } else {
-      console.log(`${indent}${file}`);
-    }
   });
 }
 logDirectoryStructure(buildDir);
