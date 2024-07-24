@@ -1,11 +1,11 @@
 [build]
   command = "npm install && node build.js"
-  functions = "build/netlify/functions"
+  functions = "netlify/functions"
   publish = "build"
 
 [functions]
   node_bundler = "esbuild"
-  included_files = ["src/**/*", "utils/**/*"]
+  included_files = ["src/**/*", "public/**/*"]
 
 [[redirects]]
   from = "/*"
