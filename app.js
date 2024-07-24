@@ -183,3 +183,8 @@ server.on('listening', () => {
 console.log('Server initialization complete.');
 
 module.exports.handler = serverless(app);
+
+
+app.get('/test', (req, res) => {
+  res.send('Server is running!');
+});
