@@ -8,8 +8,8 @@
   included_files = ["src/**/*", "public/**/*"]
 
 [[redirects]]
-  from = "/api/test"
-  to = "/.netlify/functions/test-function"
+  from = "/*"
+  to = "/.netlify/functions/app"
   status = 200
 
 [build.environment]
