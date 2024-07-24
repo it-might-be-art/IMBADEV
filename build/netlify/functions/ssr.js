@@ -7,7 +7,7 @@ const { MongoClient } = require('mongodb');
 const fs = require('fs');
 const serverless = require('serverless-http');
 const ejs = require('ejs');
-
+const http = require('http');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -21,10 +21,10 @@ console.log('Starting server...');
 console.log(`Environment variables: MONGODB_URI=${process.env.MONGODB_URI ? 'set' : 'not set'}, SESSION_SECRET=${process.env.SESSION_SECRET ? 'set' : 'not set'}, IONOS_DEPLOYMENT_TEST=${process.env.IONOS_DEPLOYMENT_TEST ? 'set' : 'not set'}`);
 
 console.log(`Current directory: ${__dirname}`);
-console.log(`View path: ${path.join(__dirname, 'views')}`);
-console.log(`Public path: ${path.join(__dirname, '..', 'public')}`);
+console.log(`View path: ${path.join(__dirname, 'src', 'views')}`);
+console.log(`Public path: ${path.join(__dirname, 'public')}`);
 
-const viewsPath = path.join(__dirname, 'views');
+const viewsPath = path.join(__dirname, 'src', 'views');
 const indexPath = path.join(viewsPath, 'index.ejs');
 if (fs.existsSync(viewsPath)) {
   console.log('Views directory exists');
@@ -53,7 +53,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(express.static(path.join(__dirname, '..', 'public')));
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/', (req, res) => {
   console.log('Attempting to serve home page');
