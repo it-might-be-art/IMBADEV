@@ -13,7 +13,7 @@ fs.mkdirSync(buildDir, { recursive: true });
 const functionsDir = path.join(buildDir, 'netlify', 'functions');
 fs.mkdirSync(functionsDir, { recursive: true });
 
-// Copy necessary files to build directory
+// Copy necessary files to functions directory
 const filesToCopy = ['package.json', 'package-lock.json', 'app.js'];
 filesToCopy.forEach(file => {
   const srcPath = path.join(__dirname, file);
@@ -50,25 +50,6 @@ if (fs.existsSync(utilsDestDir)) {
   console.log('Utils directory not found in build');
 }
 
-// Create a simple file to check if utils directory exists during runtime
-const checkFilePath = path.join(functionsDir, 'checkUtils.js');
-const checkFileContent = `
-const fs = require('fs');
-const path = require('path');
-
-const utilsPath = path.join(__dirname, 'utils');
-console.log('Checking utils directory:', utilsPath);
-console.log('Utils directory exists:', fs.existsSync(utilsPath));
-if (fs.existsSync(utilsPath)) {
-  console.log('Contents of utils directory:');
-  fs.readdirSync(utilsPath).forEach(file => {
-    console.log(file);
-  });
-}
-`;
-fs.writeFileSync(checkFilePath, checkFileContent);
-console.log('Created checkUtils.js file');
-
 // Copy public directory to functions directory
 const publicDir = path.join(__dirname, 'public');
 const publicDestDir = path.join(functionsDir, 'public');
@@ -88,25 +69,6 @@ console.log('Installing dependencies in the functions directory...');
 execSync('npm install', { 
   cwd: functionsDir, 
   stdio: 'inherit' 
-});
-
-// Remove unnecessary files and directories
-const unnecessaryDirs = ['logs', 'tests'];
-unnecessaryDirs.forEach(dir => {
-  const dirPath = path.join(buildDir, dir);
-  if (fs.existsSync(dirPath)) {
-    fs.rmSync(dirPath, { recursive: true });
-  }
-});
-
-const unnecessaryFiles = ['*.log', 'README.md', '.gitignore'];
-unnecessaryFiles.forEach(pattern => {
-  const files = execSync(`find ${buildDir} -name "${pattern}" -type f`).toString().split('\n');
-  files.forEach(file => {
-    if (file) {
-      fs.unlinkSync(file);
-    }
-  });
 });
 
 // Create .env file if it doesn't already exist in the build directory

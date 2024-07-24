@@ -14,11 +14,10 @@ const PORT = process.env.PORT || 3000;
 console.log('Starting server initialization...');
 
 console.log('Starting server...');
-console.log(`Environment variables: MONGODB_URI=${process.env.MONGODB_URI ? 'set' : 'not set'}, SESSION_SECRET=${process.env.SESSION_SECRET ? 'set' : 'not set'}, IONOS_DEPLOYMENT_TEST=${process.env.IONOS_DEPLOYMENT_TEST ? 'set' : 'not set'}`);
+console.log(`Environment variables: MONGODB_URI=${process.env.MONGODB_URI ? 'set' : 'not set'}, SESSION_SECRET=${process.env.SESSION_SECRET ? 'set' : 'not set'}`);
 
 console.log('Current directory:', __dirname);
 console.log('Files in current directory:', fs.readdirSync(__dirname));
-console.log('Files in utils directory:', fs.readdirSync(path.join(__dirname, 'utils')));
 
 // Function to find utils directory
 function findUtilsDir() {

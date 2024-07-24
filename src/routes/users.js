@@ -5,35 +5,26 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-// Function to find utils directory
-function findUtilsDir() {
-  const possiblePaths = [
-    path.join(__dirname, 'utils'),
-    path.join(__dirname, '..', 'utils'),
-    path.join(__dirname, '..', '..', 'utils'),
-    path.join(__dirname, 'src', 'utils'),
-    path.join(__dirname, '..', 'src', 'utils')
-  ];
+// Dynamically determine the base path
+const basePath = process.env.LAMBDA_TASK_ROOT 
+  ? path.join(process.env.LAMBDA_TASK_ROOT, 'src')
+  : path.join(__dirname, '..', '..');
 
-  for (const p of possiblePaths) {
-    if (fs.existsSync(path.join(p, 'nftUtils.js'))) {
-      console.log('Found nftUtils.js at:', p);
-      return p;
-    }
-  }
+console.log('Users.js - Base path:', basePath);
 
-  console.error('Could not find nftUtils.js in any of the expected locations');
-  return null;
+// Determine utils path
+const utilsPath = path.join(basePath, 'utils');
+console.log('Utils path:', utilsPath);
+
+let checkIfUserHasNFT;
+const nftUtilsPath = path.join(utilsPath, 'nftUtils.js');
+if (fs.existsSync(nftUtilsPath)) {
+  console.log('nftUtils.js found');
+  ({ checkIfUserHasNFT } = require(nftUtilsPath));
+} else {
+  console.error('nftUtils.js not found');
+  checkIfUserHasNFT = () => false; // Fallback function
 }
-
-const utilsDir = findUtilsDir();
-
-if (!utilsDir) {
-  throw new Error('Could not find nftUtils.js');
-}
-
-// Require the necessary module
-const { checkIfUserHasNFT } = require(path.join(utilsDir, 'nftUtils'));
 
 const uri = process.env.MONGODB_URI;
 const client = new MongoClient(uri);
