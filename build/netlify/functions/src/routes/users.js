@@ -8,7 +8,7 @@ const path = require('path');
 const basePath = process.env.LAMBDA_TASK_ROOT ? path.join(process.env.LAMBDA_TASK_ROOT, '/build/netlify/functions/utils') : path.join(__dirname, '../../utils');
 
 // Require the necessary module
-const { checkIfUserHasNFT } = require('../utils/nftUtils');
+const { checkIfUserHasNFT } = require(basePath + '/nftUtils');
 
 const uri = process.env.MONGODB_URI;
 const client = new MongoClient(uri);

@@ -23,6 +23,7 @@ console.log(`Environment variables: MONGODB_URI=${process.env.MONGODB_URI ? 'set
 console.log(`Current directory: ${__dirname}`);
 console.log(`View path: ${path.join(__dirname, 'src', 'views')}`);
 console.log(`Public path: ${path.join(__dirname, 'public')}`);
+console.log('Module search paths:', module.paths);
 
 const viewsPath = path.join(__dirname, 'src', 'views');
 const indexPath = path.join(viewsPath, 'index.ejs');
