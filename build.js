@@ -30,26 +30,6 @@ const srcDir = path.join(__dirname, 'src');
 const destDir = path.join(functionsDir, 'src');
 fs.cpSync(srcDir, destDir, { recursive: true });
 
-// Copy utils directory to functions directory
-const utilsDir = path.join(__dirname, 'utils');
-const utilsDestDir = path.join(functionsDir, 'utils');
-if (fs.existsSync(utilsDir)) {
-  fs.cpSync(utilsDir, utilsDestDir, { recursive: true });
-  console.log(`Copied utils directory to ${utilsDestDir}`);
-} else {
-  console.log(`Warning: ${utilsDir} does not exist`);
-}
-
-// Log the contents of the utils directory in the build
-console.log('Contents of utils directory in build:');
-if (fs.existsSync(utilsDestDir)) {
-  fs.readdirSync(utilsDestDir).forEach(file => {
-    console.log(file);
-  });
-} else {
-  console.log('Utils directory not found in build');
-}
-
 // Copy public directory to functions directory
 const publicDir = path.join(__dirname, 'public');
 const publicDestDir = path.join(functionsDir, 'public');

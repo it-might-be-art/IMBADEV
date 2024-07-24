@@ -6,9 +6,7 @@ const path = require('path');
 const fs = require('fs');
 
 // Dynamically determine the base path
-const basePath = process.env.LAMBDA_TASK_ROOT 
-  ? path.join(process.env.LAMBDA_TASK_ROOT, 'src')
-  : path.join(__dirname, '..', '..');
+const basePath = path.join(__dirname, '..');
 
 console.log('Users.js - Base path:', basePath);
 
@@ -38,7 +36,7 @@ async function connectToDatabase() {
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadDir = path.join(__dirname, '..', '..', 'public', 'uploads');
+    const uploadDir = path.join(basePath, 'public', 'uploads');
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
@@ -447,6 +445,5 @@ router.get('/random-images', async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 });
-
 
 module.exports = router;

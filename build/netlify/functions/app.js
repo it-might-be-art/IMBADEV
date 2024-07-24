@@ -19,40 +19,15 @@ console.log(`Environment variables: MONGODB_URI=${process.env.MONGODB_URI ? 'set
 console.log('Current directory:', __dirname);
 console.log('Files in current directory:', fs.readdirSync(__dirname));
 
-// Function to find utils directory
-function findUtilsDir() {
-  const possiblePaths = [
-    path.join(__dirname, 'utils'),
-    path.join(__dirname, '..', 'utils'),
-    path.join(__dirname, '..', '..', 'utils'),
-    path.join(__dirname, 'src', 'utils'),
-    path.join(__dirname, '..', 'src', 'utils')
-  ];
+const utilsDir = path.join(__dirname, 'src', 'utils');
+const nftUtilsPath = path.join(utilsDir, 'nftUtils.js');
 
-  for (const p of possiblePaths) {
-    if (fs.existsSync(p)) {
-      console.log('Found utils directory at:', p);
-      return p;
-    }
-  }
-
-  console.error('Could not find utils directory');
-  return null;
-}
-
-const utilsDir = findUtilsDir();
-
-if (utilsDir) {
-  console.log('Contents of utils directory:', fs.readdirSync(utilsDir));
-  
-  // Try to require nftUtils
-  try {
-    const nftUtilsPath = path.join(utilsDir, 'nftUtils.js');
-    const nftUtils = require(nftUtilsPath);
-    console.log('Successfully required nftUtils');
-  } catch (error) {
-    console.error('Error requiring nftUtils:', error);
-  }
+if (fs.existsSync(nftUtilsPath)) {
+  console.log('Found nftUtils.js');
+  const nftUtils = require(nftUtilsPath);
+  console.log('Successfully required nftUtils');
+} else {
+  console.error('Could not find nftUtils.js');
 }
 
 const viewsPath = path.join(__dirname, 'src', 'views');
