@@ -5,8 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node app.js",
-    "build": "node build.js",
-    "netlify-start": "node build/netlify/functions/app.js"
+    "build": "node build.js"
   },
   "keywords": [],
   "author": "",

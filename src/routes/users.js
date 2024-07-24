@@ -11,7 +11,7 @@ const basePath = path.join(__dirname, '..');
 console.log('Users.js - Base path:', basePath);
 
 // Determine utils path
-const utilsPath = path.join(basePath, 'src', 'utils');
+const utilsPath = path.join(basePath, 'utils');
 console.log('Utils path:', utilsPath);
 
 let checkIfUserHasNFT;

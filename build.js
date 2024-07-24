@@ -9,9 +9,6 @@ if (fs.existsSync(buildDir)) {
 }
 fs.mkdirSync(buildDir, { recursive: true });
 
-// Create netlify/functions directory
-const functionsDir = path.join(buildDir, 'netlify', 'functions');
-fs.mkdirSync(functionsDir, { recursive: true });
 
 // Copy necessary files to functions directory
 const filesToCopy = ['package.json', 'package-lock.json', 'app.js'];
@@ -24,16 +21,6 @@ filesToCopy.forEach(file => {
     console.log(`Warning: ${srcPath} does not exist`);
   }
 });
-
-// Kopieren der test-function.js in den Build-Ordner
-const testFunctionSrc = path.join(__dirname, 'test-function.js');
-const testFunctionDest = path.join(functionsDir, 'test-function.js');
-if (fs.existsSync(testFunctionSrc)) {
-  fs.copyFileSync(testFunctionSrc, testFunctionDest);
-  console.log('test-function.js wurde in den Build-Ordner kopiert');
-} else {
-  console.log('Warnung: test-function.js wurde nicht gefunden');
-}
 
 // Copy src directory to functions directory
 const srcDir = path.join(__dirname, 'src');

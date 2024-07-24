@@ -5,9 +5,9 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const { MongoClient } = require('mongodb');
 const fs = require('fs');
-const serverless = require('serverless-http');
 const ejs = require('ejs');
 const http = require('http');
+const MongoStore = require('connect-mongo');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -19,6 +19,7 @@ console.log(`Environment variables: MONGODB_URI=${process.env.MONGODB_URI ? 'set
 console.log('Current directory:', __dirname);
 console.log('Files in current directory:', fs.readdirSync(__dirname));
 
+// Corrected utils directory path
 const utilsDir = path.join(__dirname, 'src', 'utils');
 const nftUtilsPath = path.join(utilsDir, 'nftUtils.js');
 
@@ -52,6 +53,10 @@ app.use(session({
   secret: process.env.SESSION_SECRET || 'fallback_secret',
   resave: false,
   saveUninitialized: true,
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGODB_URI,
+    collectionName: 'sessions'
+  })
 }));
 
 app.use((req, res, next) => {
@@ -182,9 +187,4 @@ server.on('listening', () => {
 
 console.log('Server initialization complete.');
 
-module.exports.handler = serverless(app);
-
-
-app.get('/test', (req, res) => {
-  res.send('Server is running!');
-});
+module.exports = server;
