@@ -5,10 +5,17 @@ const multer = require('multer');
 const path = require('path');
 
 // Dynamically determine the base path
-const basePath = process.env.LAMBDA_TASK_ROOT ? path.join(process.env.LAMBDA_TASK_ROOT, '/build/netlify/functions/utils') : path.join(__dirname, '../../utils');
+let basePath;
+if (process.env.NETLIFY) {
+  // We are in Netlify environment
+  basePath = path.join(__dirname, '..', 'utils');
+} else {
+  // We are in local environment
+  basePath = path.join(__dirname, '..', '..', 'utils');
+}
 
 // Require the necessary module
-const { checkIfUserHasNFT } = require(basePath + '/nftUtils');
+const { checkIfUserHasNFT } = require(path.join(basePath, 'nftUtils'));
 
 const uri = process.env.MONGODB_URI;
 const client = new MongoClient(uri);
