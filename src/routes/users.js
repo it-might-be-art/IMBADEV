@@ -6,13 +6,25 @@ const path = require('path');
 
 // Dynamically determine the base path
 let basePath;
-if (process.env.NETLIFY) {
-  // We are in Netlify environment
-  basePath = path.join(__dirname, '..', 'utils');
-} else {
-  // We are in local environment
-  basePath = path.join(__dirname, '..', '..', 'utils');
+const possiblePaths = [
+  path.join(__dirname, 'utils'),
+  path.join(__dirname, '..', 'utils'),
+  path.join(__dirname, '..', '..', 'utils')
+];
+
+for (const p of possiblePaths) {
+  if (fs.existsSync(path.join(p, 'nftUtils.js'))) {
+    basePath = p;
+    break;
+  }
 }
+
+if (!basePath) {
+  console.error('Could not find nftUtils.js in any of the expected locations');
+  process.exit(1);
+}
+
+console.log('Found nftUtils at:', basePath);
 
 // Require the necessary module
 const { checkIfUserHasNFT } = require(path.join(basePath, 'nftUtils'));

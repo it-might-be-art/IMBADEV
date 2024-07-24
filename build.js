@@ -30,6 +30,7 @@ const srcDir = path.join(__dirname, 'src');
 const destDir = path.join(functionsDir, 'src');
 fs.cpSync(srcDir, destDir, { recursive: true });
 
+
 // Copy utils directory to functions directory
 const utilsDir = path.join(__dirname, 'utils');
 const utilsDestDir = path.join(functionsDir, 'utils');
@@ -49,6 +50,25 @@ if (fs.existsSync(utilsDestDir)) {
 } else {
   console.log('Utils directory not found in build');
 }
+
+// Create a simple file to check if utils directory exists during runtime
+const checkFilePath = path.join(functionsDir, 'checkUtils.js');
+const checkFileContent = `
+const fs = require('fs');
+const path = require('path');
+
+const utilsPath = path.join(__dirname, 'utils');
+console.log('Checking utils directory:', utilsPath);
+console.log('Utils directory exists:', fs.existsSync(utilsPath));
+if (fs.existsSync(utilsPath)) {
+  console.log('Contents of utils directory:');
+  fs.readdirSync(utilsPath).forEach(file => {
+    console.log(file);
+  });
+}
+`;
+fs.writeFileSync(checkFilePath, checkFileContent);
+console.log('Created checkUtils.js file');
 
 // Copy public directory to functions directory
 const publicDir = path.join(__dirname, 'public');

@@ -24,6 +24,17 @@ console.log('Current directory:', __dirname);
 console.log('Files in current directory:', fs.readdirSync(__dirname));
 console.log('Files in utils directory:', fs.readdirSync(path.join(__dirname, 'utils')));
 
+// Run the checkUtils.js
+require('./checkUtils');
+
+// Try to require nftUtils
+try {
+  const nftUtils = require('./utils/nftUtils');
+  console.log('Successfully required nftUtils');
+} catch (error) {
+  console.error('Error requiring nftUtils:', error);
+}
+
 const viewsPath = path.join(__dirname, 'src', 'views');
 const indexPath = path.join(viewsPath, 'index.ejs');
 if (fs.existsSync(viewsPath)) {
