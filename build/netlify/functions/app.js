@@ -1,39 +1,190 @@
+require('dotenv').config();
 const express = require('express');
-const serverless = require('serverless-http');
+const session = require('express-session');
 const path = require('path');
-
-let ejs;
-try {
-  ejs = require('ejs');
-} catch (error) {
-  console.error('Fehler beim Laden von EJS:', error);
-}
-
+const bodyParser = require('body-parser');
+const { MongoClient } = require('mongodb');
+const fs = require('fs');
+const serverless = require('serverless-http');
+const ejs = require('ejs');
+const http = require('http');
 const app = express();
+const PORT = process.env.PORT || 3000;
 
-if (ejs) {
-  app.set('view engine', 'ejs');
-  app.set('views', path.join(process.cwd(), 'src', 'views'));
+console.log('Starting server initialization...');
+
+console.log('Starting server...');
+console.log(`Environment variables: MONGODB_URI=${process.env.MONGODB_URI ? 'set' : 'not set'}, SESSION_SECRET=${process.env.SESSION_SECRET ? 'set' : 'not set'}`);
+
+console.log('Current directory:', __dirname);
+console.log('Files in current directory:', fs.readdirSync(__dirname));
+
+const utilsDir = path.join(__dirname, 'src', 'utils');
+const nftUtilsPath = path.join(utilsDir, 'nftUtils.js');
+
+if (fs.existsSync(nftUtilsPath)) {
+  console.log('Found nftUtils.js');
+  const nftUtils = require(nftUtilsPath);
+  console.log('Successfully required nftUtils');
 } else {
-  console.warn('EJS konnte nicht geladen werden. Template-Rendering deaktiviert.');
+  console.error('Could not find nftUtils.js');
 }
 
-// Statische Dateien einbinden
-app.use(express.static(path.join(process.cwd(), 'public')));
-
-// Route für die Startseite
-app.get('/', (req, res) => {
-  if (ejs) {
-    res.render('index', { title: 'Startseite' });
+const viewsPath = path.join(__dirname, 'src', 'views');
+const indexPath = path.join(viewsPath, 'index.ejs');
+if (fs.existsSync(viewsPath)) {
+  console.log('Views directory exists');
+  if (fs.existsSync(indexPath)) {
+    console.log('index.ejs exists');
   } else {
-    res.send('Willkommen auf der Startseite (EJS nicht verfügbar)');
+    console.log('index.ejs does not exist');
+  }
+} else {
+  console.log('Views directory does not exist');
+}
+
+app.set('view engine', 'ejs');
+app.set('views', viewsPath);
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'fallback_secret',
+  resave: false,
+  saveUninitialized: true,
+}));
+
+app.use((req, res, next) => {
+  console.log(`Received ${req.method} request for ${req.url}`);
+  next();
+});
+
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.get('/', (req, res) => {
+  console.log('Attempting to serve home page');
+  res.render('index', { 
+    title: 'Home', 
+    currentPage: 'home', 
+    profile: req.session.profile,
+  }, (err, html) => {
+    if (err) {
+      console.error('Error rendering index.ejs:', err);
+      return res.status(500).send('Error rendering page');
+    }
+    console.log('Rendered index.ejs successfully');
+    res.send(html);
+  });
+});
+
+const usersRouter = require('./src/routes/users');
+app.use('/api/users', usersRouter);
+
+app.get('/profile/:username', async (req, res) => {
+  console.log(`Attempting to fetch profile for ${req.params.username}`);
+  try {
+    const username = req.params.username;
+    const user = await getUserByName(username);
+    if (!user) {
+      console.log('User not found:', username);
+      return res.status(404).send('User not found');
+    }
+    const isOwner = req.session.profile && req.session.profile.address === user.address;
+    res.render('profile', { title: `${user.name}'s Profile`, user, isOwner, profile: req.session.profile, currentPage: 'profile' });
+  } catch (error) {
+    console.error('Error fetching profile:', error);
+    res.status(500).send(error.message);
   }
 });
 
-// Fehlerbehandlung
-app.use((err, req, res, next) => {
-  console.error('Fehler aufgetreten:', err);
-  res.status(500).send('Ein Fehler ist aufgetreten: ' + err.message);
+app.get('/create', (req, res) => {
+  console.log('Serving create page');
+  res.render('create', { title: 'Create', currentPage: 'create', profile: req.session.profile });
 });
 
+app.get('/gallery', (req, res) => {
+  console.log('Serving gallery page');
+  res.render('gallery', { title: 'Gallery', currentPage: 'gallery', profile: req.session.profile });
+});
+
+app.get('/imprint', (req, res) => {
+  console.log('Serving imprint page');
+  res.render('imprint', { title: 'Imprint', currentPage: 'imprint', profile: req.session.profile });
+});
+
+app.get('/data-privacy', (req, res) => {
+  console.log('Serving data privacy page');
+  res.render('data-privacy', { title: 'Data Privacy', currentPage: 'data-privacy', profile: req.session.profile });
+});
+
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err.stack);
+  res.status(500).send('Something broke!');
+});
+
+app.use((req, res, next) => {
+  res.status(404).send("Sorry, that route doesn't exist.");
+});
+
+async function getUserByName(name) {
+  console.log(`Attempting to fetch user: ${name}`);
+  const client = new MongoClient(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+  try {
+    await client.connect();
+    console.log('Connected to MongoDB');
+    const db = client.db('IMBA');
+    const usersCollection = db.collection('users');
+    const user = await usersCollection.findOne({ name });
+    console.log(user ? `User found: ${name}` : `User not found: ${name}`);
+    return user;
+  } catch (error) {
+    console.error('Database connection error:', error);
+    throw error;
+  } finally {
+    await client.close();
+    console.log('Closed MongoDB connection');
+  }
+}
+
+const server = http.createServer(app);
+
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server is running on port ${PORT}`);
+});
+
+server.on('error', (error) => {
+  console.error('Server startup error:', error);
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+
+  const bind = typeof PORT === 'string'
+    ? 'Pipe ' + PORT
+    : 'Port ' + PORT;
+
+  switch (error.code) {
+    case 'EACCES':
+      console.error(bind + ' requires elevated privileges');
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(bind + ' is already in use');
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+});
+
+server.on('listening', () => {
+  console.log('Server is now listening for incoming requests');
+});
+
+console.log('Server initialization complete.');
+
 module.exports.handler = serverless(app);
+
+
+app.get('/test', (req, res) => {
+  res.send('Server is running!');
+});
