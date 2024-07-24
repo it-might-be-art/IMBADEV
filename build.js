@@ -9,6 +9,9 @@ if (fs.existsSync(buildDir)) {
 }
 fs.mkdirSync(buildDir, { recursive: true });
 
+// Create netlify/functions directory (even though we are not using Netlify, 
+// let's keep the same structure for consistency)
+const functionsDir = buildDir;
 
 // Copy necessary files to functions directory
 const filesToCopy = ['package.json', 'package-lock.json', 'app.js'];
