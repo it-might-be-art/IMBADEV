@@ -25,7 +25,7 @@ if (fs.existsSync(nftUtilsPath)) {
 }
 
 const uri = process.env.MONGODB_URI;
-const client = new MongoClient(uri);
+const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
 async function connectToDatabase() {
   if (!client.topology || !client.topology.isConnected()) {
@@ -93,6 +93,7 @@ router.get('/gallery', async (req, res) => {
 
     res.json({ success: true, images: imagesWithCreatorNames });
   } catch (error) {
+    console.error('Error fetching gallery images:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 });
@@ -113,6 +114,7 @@ router.get('/images', async (req, res) => {
     const images = await imagesCollection.find({ address: user.address }).sort({ createdAt: -1 }).toArray();
     res.json({ success: true, images });
   } catch (error) {
+    console.error('Error fetching user images:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 });
@@ -203,6 +205,7 @@ router.get('/check-username', async (req, res) => {
       return res.json({ available: true });
     }
   } catch (error) {
+    console.error('Error checking username:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 });
@@ -234,6 +237,7 @@ router.post('/authenticate', async (req, res) => {
     req.session.profile = user;
     res.json({ success: true, profile: user });
   } catch (error) {
+    console.error('Error authenticating user:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 });
@@ -352,6 +356,7 @@ router.post('/update-profile', upload.single('profilePicture'), async (req, res)
       res.json({ success: false, message: 'Failed to update profile.' });
     }
   } catch (error) {
+    console.error('Error updating profile:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 });
@@ -417,6 +422,7 @@ router.delete('/delete-image', async (req, res) => {
       res.json({ success: false, message: 'Failed to delete image.' });
     }
   } catch (error) {
+    console.error('Error deleting image:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 });
@@ -428,6 +434,7 @@ router.get('/check-nft', async (req, res) => {
     const hasNFT = await checkIfUserHasNFT(address);
     res.json({ hasNFT });
   } catch (error) {
+    console.error('Error checking NFT:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 });
@@ -442,6 +449,7 @@ router.get('/random-images', async (req, res) => {
     const images = await imagesCollection.aggregate([{ $sample: { size: count } }]).toArray();
     res.json({ success: true, images });
   } catch (error) {
+    console.error('Error fetching random images:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 });

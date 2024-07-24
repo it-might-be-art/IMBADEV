@@ -118,7 +118,7 @@ app.get('/data-privacy', (req, res) => {
 });
 
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  console.error('Unhandled error:', err.stack);
   res.status(500).send('Something broke!');
 });
 
@@ -128,7 +128,7 @@ app.use((req, res, next) => {
 
 async function getUserByName(name) {
   console.log(`Attempting to fetch user: ${name}`);
-  const client = new MongoClient(process.env.MONGODB_URI);
+  const client = new MongoClient(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
   try {
     await client.connect();
     console.log('Connected to MongoDB');
