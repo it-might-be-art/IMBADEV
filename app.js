@@ -58,10 +58,10 @@ app.use(session({
   store: MongoStore.create({
     mongoUrl: process.env.MONGODB_URI,
     collectionName: 'sessions',
-    tls: true,
-    tlsInsecure: true, // Set this to false in production if certificates are valid
     useNewUrlParser: true,
-    useUnifiedTopology: true
+    useUnifiedTopology: true,
+    tls: true,
+    tlsAllowInvalidCertificates: true // Set this to false in production
   })
 }));
 
@@ -140,10 +140,10 @@ app.use((req, res, next) => {
 async function getUserByName(name) {
   console.log(`Attempting to fetch user: ${name}`);
   const client = new MongoClient(process.env.MONGODB_URI, {
-    tls: true,
-    tlsInsecure: true, // Set this to false in production if certificates are valid
     useNewUrlParser: true,
-    useUnifiedTopology: true
+    useUnifiedTopology: true,
+    tls: true,
+    tlsAllowInvalidCertificates: true // Set this to false in production
   });
   try {
     await client.connect();
