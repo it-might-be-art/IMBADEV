@@ -133,7 +133,7 @@ app.use((req, res, next) => {
 
 async function getUserByName(name) {
   console.log(`Attempting to fetch user: ${name}`);
-  const client = new MongoClient(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+  const client = new MongoClient(process.env.MONGODB_URI); // Remove deprecated options
   try {
     await client.connect();
     console.log('Connected to MongoDB');
