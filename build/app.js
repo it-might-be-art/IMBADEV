@@ -200,4 +200,10 @@ server.on('error', (error) => {
   }
 });
 
-server.on('listening', ()
+server.on('listening', () => {
+  console.log('Server is now listening for incoming requests');
+});
+
+console.log('Server initialization complete.');
+
+module.exports = server;
