@@ -1,25 +1,33 @@
 const express = require('express');
 const serverless = require('serverless-http');
 const path = require('path');
-const ejs = require('ejs');
+
+let ejs;
+try {
+  ejs = require('ejs');
+} catch (error) {
+  console.error('Fehler beim Laden von EJS:', error);
+}
 
 const app = express();
 
-// Setzen Sie EJS als View Engine
-app.set('view engine', 'ejs');
-app.set('views', path.join(process.cwd(), 'src', 'views'));
+if (ejs) {
+  app.set('view engine', 'ejs');
+  app.set('views', path.join(process.cwd(), 'src', 'views'));
+} else {
+  console.warn('EJS konnte nicht geladen werden. Template-Rendering deaktiviert.');
+}
 
 // Statische Dateien einbinden
 app.use(express.static(path.join(process.cwd(), 'public')));
 
 // Route für die Startseite
 app.get('/', (req, res) => {
-  res.render('index', { title: 'Startseite' });
-});
-
-// Einfache API-Route zum Testen
-app.get('/api/hello', (req, res) => {
-  res.json({ message: 'Hallo von der API!' });
+  if (ejs) {
+    res.render('index', { title: 'Startseite' });
+  } else {
+    res.send('Willkommen auf der Startseite (EJS nicht verfügbar)');
+  }
 });
 
 // Fehlerbehandlung
