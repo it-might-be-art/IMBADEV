@@ -30,7 +30,6 @@ const srcDir = path.join(__dirname, 'src');
 const destDir = path.join(functionsDir, 'src');
 fs.cpSync(srcDir, destDir, { recursive: true });
 
-
 // Copy utils directory to functions directory
 const utilsDir = path.join(__dirname, 'utils');
 const utilsDestDir = path.join(functionsDir, 'utils');
@@ -115,7 +114,6 @@ const envPath = path.join(functionsDir, '.env');
 const envContent = `
 MONGODB_URI=${process.env.MONGODB_URI}
 SESSION_SECRET=${process.env.SESSION_SECRET}
-IONOS_DEPLOYMENT_TEST=${process.env.IONOS_DEPLOYMENT_TEST || 'false'}
 `;
 fs.writeFileSync(envPath, envContent);
 
@@ -140,6 +138,12 @@ function logDirectoryStructure(dir, level = 0) {
   files.forEach(file => {
     const filePath = path.join(dir, file);
     const stats = fs.statSync(filePath);
+    if (stats.isDirectory()) {
+      console.log(`${indent}${file}/`);
+      logDirectoryStructure(filePath, level + 1);
+    } else {
+      console.log(`${indent}${file}`);
+    }
   });
 }
 logDirectoryStructure(buildDir);

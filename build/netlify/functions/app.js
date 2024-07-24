@@ -13,10 +13,6 @@ const PORT = process.env.PORT || 3000;
 
 console.log('Starting server initialization...');
 
-// IONOS Deployment Test
-const isIonosDeployment = process.env.IONOS_DEPLOYMENT_TEST === 'true';
-console.log(`IONOS Deployment Test: ${isIonosDeployment ? 'Configuration detected' : 'Configuration not detected'}`);
-
 console.log('Starting server...');
 console.log(`Environment variables: MONGODB_URI=${process.env.MONGODB_URI ? 'set' : 'not set'}, SESSION_SECRET=${process.env.SESSION_SECRET ? 'set' : 'not set'}, IONOS_DEPLOYMENT_TEST=${process.env.IONOS_DEPLOYMENT_TEST ? 'set' : 'not set'}`);
 
@@ -24,15 +20,40 @@ console.log('Current directory:', __dirname);
 console.log('Files in current directory:', fs.readdirSync(__dirname));
 console.log('Files in utils directory:', fs.readdirSync(path.join(__dirname, 'utils')));
 
-// Run the checkUtils.js
-require('./checkUtils');
+// Function to find utils directory
+function findUtilsDir() {
+  const possiblePaths = [
+    path.join(__dirname, 'utils'),
+    path.join(__dirname, '..', 'utils'),
+    path.join(__dirname, '..', '..', 'utils'),
+    path.join(__dirname, 'src', 'utils'),
+    path.join(__dirname, '..', 'src', 'utils')
+  ];
 
-// Try to require nftUtils
-try {
-  const nftUtils = require('./utils/nftUtils');
-  console.log('Successfully required nftUtils');
-} catch (error) {
-  console.error('Error requiring nftUtils:', error);
+  for (const p of possiblePaths) {
+    if (fs.existsSync(p)) {
+      console.log('Found utils directory at:', p);
+      return p;
+    }
+  }
+
+  console.error('Could not find utils directory');
+  return null;
+}
+
+const utilsDir = findUtilsDir();
+
+if (utilsDir) {
+  console.log('Contents of utils directory:', fs.readdirSync(utilsDir));
+  
+  // Try to require nftUtils
+  try {
+    const nftUtilsPath = path.join(utilsDir, 'nftUtils.js');
+    const nftUtils = require(nftUtilsPath);
+    console.log('Successfully required nftUtils');
+  } catch (error) {
+    console.error('Error requiring nftUtils:', error);
+  }
 }
 
 const viewsPath = path.join(__dirname, 'src', 'views');
@@ -72,7 +93,6 @@ app.get('/', (req, res) => {
     title: 'Home', 
     currentPage: 'home', 
     profile: req.session.profile,
-    ionosTest: isIonosDeployment ? 'IONOS config detected' : 'IONOS config not detected'
   }, (err, html) => {
     if (err) {
       console.error('Error rendering index.ejs:', err);
@@ -121,11 +141,6 @@ app.get('/imprint', (req, res) => {
 app.get('/data-privacy', (req, res) => {
   console.log('Serving data privacy page');
   res.render('data-privacy', { title: 'Data Privacy', currentPage: 'data-privacy', profile: req.session.profile });
-});
-
-app.get('/api/test', (req, res) => {
-  console.log('API test route accessed');
-  res.json({ message: 'API is working', ionosTest: isIonosDeployment ? 'IONOS config detected' : 'IONOS config not detected' });
 });
 
 app.use((err, req, res, next) => {
