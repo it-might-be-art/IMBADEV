@@ -1,24 +1,16 @@
-[
-build
-]
+[build]
   command = "npm install && node build.js"
   functions = "build/netlify/functions"
   publish = "build"
 
-[
-functions
-]
+[functions]
   node_bundler = "esbuild"
   included_files = ["src/views/**", "utils/**"]
 
-[[
-redirects
-]]
+[[redirects]]
   from = "/*"
   to = "/.netlify/functions/app"
   status = 200
 
-[
-build.environment
-]
+[build.environment]
   NETLIFY = "true"
