@@ -15,6 +15,8 @@ console.log('Starting server initialization...');
 
 console.log('Starting server...');
 console.log(`Environment variables: MONGODB_URI=${process.env.MONGODB_URI ? 'set' : 'not set'}, SESSION_SECRET=${process.env.SESSION_SECRET ? 'set' : 'not set'}`);
+console.log('MONGODB_URI:', process.env.MONGODB_URI);  // Protokollieren Sie die tatsächlichen Werte
+console.log('SESSION_SECRET:', process.env.SESSION_SECRET);
 
 console.log('Current directory:', __dirname);
 console.log('Files in current directory:', fs.readdirSync(__dirname));
@@ -57,7 +59,7 @@ app.use(session({
     mongoUrl: process.env.MONGODB_URI,
     collectionName: 'sessions',
     tls: true,
-    tlsAllowInvalidCertificates: true // Set this to false in production
+    tlsInsecure: true, // Set this to false in production if certificates are valid
   })
 }));
 
@@ -137,7 +139,7 @@ async function getUserByName(name) {
   console.log(`Attempting to fetch user: ${name}`);
   const client = new MongoClient(process.env.MONGODB_URI, {
     tls: true,
-    tlsAllowInvalidCertificates: true // Set this to false in production
+    tlsInsecure: true, // Set this to false in production if certificates are valid
   });
   try {
     await client.connect();
