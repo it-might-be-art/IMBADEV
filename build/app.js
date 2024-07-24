@@ -88,6 +88,14 @@ app.get('/', (req, res) => {
   });
 });
 
+// Debug route to check environment variables
+app.get('/env', (req, res) => {
+  res.json({
+    MONGODB_URI: process.env.MONGODB_URI,
+    SESSION_SECRET: process.env.SESSION_SECRET
+  });
+});
+
 const usersRouter = require('./src/routes/users');
 app.use('/api/users', usersRouter);
 
@@ -192,10 +200,4 @@ server.on('error', (error) => {
   }
 });
 
-server.on('listening', () => {
-  console.log('Server is now listening for incoming requests');
-});
-
-console.log('Server initialization complete.');
-
-module.exports = server;
+server.on('listening', ()
