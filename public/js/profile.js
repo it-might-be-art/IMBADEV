@@ -5,9 +5,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const username = window.location.pathname.split('/').pop();
 
       const response = await fetch(`/api/users/profile-data/${username}`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
       const result = await response.json();
 
       if (result.success) {
@@ -20,9 +17,11 @@ document.addEventListener("DOMContentLoaded", () => {
         if (walletAddressElement) walletAddressElement.textContent = result.user.address;
         if (displayNameElement) displayNameElement.textContent = result.user.name;
         if (displayBioElement) displayBioElement.textContent = result.user.bio;
-        if (profilePictureDisplayElement) profilePictureDisplayElement.src = result.user.profilePicture
-          ? result.user.profilePicture // Direct URL from S3
-          : '/images/default-profile-picture.png';
+        if (profilePictureDisplayElement) {
+          profilePictureDisplayElement.src = result.user.profilePicture 
+            ? result.user.profilePicture 
+            : '/images/default-profile-picture.png';
+        }
         if (voteCountElement) voteCountElement.textContent = result.user.votes || 0;
 
         const profileForm = document.getElementById('profile-form');
@@ -62,7 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
             imageElement.className = 'gallery-item';
 
             const img = document.createElement('img');
-            img.src = image.imagePath; // Direct URL from S3
+            img.src = image.imagePath;
             img.alt = image.title;
 
             const infoWrapper = document.createElement('div');
@@ -176,37 +175,42 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   async function submitProfileForm(event) {
-    event.preventDefault();
+  event.preventDefault();
 
-    const formData = new FormData(event.target);
-    const profile = JSON.parse(localStorage.getItem('profile'));
-    const address = profile ? profile.address : null;
+  const formData = new FormData(event.target);
+  const profile = JSON.parse(localStorage.getItem('profile'));
+  const address = profile ? profile.address : null;
 
-    if (!address) {
-      alert('No address found in localStorage');
-      return;
-    }
-
-    try {
-      const response = await fetch(`/api/users/update-profile?address=${address}`, {
-        method: 'POST',
-        body: formData
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        localStorage.setItem('profile', JSON.stringify(result.profile));
-        loadProfile();
-        updateNavigation(); // Navigation aktualisieren
-      } else {
-        alert(result.message);
-      }
-    } catch (error) {
-      console.error('Failed to update profile:', error);
-      alert('Failed to update profile');
-    }
+  if (!address) {
+    alert('No address found in localStorage');
+    return;
   }
+
+  try {
+    const response = await fetch(`/api/users/update-profile?address=${address}`, {
+      method: 'POST',
+      body: formData
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      localStorage.setItem('profile', JSON.stringify(result.profile));
+      loadProfile();
+      updateNavigation(); // Navigation aktualisieren
+    } else {
+      alert(result.message);
+    }
+  } catch (error) {
+    console.error('Failed to update profile:', error);
+    alert('Failed to update profile');
+  }
+}
+
+const profileForm = document.getElementById('profile-form');
+if (profileForm) {
+  profileForm.addEventListener('submit', submitProfileForm);
+}
 
   async function submitUploadForm(event) {
     event.preventDefault();
@@ -241,14 +245,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  const profileForm = document.getElementById('profile-form');
-  if (profileForm) {
-    profileForm.addEventListener('submit', submitProfileForm);
+  const profileFormElement = document.getElementById('profile-form');
+  const uploadFormElement = document.getElementById('upload-form');
+
+  if (profileFormElement) {
+    profileFormElement.addEventListener('submit', submitProfileForm);
   }
 
-  const uploadForm = document.getElementById('upload-form');
-  if (uploadForm) {
-    uploadForm.addEventListener('submit', submitUploadForm);
+  if (uploadFormElement) {
+    uploadFormElement.addEventListener('submit', submitUploadForm);
   }
 
   loadProfile();

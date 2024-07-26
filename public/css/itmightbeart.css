@@ -437,7 +437,7 @@ input, textarea {
     font-size: 14px;
   }
   #modalImageContainer img {
-    max-width: 800px;
+    width: 100%;
     max-height: 50vh;
   }
   .info-modal-close {
@@ -448,15 +448,24 @@ input, textarea {
     color: white;
   }
   .info-modal.success {
-    background-color: #4CAF50;
+    background-color: rgba(99, 194, 60, .9);
+    border: 2px solid #63C23C;
+}
+
+.upload-fields {
+    display: flex;
+    flex-direction: column;
+    padding: 16px 0;
 }
 
 .info-modal.error {
-    background-color: #f44336;
+    background-color: rgba(232, 66, 78, .9);
+    border: 2px solid #E8424E;
 }
 
 .info-modal.warning {
-    background-color: #ff9800;
+    background-color: rgba(232, 66, 78, .9);
+    border: 2px solid #E8424E;
 }
 
 .sub-section {
@@ -781,6 +790,7 @@ input, textarea {
     width: 100%;
     max-width: 440px;
     border: 1px solid var(--border-grey);
+    box-shadow: 0px 8px 80px #000
   }
 
   .modal-content h4 {
@@ -793,7 +803,7 @@ input, textarea {
   }
 
 
-
+/*
   .modal-close {
     background-color: #f44336;
   }
@@ -801,7 +811,7 @@ input, textarea {
   .modal-close:hover {
     background-color: #da190b;
   }
-
+*/
   .image-teaser {
     display: flex;
     flex-wrap: wrap;

@@ -263,6 +263,7 @@ router.post('/authenticate', async (req, res) => {
 // Route zum Abrufen der Profil-Daten eines Benutzers
 router.get('/profile-data/:username', async (req, res) => {
   const username = req.params.username;
+  const profile = req.session.profile; // Hinzufügen, um das Profil zu überprüfen
 
   try {
     const db = await connectToDatabase();
@@ -286,9 +287,16 @@ router.get('/profile-data/:username', async (req, res) => {
       };
     }));
 
+    const isOwner = profile && profile.address === user.address; // Überprüfen, ob der aktuelle Benutzer der Eigentümer ist
+
     user.social = user.social || {};
 
-    res.json({ success: true, user, images: imagesWithVotes });
+    // Prüfen, ob das Profilbild eine vollständige URL ist
+    if (user.profilePicture && !user.profilePicture.startsWith('http')) {
+      user.profilePicture = `https://your-s3-bucket-url/${user.profilePicture}`;
+    }
+
+    res.json({ success: true, user, images: imagesWithVotes, isOwner }); // Hinzufügen von isOwner zur Antwort
   } catch (error) {
     console.error('Error fetching user profile data:', error);
     res.status(500).json({ success: false, message: error.message });
@@ -305,11 +313,12 @@ router.get('/profile/:username', async (req, res) => {
     const usersCollection = db.collection('users');
     const imagesCollection = db.collection('images');
     const user = await usersCollection.findOne({ name: username });
+
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
-    const isOwner = profile && profile.address === user.address;
 
+    const isOwner = profile && profile.address === user.address;
     const images = await imagesCollection.find({ address: user.address }).toArray();
 
     user.social = user.social || {};
@@ -334,7 +343,47 @@ router.get('/profile/:username', async (req, res) => {
   }
 });
 
-// Route to update user profile
+// Route to fetch user profile
+router.get('/profile/:username', async (req, res) => {
+  const username = req.params.username;
+  const profile = req.session.profile;
+
+  try {
+    const db = await connectToDatabase();
+    const usersCollection = db.collection('users');
+    const imagesCollection = db.collection('images');
+    const user = await usersCollection.findOne({ name: username });
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    const isOwner = profile && profile.address === user.address;
+    const images = await imagesCollection.find({ address: user.address }).toArray();
+
+    user.social = user.social || {};
+
+    const hasNFT = user.hasNFT;
+
+    res.render('profile', { 
+      title: 'Profile', 
+      user, 
+      isOwner, 
+      images: images.map(image => ({
+        ...image,
+        imageUrl: image.imagePath
+      })), 
+      hasNFT, 
+      profile, 
+      currentPage: 'profile' 
+    });
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Route zum Aktualisieren des Benutzerprofils
 router.post('/update-profile', upload.single('profilePicture'), async (req, res) => {
   const address = req.query.address;
   const profile = req.session.profile;
@@ -344,11 +393,12 @@ router.post('/update-profile', upload.single('profilePicture'), async (req, res)
   }
 
   const { name, bio, xUsername, warpcastUsername, lensUsername, instagramUsername } = req.body;
-  const profilePicture = req.file ? req.file.location : null;
+  const profilePicture = req.file ? req.file.location : null; // Use .location for S3 URL
 
   try {
     const db = await connectToDatabase();
     const usersCollection = db.collection('users');
+
     const updateData = {
       name,
       bio,
@@ -363,13 +413,15 @@ router.post('/update-profile', upload.single('profilePicture'), async (req, res)
       updateData.profilePicture = profilePicture;
     }
 
+    // Aktualisieren Sie das hasNFT-Feld jedes Mal, wenn das Profil aktualisiert wird
     const hasNFT = await checkIfUserHasNFT(address);
     updateData.hasNFT = hasNFT;
 
     const result = await usersCollection.updateOne({ address }, { $set: updateData });
 
     if (result.modifiedCount > 0) {
-      res.json({ success: true });
+      const updatedProfile = await usersCollection.findOne({ address });
+      res.json({ success: true, profile: updatedProfile }); // Return the updated profile
     } else {
       res.json({ success: false, message: 'Failed to update profile.' });
     }

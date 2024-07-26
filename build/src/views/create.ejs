@@ -112,11 +112,13 @@
         <!-- SVG image will be inserted here -->
       </div>
 
-      <!-- <label for="imageTitle">Title</label> -->
-      <input type="text" id="imageTitle" name="imageTitle" placeholder="title" required>
-      <!-- <label for="imageDescription">Description (optional, max 100 characters):</label> --> 
-      <input type="text" id="imageDescription" placeholder="description" maxlength="100">
-      <p id="input-length">0/100</p>
+      <div class="upload-fields">
+        <!-- <label for="imageTitle">Title</label> -->
+        <input type="text" id="imageTitle" name="imageTitle" placeholder="title" required>
+        <!-- <label for="imageDescription">Description (optional, max 100 characters):</label> --> 
+        <input type="text" id="imageDescription" placeholder="description" maxlength="100">
+        <!-- <p id="input-length">0/100</p> -->
+      </div>
       <div id="walletMessage" style="color: red; display: none;">
         Please connect your wallet to submit.
       </div>
@@ -130,7 +132,7 @@
   <div id="infoModal" class="info-modal">
   <div class="info-modal-content">
     <span id="infoModalClose" class="info-modal-close">&times;</span>
-    <p id="infoModalMessage">hier kommt die fehlermeldung</p>
+    <p id="infoModalMessage">error message</p>
   </div>
 </div>
 
