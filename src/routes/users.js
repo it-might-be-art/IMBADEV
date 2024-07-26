@@ -37,6 +37,10 @@ async function connectToDatabase() {
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadDir = path.join(basePath, 'public', 'uploads');
+    // Ensure the upload directory exists
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
@@ -397,7 +401,7 @@ router.post('/upload-image', ensureAuthenticated, upload.fields([{ name: 'image'
     res.json({ success: true });
   } catch (error) {
     console.error('Error uploading image:', error);
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Error uploading image. Please try again later.' });
   }
 });
 
