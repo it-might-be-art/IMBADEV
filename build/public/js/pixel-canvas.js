@@ -179,8 +179,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function saveState() {
-        const currentState = window.uploadModule.exportGridToIMBA(grid, gridSize, backgroundColor);
-        if (currentState !== undoStack[undoStack.length - 1]) {
+        const currentState = exportGridToIMBA();
+        if (undoStack.length === 0 || currentState !== undoStack[undoStack.length - 1]) {
             undoStack.push(currentState);
             redoStack = [];
         }
@@ -195,22 +195,22 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function redo() {
-        if (redoStack.length > 0) {
-            const nextState = redoStack.pop();
-            undoStack.push(nextState);
-            applyIMBAToGrid(nextState);
-        }
+    if (redoStack.length > 0) {
+        const nextState = redoStack.pop();
+        undoStack.push(nextState);
+        applyIMBAToGrid(nextState);
     }
+}
 
     function clearCanvas() {
         initializeGrid(false);
         saveState();
     }
 
-    function applyIMBAToGrid(imbaString) {
+function applyIMBAToGrid(imbaString) {
     const data = JSON.parse(imbaString);
     const newGridSize = data.gridSize;
-    const pixels = data.pixels;
+    const pixels = data.pixels || [];
 
     if (newGridSize && newGridSize !== gridSize) {
         gridSize = newGridSize;
