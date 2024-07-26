@@ -36,11 +36,8 @@ async function connectToDatabase() {
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadDir = path.join(basePath, 'public', 'uploads');
-    // Ensure the upload directory exists
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
+    const uploadDir = path.join(__dirname, '..', 'public', 'uploads');
+    fs.mkdirSync(uploadDir, { recursive: true });
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {

@@ -71,6 +71,7 @@ app.use((req, res, next) => {
 });
 
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
 
 app.get('/', (req, res) => {
   console.log('Attempting to serve home page');
