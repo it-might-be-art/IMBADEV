@@ -4,6 +4,9 @@ const { MongoClient, ObjectId } = require('mongodb');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const { S3Client, PutObjectCommand, GetObjectCommand } = require('@aws-sdk/client-s3');
+const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
+const multerS3 = require('multer-s3');
 
 // Dynamically determine the base path
 const basePath = path.join(__dirname, '..');
@@ -25,7 +28,7 @@ if (fs.existsSync(nftUtilsPath)) {
 }
 
 const uri = process.env.MONGODB_URI;
-const client = new MongoClient(uri); // Remove deprecated options
+const client = new MongoClient(uri);
 
 async function connectToDatabase() {
   if (!client.topology || !client.topology.isConnected()) {
@@ -34,26 +37,47 @@ async function connectToDatabase() {
   return client.db('IMBA');
 }
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadDir = path.join(__dirname, '..', 'public', 'uploads');
-    fs.mkdirSync(uploadDir, { recursive: true });
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    let ext = '';
-    if (file.fieldname === 'image') {
-      ext = '.png';
-    } else if (file.fieldname === 'imba') {
-      ext = '.imba';
-    }
-    cb(null, `${Date.now()}${ext}`);
-  },
+// AWS S3 Configuration
+const s3 = new S3Client({ 
+  region: process.env.AWS_REGION, 
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+  }
 });
 
-const upload = multer({ storage });
+const bucketName = process.env.AWS_S3_BUCKET;
 
-// Authentifizierung und NFT-Überprüfung
+router.get('/check-env', (req, res) => {
+  res.json({
+    AWS_REGION: process.env.AWS_REGION,
+    AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
+    AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
+    AWS_S3_BUCKET: process.env.AWS_S3_BUCKET,
+    MONGODB_URI: process.env.MONGODB_URI,
+    SESSION_SECRET: process.env.SESSION_SECRET
+  });
+});
+
+if (!process.env.AWS_REGION || !process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY || !process.env.AWS_S3_BUCKET) {
+  console.error('Missing one or more required AWS environment variables: AWS_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_S3_BUCKET');
+} else {
+  console.log('AWS environment variables set correctly');
+}
+
+// Multer S3 Storage Configuration
+const upload = multer({
+  storage: multerS3({
+    s3: s3,
+    bucket: bucketName,
+    key: function (req, file, cb) {
+      let ext = path.extname(file.originalname);
+      cb(null, `${Date.now()}${ext}`);
+    }
+  })
+});
+
+// Authentication and NFT check
 async function authenticateUser(address) {
   const db = await connectToDatabase();
   const usersCollection = db.collection('users');
@@ -66,7 +90,7 @@ async function authenticateUser(address) {
   return user;
 }
 
-// Middleware zur Authentifizierung
+// Authentication middleware
 function ensureAuthenticated(req, res, next) {
   if (req.session.profile) {
     return next();
@@ -75,7 +99,7 @@ function ensureAuthenticated(req, res, next) {
   }
 }
 
-// Route zum Abrufen der Galerie-Bilder
+// Route to fetch gallery images
 router.get('/gallery', async (req, res) => {
   try {
     const db = await connectToDatabase();
@@ -88,7 +112,8 @@ router.get('/gallery', async (req, res) => {
       const user = await usersCollection.findOne({ address: image.address });
       return {
         ...image,
-        creatorName: user ? user.name : 'Unknown'
+        creatorName: user ? user.name : 'Unknown',
+        imageUrl: image.imagePath
       };
     }));
 
@@ -99,7 +124,7 @@ router.get('/gallery', async (req, res) => {
   }
 });
 
-// Route zum Abrufen der Benutzerbilder
+// Route to fetch user images
 router.get('/images', async (req, res) => {
   const username = req.query.username;
   try {
@@ -126,28 +151,22 @@ router.post('/vote', async (req, res) => {
     const db = await connectToDatabase();
     const votesCollection = db.collection('votes');
     const usersCollection = db.collection('users');
-    const imagesCollection = db.collection('images');
 
     const user = await authenticateUser(address);
 
-    // Überprüfen, ob der Benutzer ein PunkApepen-NFT besitzt
     if (!await checkIfUserHasNFT(address)) {
       return res.status(403).json({ success: false, message: 'You must own a PunkApepen NFT to vote.' });
     }
 
-    // Prüfen, ob der Benutzer bereits für das Bild abgestimmt hat
     const existingVote = await votesCollection.findOne({ address, imageId: new ObjectId(imageId) });
     if (existingVote) {
       return res.status(400).json({ success: false, message: 'You have already voted for this image.' });
     }
 
-    // Stimme speichern
     await votesCollection.insertOne({ address, imageId: new ObjectId(imageId), createdAt: new Date() });
 
-    // Anzahl der Stimmen für das Bild abrufen
     const votesCount = await votesCollection.countDocuments({ imageId: new ObjectId(imageId) });
 
-    // Erhöhen der Stimmenzahl des Benutzers
     await usersCollection.updateOne({ address }, { $inc: { votes: 1 } });
 
     res.json({ success: true, votesCount, message: 'Vote recorded successfully.' });
@@ -157,7 +176,7 @@ router.post('/vote', async (req, res) => {
   }
 });
 
-// Route zum Abrufen der Stimmen
+// Route to fetch votes
 router.get('/votes/:imageId', async (req, res) => {
   const { imageId } = req.params;
   try {
@@ -177,7 +196,7 @@ router.get('/votes/:imageId', async (req, res) => {
   }
 });
 
-// Route zum Überprüfen, ob ein Benutzer für ein Bild abgestimmt hat
+// Route to check if a user has voted for an image
 router.get('/has-voted', async (req, res) => {
   const { address, imageId } = req.query;
   try {
@@ -229,12 +248,10 @@ router.post('/authenticate', async (req, res) => {
       };
       await usersCollection.insertOne(user);
     } else {
-      // Aktualisieren Sie das hasNFT-Feld jedes Mal, wenn der Benutzer sich authentifiziert
       const hasNFT = await checkIfUserHasNFT(address);
       await usersCollection.updateOne({ address }, { $set: { hasNFT } });
       user.hasNFT = hasNFT;
     }
-
     req.session.profile = user;
     res.json({ success: true, profile: user });
   } catch (error) {
@@ -243,27 +260,24 @@ router.post('/authenticate', async (req, res) => {
   }
 });
 
-// Route zum Abrufen des Benutzerprofils
+// Route zum Abrufen der Profil-Daten eines Benutzers
 router.get('/profile-data/:username', async (req, res) => {
   const username = req.params.username;
-  const profile = req.session.profile;
 
   try {
     const db = await connectToDatabase();
     const usersCollection = db.collection('users');
     const imagesCollection = db.collection('images');
     const votesCollection = db.collection('votes');
+
     const user = await usersCollection.findOne({ name: username });
 
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
 
-    const isOwner = profile && profile.address === user.address;
-
     const images = await imagesCollection.find({ address: user.address }).toArray();
 
-    // Füge die Anzahl der Votes für jedes Bild hinzu
     const imagesWithVotes = await Promise.all(images.map(async (image) => {
       const votesCount = await votesCollection.countDocuments({ imageId: image._id });
       return {
@@ -274,14 +288,14 @@ router.get('/profile-data/:username', async (req, res) => {
 
     user.social = user.social || {};
 
-    res.json({ success: true, user, images: imagesWithVotes, isOwner });
+    res.json({ success: true, user, images: imagesWithVotes });
   } catch (error) {
     console.error('Error fetching user profile data:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 });
 
-
+// Route to fetch user profile
 router.get('/profile/:username', async (req, res) => {
   const username = req.params.username;
   const profile = req.session.profile;
@@ -291,31 +305,36 @@ router.get('/profile/:username', async (req, res) => {
     const usersCollection = db.collection('users');
     const imagesCollection = db.collection('images');
     const user = await usersCollection.findOne({ name: username });
-
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
-
     const isOwner = profile && profile.address === user.address;
 
-    // Bilder des Benutzers abrufen
     const images = await imagesCollection.find({ address: user.address }).toArray();
 
-    // Sicherstellen, dass das social-Objekt immer definiert ist
     user.social = user.social || {};
 
-    // Überprüfen, ob der Benutzer ein PunkApepen-NFT besitzt
     const hasNFT = user.hasNFT;
 
-    res.render('profile', { title: 'Profile', user, isOwner, images, hasNFT, profile, currentPage: 'profile' });
+    res.render('profile', { 
+      title: 'Profile', 
+      user, 
+      isOwner, 
+      images: images.map(image => ({
+        ...image,
+        imageUrl: image.imagePath
+      })), 
+      hasNFT, 
+      profile, 
+      currentPage: 'profile' 
+    });
   } catch (error) {
     console.error('Error fetching user profile:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 });
 
-
-// Route zum Aktualisieren des Benutzerprofils
+// Route to update user profile
 router.post('/update-profile', upload.single('profilePicture'), async (req, res) => {
   const address = req.query.address;
   const profile = req.session.profile;
@@ -325,12 +344,11 @@ router.post('/update-profile', upload.single('profilePicture'), async (req, res)
   }
 
   const { name, bio, xUsername, warpcastUsername, lensUsername, instagramUsername } = req.body;
-  const profilePicture = req.file ? req.file.filename : null;
+  const profilePicture = req.file ? req.file.location : null;
 
   try {
     const db = await connectToDatabase();
     const usersCollection = db.collection('users');
-
     const updateData = {
       name,
       bio,
@@ -345,7 +363,6 @@ router.post('/update-profile', upload.single('profilePicture'), async (req, res)
       updateData.profilePicture = profilePicture;
     }
 
-    // Aktualisieren Sie das hasNFT-Feld jedes Mal, wenn das Profil aktualisiert wird
     const hasNFT = await checkIfUserHasNFT(address);
     updateData.hasNFT = hasNFT;
 
@@ -362,9 +379,7 @@ router.post('/update-profile', upload.single('profilePicture'), async (req, res)
   }
 });
 
-
-
-// Route zum Hochladen eines Bildes (mit Authentifizierungsmiddleware)
+// Route to upload an image (with authentication middleware)
 router.post('/upload-image', ensureAuthenticated, upload.fields([{ name: 'image' }, { name: 'imba' }]), async (req, res) => {
   const { address, title, description } = req.body;
   const profile = req.session.profile;
@@ -373,22 +388,25 @@ router.post('/upload-image', ensureAuthenticated, upload.fields([{ name: 'image'
     return res.status(403).json({ success: false, message: 'Forbidden' });
   }
 
-  const imagePath = req.files.image[0].filename;
-  const imbaPath = req.files.imba[0].filename;
+  const imageFile = req.files.image[0];
+  const imbaFile = req.files.imba[0];
 
   try {
     const db = await connectToDatabase();
     const imagesCollection = db.collection('images');
     const usersCollection = db.collection('users');
-
     const user = await usersCollection.findOne({ address });
+
+    if (!user) {
+      throw new Error(`User not found for address: ${address}`);
+    }
 
     const newImage = {
       address,
       title,
       description,
-      imagePath,
-      imbaPath,
+      imagePath: imageFile.location,
+      imbaPath: imbaFile.location,
       creator: user.address,
       creatorName: user.name,
       createdAt: new Date(),
@@ -396,59 +414,28 @@ router.post('/upload-image', ensureAuthenticated, upload.fields([{ name: 'image'
 
     await imagesCollection.insertOne(newImage);
     res.json({ success: true });
+
   } catch (error) {
     console.error('Error uploading image:', error);
     res.status(500).json({ success: false, message: 'Error uploading image. Please try again later.' });
   }
 });
 
-// Route zum Löschen eines Bildes
-router.delete('/delete-image', async (req, res) => {
-  const { address, imageId } = req.body;
-  const profile = req.session.profile;
-
-  if (!profile || profile.address !== address) {
-    return res.status(403).json({ success: false, message: 'Forbidden' });
-  }
-
-  try {
-    const db = await connectToDatabase();
-    const imagesCollection = db.collection('images');
-
-    const result = await imagesCollection.deleteOne({ _id: new ObjectId(imageId), address });
-
-    if (result.deletedCount > 0) {
-      res.json({ success: true });
-    } else {
-      res.json({ success: false, message: 'Failed to delete image.' });
-    }
-  } catch (error) {
-    console.error('Error deleting image:', error);
-    res.status(500).json({ success: false, message: error.message });
-  }
-});
-
-router.get('/check-nft', async (req, res) => {
-  const { address } = req.query;
-
-  try {
-    const hasNFT = await checkIfUserHasNFT(address);
-    res.json({ hasNFT });
-  } catch (error) {
-    console.error('Error checking NFT:', error);
-    res.status(500).json({ success: false, message: error.message });
-  }
-});
-
-// Route zum Abrufen von zufälligen Bildern
+// Route to fetch random images
 router.get('/random-images', async (req, res) => {
-  const count = parseInt(req.query.count) || 4; // Standardanzahl der Bilder ist 4
+  const count = parseInt(req.query.count) || 8;
   try {
     const db = await connectToDatabase();
     const imagesCollection = db.collection('images');
-
     const images = await imagesCollection.aggregate([{ $sample: { size: count } }]).toArray();
-    res.json({ success: true, images });
+
+    // Make sure each image has its full S3 URL
+    const imagesWithUrls = images.map(image => ({
+      ...image,
+      imagePath: image.imagePath // Assuming imagePath already has the full S3 URL
+    }));
+
+    res.json({ success: true, images: imagesWithUrls });
   } catch (error) {
     console.error('Error fetching random images:', error);
     res.status(500).json({ success: false, message: error.message });

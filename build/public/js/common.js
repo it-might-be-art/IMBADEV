@@ -20,7 +20,7 @@ async function loadImages(apiEndpoint, galleryElementId) {
       imgLink.href = `/profile/${image.creatorName}`;
 
       const img = document.createElement('img');
-      img.src = `/uploads/${image.imagePath}`;
+      img.src = image.imageUrl;  // Use the S3 URL
       img.alt = image.title;
       
       imgLink.appendChild(img);

@@ -28,48 +28,48 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     modalSubmitButton.addEventListener('click', async () => {
-        const title = imageTitleInput.value.trim();
-        const description = imageDescriptionInput.value.trim();
-        if (!title) {
-            alert('Please enter a title.');
-            return;
-        }
+  const title = imageTitleInput.value.trim();
+  const description = imageDescriptionInput.value.trim();
+  if (!title) {
+    alert('Please enter a title.');
+    return;
+  }
 
-        const profile = JSON.parse(localStorage.getItem('profile'));
-        if (!profile) {
-            walletMessage.style.display = 'block';
-            return;
-        }
+  const profile = JSON.parse(localStorage.getItem('profile'));
+  if (!profile) {
+    walletMessage.style.display = 'block';
+    return;
+  }
 
-        const imbaString = uploadModule.exportGridToIMBA(grid);
-        const pngBlob = await uploadModule.createPngBlob(grid);
+  const imbaString = uploadModule.exportGridToIMBA(grid);
+  const pngBlob = await uploadModule.createPngBlob(grid);
 
-        const formData = new FormData();
-        formData.append('title', title);
-        formData.append('description', description);
-        formData.append('imba', new Blob([imbaString], { type: 'application/json' }));
-        formData.append('image', pngBlob);
-        formData.append('address', profile.address);
+  const formData = new FormData();
+  formData.append('title', title);
+  formData.append('description', description);
+  formData.append('imba', new Blob([imbaString], { type: 'application/json' }));
+  formData.append('image', pngBlob);
+  formData.append('address', profile.address);
 
-        try {
-            const response = await fetch('/api/users/upload-image', {
-                method: 'POST',
-                body: formData
-            });
-
-            const result = await response.json();
-            if (result.success) {
-                alert('Image uploaded successfully.');
-                submitModal.style.display = 'none';
-                clearCanvas();
-            } else {
-                alert('Failed to upload image: ' + result.message);
-            }
-        } catch (error) {
-            console.error('Error uploading image:', error);
-            alert('Error uploading image');
-        }
+  try {
+    const response = await fetch('/api/users/upload-image', {
+      method: 'POST',
+      body: formData
     });
+
+    const result = await response.json();
+    if (result.success) {
+      alert('Image uploaded successfully.');
+      submitModal.style.display = 'none';
+      clearCanvas();
+    } else {
+      alert('Failed to upload image: ' + result.message);
+    }
+  } catch (error) {
+    console.error('Error uploading image:', error);
+    alert('Error uploading image');
+  }
+});
 
     function addRectEventListeners(rect) {
         rect.addEventListener('mousedown', function() {

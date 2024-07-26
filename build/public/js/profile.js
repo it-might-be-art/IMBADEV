@@ -5,6 +5,9 @@ document.addEventListener("DOMContentLoaded", () => {
       const username = window.location.pathname.split('/').pop();
 
       const response = await fetch(`/api/users/profile-data/${username}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       const result = await response.json();
 
       if (result.success) {
@@ -18,7 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (displayNameElement) displayNameElement.textContent = result.user.name;
         if (displayBioElement) displayBioElement.textContent = result.user.bio;
         if (profilePictureDisplayElement) profilePictureDisplayElement.src = result.user.profilePicture
-          ? `/uploads/${result.user.profilePicture}`
+          ? result.user.profilePicture // Direct URL from S3
           : '/images/default-profile-picture.png';
         if (voteCountElement) voteCountElement.textContent = result.user.votes || 0;
 
@@ -59,7 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
             imageElement.className = 'gallery-item';
 
             const img = document.createElement('img');
-            img.src = `/uploads/${image.imagePath}`;
+            img.src = image.imagePath; // Direct URL from S3
             img.alt = image.title;
 
             const infoWrapper = document.createElement('div');
@@ -193,7 +196,9 @@ document.addEventListener("DOMContentLoaded", () => {
       const result = await response.json();
 
       if (result.success) {
+        localStorage.setItem('profile', JSON.stringify(result.profile));
         loadProfile();
+        updateNavigation(); // Navigation aktualisieren
       } else {
         alert(result.message);
       }
@@ -235,39 +240,6 @@ document.addEventListener("DOMContentLoaded", () => {
       alert('Failed to upload image');
     }
   }
-
-  async function submitProfileForm(event) {
-  event.preventDefault();
-
-  const formData = new FormData(event.target);
-  const profile = JSON.parse(localStorage.getItem('profile'));
-  const address = profile ? profile.address : null;
-
-  if (!address) {
-    alert('No address found in localStorage');
-    return;
-  }
-
-  try {
-    const response = await fetch(`/api/users/update-profile?address=${address}`, {
-      method: 'POST',
-      body: formData
-    });
-
-    const result = await response.json();
-
-    if (result.success) {
-      localStorage.setItem('profile', JSON.stringify(result.profile));
-      loadProfile();
-      updateNavigation(); // Navigation aktualisieren
-    } else {
-      alert(result.message);
-    }
-  } catch (error) {
-    console.error('Failed to update profile:', error);
-    alert('Failed to update profile');
-  }
-}
 
   const profileForm = document.getElementById('profile-form');
   if (profileForm) {

@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           imageElement.className = 'teaser-item';
 
           const img = document.createElement('img');
-          img.src = `/uploads/${image.imagePath}`;
+          img.src = image.imagePath; // Using the S3 URL directly
           img.alt = image.title;
 
           imageElement.appendChild(img);
@@ -25,8 +25,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       console.error('Error fetching random images:', error);
     }
   }
-
-  
 
   loadRandomImages();
 });
