@@ -260,10 +260,9 @@ router.post('/authenticate', async (req, res) => {
   }
 });
 
-// Route zum Abrufen der Profil-Daten eines Benutzers
+// Route to fetch user profile data
 router.get('/profile-data/:username', async (req, res) => {
   const username = req.params.username;
-  const profile = req.session.profile; // Hinzufügen, um das Profil zu überprüfen
 
   try {
     const db = await connectToDatabase();
@@ -287,16 +286,16 @@ router.get('/profile-data/:username', async (req, res) => {
       };
     }));
 
-    const isOwner = profile && profile.address === user.address; // Überprüfen, ob der aktuelle Benutzer der Eigentümer ist
-
     user.social = user.social || {};
 
-    // Prüfen, ob das Profilbild eine vollständige URL ist
+    // Check if the profile picture is a complete URL or needs the S3 bucket URL prepended
     if (user.profilePicture && !user.profilePicture.startsWith('http')) {
-      user.profilePicture = `https://your-s3-bucket-url/${user.profilePicture}`;
+      user.profilePicture = `https://imba-bucket.s3.eu-north-1.amazonaws.com/${user.profilePicture}`;
     }
 
-    res.json({ success: true, user, images: imagesWithVotes, isOwner }); // Hinzufügen von isOwner zur Antwort
+    const isOwner = req.session.profile && req.session.profile.address === user.address;
+
+    res.json({ success: true, user, images: imagesWithVotes, isOwner });
   } catch (error) {
     console.error('Error fetching user profile data:', error);
     res.status(500).json({ success: false, message: error.message });

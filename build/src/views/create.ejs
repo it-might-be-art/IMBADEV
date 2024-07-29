@@ -42,40 +42,48 @@
               <button class="btn-grid" id="clearCanvasButton">clear canvas</button>
               <button id="toggleGridButton" href="#" class="btn-grid w-inline-block">hide grid</button>
               <div class="tools-hor">
-                <button class="undo" id="undoButton"></button>
-                <button class="redo" id="redoButton"></button>
+                <button class="undo" id="undoButton" title="undo"></button>
+                <button class="redo" id="redoButton" title="redo"></button>
               </div>
             </div>
+          </div>
 
-            <div class="tool-block-wrapper">
+          <div class="edit-tools">
+            <div class="tool-block-wrapper color-block">
+              
               <div class="tool-block">
                 <p class="tool-title">color</p>
                 <div class="div-block-8">
-                  <div id="colorPickerContainer" class="pickr-container"></div>
+                  <div id="colorPickerContainer" class="pickr-container" title="color"></div>
                   <a id="eyeDropperButton" href="#" class="pipette w-button"></a>
                 </div>
               </div>
-              <div class="tool-block">
-                <p class="tool-title">canvas</p>
-                <div id="backgroundColorPickerContainer" class="pickr-container"></div>
+
+              <div class="tool-block bg">
+                <p class="tool-title bg">canvas</p>
+                <div id="backgroundColorPickerContainer" class="pickr-container" title="background-color"></div>
+              </div>
+
+            </div>
+
+            
+            <div class="tool-block-wrapper">
+              <!-- <p class="tool-title">brush size</p> -->
+              <div class="brushes w-embed">
+                <div id="cursorCanvas"></div>
+                <button class="brush-size-button size1 active" data-size="1" title="brush-size 1"></button>
+                <button class="brush-size-button size2" data-size="2" title="brush-size 2"></button>
+                <button class="brush-size-button size3" data-size="4" title="brush-size 3"></button>
+              </div>
+              <!-- <p class="tool-title">mode</p> -->
+              <div class="mode-wrapper w-embed">
+                <button id="drawModeButton" class="tool-button draw active" title="draw"></button>
+                <button id="eraseModeButton" class="tool-button erase" title="erase"></button>
               </div>
             </div>
           </div>
-          <div class="tool-block-wrapper">
-            <p class="tool-title">brush size</p>
-            <div class="brushes w-embed">
-              <div id="cursorCanvas"></div>
-              <button class="brush-size-button size1 active" data-size="1"></button>
-              <button class="brush-size-button size2" data-size="2"></button>
-              <button class="brush-size-button size3" data-size="4"></button>
-            </div>
-            <p class="tool-title">mode</p>
-            <div class="mode-wrapper w-embed">
-              <button id="drawModeButton" class="tool-button draw active"></button>
-              <button id="eraseModeButton" class="tool-button erase"></button>
-            </div>
-          </div>
         </div>
+
         <div class="download-buttons">
           <a id="downloadSVG" href="#" class="action-btn download w-button">download svg</a>
           <a id="downloadPNG" href="#" class="action-btn download w-button">download png</a>
