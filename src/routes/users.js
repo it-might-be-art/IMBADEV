@@ -99,8 +99,8 @@ function ensureAuthenticated(req, res, next) {
   }
 }
 
-// Route to fetch gallery images
-router.get('/gallery', async (req, res) => {
+// Route to fetch submissions images
+router.get('/submissions', async (req, res) => {
   try {
     const db = await connectToDatabase();
     const imagesCollection = db.collection('images');
@@ -119,7 +119,7 @@ router.get('/gallery', async (req, res) => {
 
     res.json({ success: true, images: imagesWithCreatorNames });
   } catch (error) {
-    console.error('Error fetching gallery images:', error);
+    console.error('Error fetching submissions images:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 });

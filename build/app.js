@@ -122,9 +122,9 @@ app.get('/create', (req, res) => {
   res.render('create', { title: 'Create', currentPage: 'create', profile: req.session.profile });
 });
 
-app.get('/gallery', (req, res) => {
-  console.log('Serving gallery page');
-  res.render('gallery', { title: 'Gallery', currentPage: 'gallery', profile: req.session.profile });
+app.get('/submissions', (req, res) => {
+  console.log('Serving submissions page');
+  res.render('submissions', { title: 'submissions', currentPage: 'submissions', profile: req.session.profile });
 });
 
 app.get('/imprint', (req, res) => {
