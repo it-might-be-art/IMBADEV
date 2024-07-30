@@ -30,6 +30,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 }
 
+// Make the function available globally
+  window.updateNavigation = updateNavigation;
+
   async function connectWallet() {
     try {
       const provider = await web3Modal.connect();
