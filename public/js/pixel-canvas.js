@@ -120,7 +120,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     const predefinedPixels = [
-        { x: 23, y: 19, color: '#000000' }
+        //{ x: 23, y: 19, color: '#000000' }
     ];
 
     function setColor(rect, color) {
