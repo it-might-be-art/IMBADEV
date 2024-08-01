@@ -76,7 +76,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
 app.get('/', (req, res) => {
   console.log('Attempting to serve home page');
   res.render('index', { 
-    title: 'Home', 
+    title: 'it might be art - Home', 
     currentPage: 'home', 
     profile: req.session.profile,
   }, (err, html) => {
@@ -119,22 +119,22 @@ app.get('/profile/:username', async (req, res) => {
 
 app.get('/create', (req, res) => {
   console.log('Serving create page');
-  res.render('create', { title: 'Create', currentPage: 'create', profile: req.session.profile });
+  res.render('create', { title: 'it might be art - create', currentPage: 'create', profile: req.session.profile });
 });
 
 app.get('/submissions', (req, res) => {
   console.log('Serving submissions page');
-  res.render('submissions', { title: 'submissions', currentPage: 'submissions', profile: req.session.profile });
+  res.render('submissions', { title: 'it might be art - submissions', currentPage: 'submissions', profile: req.session.profile });
 });
 
 app.get('/imprint', (req, res) => {
   console.log('Serving imprint page');
-  res.render('imprint', { title: 'Imprint', currentPage: 'imprint', profile: req.session.profile });
+  res.render('imprint', { title: 'it might be art - imprint', currentPage: 'imprint', profile: req.session.profile });
 });
 
 app.get('/data-privacy', (req, res) => {
   console.log('Serving data privacy page');
-  res.render('data-privacy', { title: 'Data Privacy', currentPage: 'data-privacy', profile: req.session.profile });
+  res.render('data-privacy', { title: 'it might be art - data privacy', currentPage: 'data-privacy', profile: req.session.profile });
 });
 
 app.use((err, req, res, next) => {
