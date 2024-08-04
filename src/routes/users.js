@@ -493,4 +493,25 @@ router.get('/random-images', async (req, res) => {
   }
 });
 
+// Route to delete an image
+router.delete('/delete-image', async (req, res) => {
+  const { address, imageId } = req.body;
+
+  try {
+    const db = await connectToDatabase();
+    const imagesCollection = db.collection('images');
+
+    const result = await imagesCollection.deleteOne({ _id: new ObjectId(imageId), address });
+
+    if (result.deletedCount === 1) {
+      res.json({ success: true, message: 'Image deleted successfully' });
+    } else {
+      res.status(404).json({ success: false, message: 'Image not found' });
+    }
+  } catch (error) {
+    console.error('Error deleting image:', error);
+    res.status(500).json({ success: false, message: 'Failed to delete image' });
+  }
+});
+
 module.exports = router;

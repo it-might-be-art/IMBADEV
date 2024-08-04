@@ -16,21 +16,21 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   async function updateNavigation() {
-  const profile = JSON.parse(localStorage.getItem('profile'));
-  if (profile) {
-    const profileLink = document.getElementById('profile-link');
-    profileLink.href = `/profile/${profile.name}`;
-    profileLink.style.display = 'block';
-    document.getElementById('wallet-connect').style.display = 'none';
-    document.getElementById('wallet-disconnect').style.display = 'block';
-  } else {
-    document.getElementById('profile-link').style.display = 'none';
-    document.getElementById('wallet-connect').style.display = 'block';
-    document.getElementById('wallet-disconnect').style.display = 'none';
+    const profile = JSON.parse(localStorage.getItem('profile'));
+    if (profile) {
+      const profileLink = document.getElementById('profile-link');
+      profileLink.href = `/profile/${profile.name}`;
+      profileLink.style.display = 'block';
+      document.getElementById('wallet-connect').style.display = 'none';
+      document.getElementById('wallet-disconnect').style.display = 'block';
+    } else {
+      document.getElementById('profile-link').style.display = 'none';
+      document.getElementById('wallet-connect').style.display = 'block';
+      document.getElementById('wallet-disconnect').style.display = 'none';
+    }
   }
-}
 
-// Make the function available globally
+  // Make the function available globally
   window.updateNavigation = updateNavigation;
 
   async function connectWallet() {
@@ -59,6 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (result.success) {
         localStorage.setItem('profile', JSON.stringify(result.profile));
+        console.log("Profile saved to localStorage:", result.profile); // Debugging
         updateUI(result.profile);
         handleWalletConnection(); // Reload the page after successful connection
       } else {
@@ -133,5 +134,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Check connection status on page load
   const profile = JSON.parse(localStorage.getItem('profile'));
+  console.log("Profile on page load:", profile); // Debugging
   updateUI(profile);
 });

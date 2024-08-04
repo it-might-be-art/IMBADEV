@@ -75,7 +75,7 @@
                 </a>
               <% } %>
               <% if (user.social && user.social.lens) { %>
-                <a href="https://lens.xyz/u/<%= user.social.lens %>" target="_blank">
+                <a href="https://hey.xyz/u/<%= user.social.lens %>" target="_blank">
                   <img class="social-logo" src="/images/lens.svg" alt="Lens">
                 </a>
               <% } %>
@@ -102,6 +102,20 @@
     <div class="info-modal-content">
       <span id="infoModalClose" class="info-modal-close">&times;</span>
       <p id="infoModalMessage"></p>
+    </div>
+  </div>
+
+  <div id="confirmationModal" class="modal">
+    <div class="modal-content">
+      <h4>Delete Submission</h4>
+      <div id="confirmationModalImageContainer">
+        <!-- Image will be inserted here -->
+      </div>
+      <p>Do you really want to delete this submission?</p>
+      <div class="modal-footer">
+        <button id="cancelDeleteButton" class="modal-close btn">Cancel</button>
+        <button id="confirmDeleteButton" class="delete-button">Delete</button>
+      </div>
     </div>
   </div>
 
