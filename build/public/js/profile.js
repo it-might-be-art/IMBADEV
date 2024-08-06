@@ -1,4 +1,3 @@
-
 document.addEventListener("DOMContentLoaded", () => {
   async function loadProfile() {
     try {
@@ -114,8 +113,8 @@ document.addEventListener("DOMContentLoaded", () => {
               const deleteButton = document.createElement('button');
               deleteButton.className = 'delete-button';
               deleteButton.textContent = 'Delete';
-              deleteButton.addEventListener('click', () => {
-                showConfirmationModal(image._id, image.imagePath); // Show confirmation modal
+              deleteButton.addEventListener('click', async () => {
+                await deleteImage(image._id);
               });
               imageElement.appendChild(deleteButton);
             }
@@ -165,134 +164,119 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  function showConfirmationModal(imageId, imagePath) {
+  function showConfirmationModal(imageId) {
     imageIdToDelete = imageId;
     const confirmationModal = document.getElementById('confirmationModal');
-    const confirmationModalImageContainer = document.getElementById('confirmationModalImageContainer');
-
-    // Clear previous image if any
-    confirmationModalImageContainer.innerHTML = '';
-
-    // Add the new image
-    const img = document.createElement('img');
-    img.src = imagePath;
-    confirmationModalImageContainer.appendChild(img);
-
-    confirmationModal.style.display = 'flex';
+    confirmationModal.style.display = 'block';
   }
 
   function hideConfirmationModal() {
     const confirmationModal = document.getElementById('confirmationModal');
-    confirmationModal.classList.add('fade-out');
-    setTimeout(() => {
-      confirmationModal.style.display = 'none';
-      confirmationModal.classList.remove('fade-out');
-      imageIdToDelete = null;
-    }, 1000); // Duration of the fade-out animation
+    confirmationModal.style.display = 'none';
+    imageIdToDelete = null;
   }
 
   document.getElementById('confirmDeleteButton').addEventListener('click', () => {
-if (imageIdToDelete) {
-deleteImage(imageIdToDelete);
-hideConfirmationModal();
-}
-});
-
-document.getElementById('cancelDeleteButton').addEventListener('click', () => {
-hideConfirmationModal();
-});
-
-function showInfoModal(message, type) {
-const infoModal = document.getElementById('infoModal');
-const infoModalMessage = document.getElementById('infoModalMessage');
-infoModal.classList.add(type);
-infoModalMessage.textContent = message;
-infoModal.style.display = 'block';
-
-setTimeout(() => {
-  infoModal.classList.add('fade-out');
-  setTimeout(() => {
-    infoModal.style.display = 'none';
-    infoModal.classList.remove(type);
-    infoModal.classList.remove('fade-out');
-  }, 1000); // Duration of the fade-out animation
-}, 3000);
-}
-
-async function submitProfileForm(event) {
-event.preventDefault();
-const formData = new FormData(event.target);
-const profile = JSON.parse(localStorage.getItem('profile'));
-const address = profile ? profile.address : null;
-
-if (!address) {
-  alert('No address found in localStorage');
-  return;
-}
-
-try {
-  const response = await fetch(`/api/users/update-profile?address=${address}`, {
-    method: 'POST',
-    body: formData
+    if (imageIdToDelete) {
+      deleteImage(imageIdToDelete);
+      hideConfirmationModal();
+    }
   });
 
-  const result = await response.json();
-
-  console.log("Result from profile update:", result); // Debugging
-
-  if (result.success) {
-    localStorage.setItem('profile', JSON.stringify(result.profile));
-    loadProfile();
-    updateNavigation(); // Navigation aktualisieren
-    showInfoModal('Profile updated successfully', 'success'); // Show success modal
-  } else {
-    alert(result.message);
-  }
-} catch (error) {
-  console.error('Failed to update profile:', error);
-  alert('Failed to update profile');
-}
-}
-
-const profileForm = document.getElementById('profile-form');
-if (profileForm) {
-profileForm.addEventListener('submit', submitProfileForm);
-}
-
-async function submitUploadForm(event) {
-event.preventDefault();
-
-const formData = new FormData(event.target);
-const profile = JSON.parse(localStorage.getItem('profile'));
-const address = profile ? profile.address : null;
-
-if (!address) {
-  alert('No address found in localStorage');
-  return;
-}
-
-formData.append('address', address);
-
-try {
-  const response = await fetch('/api/users/upload-image', {
-    method: 'POST',
-    body: formData
+  document.getElementById('cancelDeleteButton').addEventListener('click', () => {
+    hideConfirmationModal();
   });
 
-  const result = await response.json();
+  function showInfoModal(message, type) {
+    const infoModal = document.getElementById('infoModal');
+    const infoModalMessage = document.getElementById('infoModalMessage');
 
-  if (result.success) {
-    loadProfile();
-  } else {
-    alert(result.message);
+    infoModal.classList.add(type);
+    infoModalMessage.textContent = message;
+    infoModal.style.display = 'block';
+
+    setTimeout(() => {
+      infoModal.style.display = 'none';
+      infoModal.classList.remove(type);
+    }, 3000);
   }
-} catch (error) {
-  console.error('Failed to upload image:', error);
-  alert('Failed to upload image');
-}
-}
-const profileFormElement = document.getElementById('profile-form');
-const uploadFormElement = document.getElementById('upload-form');
+
+  async function submitProfileForm(event) {
+    event.preventDefault();
+
+    const formData = new FormData(event.target);
+    const profile = JSON.parse(localStorage.getItem('profile'));
+    const address = profile ? profile.address : null;
+
+    if (!address) {
+      alert('No address found in localStorage');
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/users/update-profile?address=${address}`, {
+        method: 'POST',
+        body: formData
+      });
+
+      const result = await response.json();
+
+      console.log("Result from profile update:", result); // Debugging
+
+      if (result.success) {
+        localStorage.setItem('profile', JSON.stringify(result.profile));
+        loadProfile();
+        updateNavigation(); // Navigation aktualisieren
+        showInfoModal('Profile updated successfully', 'success'); // Show success modal
+      } else {
+        alert(result.message);
+      }
+    } catch (error) {
+      console.error('Failed to update profile:', error);
+      alert('Failed to update profile');
+    }
+  }
+
+  const profileForm = document.getElementById('profile-form');
+  if (profileForm) {
+    profileForm.addEventListener('submit', submitProfileForm);
+  }
+
+  async function submitUploadForm(event) {
+    event.preventDefault();
+
+    const formData = new FormData(event.target);
+    const profile = JSON.parse(localStorage.getItem('profile'));
+    const address = profile ? profile.address : null;
+
+    if (!address) {
+      alert('No address found in localStorage');
+      return;
+    }
+
+    formData.append('address', address);
+
+    try {
+      const response = await fetch('/api/users/upload-image', {
+        method: 'POST',
+        body: formData
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        loadProfile();
+      } else {
+        alert(result.message);
+      }
+    } catch (error) {
+      console.error('Failed to upload image:', error);
+      alert('Failed to upload image');
+    }
+  }
+
+  const profileFormElement = document.getElementById('profile-form');
+  const uploadFormElement = document.getElementById('upload-form');
 
 if (profileFormElement) {
 profileFormElement.addEventListener('submit', submitProfileForm);
@@ -301,6 +285,65 @@ profileFormElement.addEventListener('submit', submitProfileForm);
 if (uploadFormElement) {
 uploadFormElement.addEventListener('submit', submitUploadForm);
 }
+
+// Profile picture upload with drag-and-drop and click functionality
+const profilePictureInput = document.getElementById('profilePicture');
+const profilePictureUploadArea = document.getElementById('profilePictureUploadArea');
+
+function handleProfilePictureUpload(file) {
+const reader = new FileReader();
+reader.onload = (e) => {
+const img = new Image();
+img.onload = () => {
+const canvas = document.createElement('canvas');
+const ctx = canvas.getContext('2d');
+canvas.width = img.width;
+canvas.height = img.height;
+ctx.drawImage(img, 0, 0);
+const dataUrl = canvas.toDataURL('image/jpeg');
+document.getElementById('profile-picture-display').src = dataUrl;
+profilePictureInput.files = new DataTransfer().files; // Clear the input file
+profilePictureInput.files.add(file); // Add the new file
+};
+img.src = e.target.result;
+};
+reader.readAsDataURL(file);
+}
+
+profilePictureInput.addEventListener('change', (event) => {
+const file = event.target.files[0];
+handleProfilePictureUpload(file);
+});
+
+profilePictureUploadArea.addEventListener('click', () => {
+profilePictureInput.click();
+});
+
+['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+profilePictureUploadArea.addEventListener(eventName, (e) => {
+e.preventDefault();
+e.stopPropagation();
+});
+});
+
+['dragenter', 'dragover'].forEach(eventName => {
+profilePictureUploadArea.addEventListener(eventName, () => {
+profilePictureUploadArea.classList.add('dragging');
+});
+});
+
+['dragleave', 'drop'].forEach(eventName => {
+profilePictureUploadArea.addEventListener(eventName, () => {
+profilePictureUploadArea.classList.remove('dragging');
+});
+});
+
+profilePictureUploadArea.addEventListener('drop', (event) => {
+const files = event.dataTransfer.files;
+if (files.length > 0) {
+handleProfilePictureUpload(files[0]);
+}
+});
 
 loadProfile();
 });

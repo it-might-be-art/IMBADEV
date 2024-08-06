@@ -33,8 +33,11 @@
 
           <% if (isOwner) { %>
           <form id="profile-form">
-            <label for="profilePicture">Profile Picture:</label>
-            <input class="file-upload" type="file" id="profilePicture" name="profilePicture" accept="image/*">
+            <!-- <label for="profilePicture">Profile Picture:</label> -->
+            <div id="profilePictureUploadArea" class="upload-area">
+              <input class="file-upload" type="file" id="profilePicture" name="profilePicture" accept=".jpg,.jpeg,.png,.gif" />
+              <p>drag & drop or click to upload your pfp</p>
+            </div>
             <label for="name">name:</label>
             <input type="text" id="name" name="name" value="<%= user.name %>" required>
             <label for="bio">bio:</label>
