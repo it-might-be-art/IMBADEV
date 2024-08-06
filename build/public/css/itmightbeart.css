@@ -147,6 +147,8 @@ nav {
   width: 100%;
     display: flex;
     justify-content: space-between;
+    position: relative;
+    float: right;
 }
 
 nav a {
@@ -163,6 +165,7 @@ nav a {
 nav a:hover,
 nav a.current {
   color: #fff;
+  text-decoration: none;
 }
 
 input, textarea {
@@ -380,6 +383,7 @@ input, textarea {
 .gallery-item,
 .teaser-item {
   width: calc(33.33% - 11px);
+  
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
@@ -944,35 +948,19 @@ input, textarea {
     grid-row-gap: 40px;
     flex-flow: column;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     width: 100%;
-    max-width: 1200px;
-    margin-left: auto;
-    margin-right: auto;
+    margin: 80px auto 0 auto;
     display: flex;
     position: relative;
 }
-.container.wide {
-  grid-column-gap: 80px;
-  grid-row-gap: 80px;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
-  display: flex;
+.container.profile {
+    flex-direction: row;
+    min-height: 60vh;
 }
-
-.container.wider {
-  max-width: 1000px;
-}
-.container.full {
-    max-width: 100%;
-    margin-left: 0;
-    margin-right: 0;
-    padding-top: 80px;
-    padding-bottom: 0;
+.container.center {
+    justify-content: center;
+    align-items: center;
 }
 .text-block.ideas {
     color: var(--white);
@@ -1021,6 +1009,7 @@ input, textarea {
     height: 50vh;
     display: flex;
     justify-content: center;
+    align-items: center;
     padding: 0 24px;
 }
 .hero-buttons {
@@ -1521,6 +1510,7 @@ input, textarea {
 
 .footer-link:hover {
   color: #fff;
+  text-decoration: none;
 }
 
 .footer-link.imprint {
@@ -1553,19 +1543,23 @@ input, textarea {
 
 
 .footer {
-  flex-wrap: wrap;
-  align-content: flex-end;
-  justify-content: center;
-  align-items: flex-start;
-  margin-right: 0;
-  padding-top: 40px;
-  padding-left: 24px;
-  padding-right: 24px;
-  padding-bottom: 24px;
-  display: flex;
-  position: relative;
-  margin-top: 80px;
-  z-index: 666;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-end;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row;
+    margin-right: 0;
+    padding-top: 40px;
+    padding-left: 24px;
+    padding-right: 24px;
+    padding-bottom: 24px;
+    position: relative;
+    margin-top: 80px;
+    z-index: 666;
+}
+.footer p {
+    margin-bottom: 0px;
 }
 
 .container-2 {
@@ -1878,13 +1872,33 @@ input, textarea {
 
 }
 
+@media screen and (min-width: 2001px) {
+    .gallery-item,
+    .teaser-item {
+        width: calc(16.66% - 14px);
+    }
+}
+
+@media screen and (max-width: 2000px) {
+    .gallery-item,
+    .teaser-item {
+        width: calc(20% - 13px);
+    }
+}
+
 @media screen and (max-width: 991px) {
 
-      .creation-wrapper {
+    .gallery-item,
+    .teaser-item {
+        width: calc(25% - 13px);
+    }
+
+    .creation-wrapper {
         margin-left: auto;
         margin-right: auto;
         padding: 16px;
     }
+
 
   .container.wider {
     padding-left: 24px;
@@ -1950,6 +1964,11 @@ input, textarea {
 
 
 @media screen and (max-width: 767px) {
+
+    .container {
+        width: 100%;
+    }
+
   .teaser-block {
     width: 300px;
     padding-top: 0;
@@ -1958,10 +1977,10 @@ input, textarea {
     right: -90px;
   }
 
-.gallery-item,
-.teaser-item {
-    width: calc(50% - 8px);
-}
+    .gallery-item,
+    .teaser-item {
+        width: calc(33.33% - 11px);
+    }
 
   .art-block {
     width: 49.2%;
@@ -2053,10 +2072,10 @@ input, textarea {
     width: 100%;
 }
 
-  .gallery-item,
-  .teaser-item {
-      width: 100%;
-  }
+    .gallery-item,
+    .teaser-item {
+        width: calc(50% - 8px);
+    }
 
   .section.creations, .container.hero {
     padding-left: 24px;

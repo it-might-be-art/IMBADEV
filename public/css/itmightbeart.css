@@ -383,7 +383,7 @@ input, textarea {
 .gallery-item,
 .teaser-item {
   width: calc(33.33% - 11px);
-  max-width: 400px;
+  
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
@@ -950,15 +950,15 @@ input, textarea {
     justify-content: space-between;
     align-items: flex-start;
     width: 100%;
-    margin: 40px auto 0 auto;
+    margin: 80px auto 0 auto;
     display: flex;
     position: relative;
 }
 .container.profile {
     flex-direction: row;
+    min-height: 60vh;
 }
 .container.center {
-    display: flex;
     justify-content: center;
     align-items: center;
 }
@@ -1872,13 +1872,33 @@ input, textarea {
 
 }
 
+@media screen and (min-width: 2001px) {
+    .gallery-item,
+    .teaser-item {
+        width: calc(16.66% - 14px);
+    }
+}
+
+@media screen and (max-width: 2000px) {
+    .gallery-item,
+    .teaser-item {
+        width: calc(20% - 13px);
+    }
+}
+
 @media screen and (max-width: 991px) {
 
-      .creation-wrapper {
+    .gallery-item,
+    .teaser-item {
+        width: calc(25% - 13px);
+    }
+
+    .creation-wrapper {
         margin-left: auto;
         margin-right: auto;
         padding: 16px;
     }
+
 
   .container.wider {
     padding-left: 24px;
@@ -1957,10 +1977,10 @@ input, textarea {
     right: -90px;
   }
 
-.gallery-item,
-.teaser-item {
-    width: calc(50% - 8px);
-}
+    .gallery-item,
+    .teaser-item {
+        width: calc(33.33% - 11px);
+    }
 
   .art-block {
     width: 49.2%;
@@ -2052,10 +2072,10 @@ input, textarea {
     width: 100%;
 }
 
-  .gallery-item,
-  .teaser-item {
-      width: 100%;
-  }
+    .gallery-item,
+    .teaser-item {
+        width: calc(50% - 8px);
+    }
 
   .section.creations, .container.hero {
     padding-left: 24px;
