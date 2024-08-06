@@ -2,9 +2,7 @@
 <html lang="en">
 <head>
   <%- include('partials/header', { title: title }) %>
-</head>
-<body>
-  <div id="content" class="fade-in">
+
   <%- include('partials/navigation', { profile: profile, currentPage: currentPage }) %>
 
 <% if (!user) { %>
