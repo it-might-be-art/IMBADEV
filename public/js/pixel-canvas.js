@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const grid = document.getElementById('grid');
     const toggleGridButton = document.getElementById('toggleGridButton');
     const uploadIMBAInput = document.getElementById('uploadIMBA');
+    const uploadArea = document.getElementById('upload-area');
     const undoButton = document.getElementById('undoButton');
     const redoButton = document.getElementById('redoButton');
     const clearCanvasButton = document.getElementById('clearCanvasButton');
@@ -195,61 +196,71 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function redo() {
-    if (redoStack.length > 0) {
-        const nextState = redoStack.pop();
-        undoStack.push(nextState);
-        applyIMBAToGrid(nextState);
+        if (redoStack.length > 0) {
+            const nextState = redoStack.pop();
+            undoStack.push(nextState);
+            applyIMBAToGrid(nextState);
+        }
     }
-}
 
     function clearCanvas() {
         initializeGrid(false);
         saveState();
     }
 
-function applyIMBAToGrid(imbaString) {
-    const data = JSON.parse(imbaString);
-    const newGridSize = data.gridSize;
-    const pixels = data.pixels || [];
+    function applyIMBAToGrid(imbaString) {
+        const data = JSON.parse(imbaString);
+        const newGridSize = data.gridSize;
+        const pixels = data.pixels || [];
 
-    if (newGridSize && newGridSize !== gridSize) {
-        gridSize = newGridSize;
-        initializeGrid(false);
-        gridSizeSelector.value = gridSize;
-    }
-
-    grid.innerHTML = '';
-    for (let i = 0; i < gridSize; i++) {
-        for (let j = 0; j < gridSize; j++) {
-            const rect = document.createElementNS(svgns, 'rect');
-            rect.setAttribute('x', `${(j / gridSize) * 100}%`);
-            rect.setAttribute('y', `${(i / gridSize) * 100}%`);
-            rect.setAttribute('width', `${100 / gridSize}%`);
-            rect.setAttribute('height', `${100 / gridSize}%`);
-            rect.style.fill = backgroundColor;
-            rect.style.stroke = '#cccccc';
-            rect.style.strokeWidth = "0.5";
-
-            addRectEventListeners(rect);
-
-            grid.appendChild(rect);
+        if (newGridSize && newGridSize !== gridSize) {
+            gridSize = newGridSize;
+            initializeGrid(false);
+            gridSizeSelector.value = gridSize;
         }
-    }
 
-    pixels.forEach((item) => {
-        const { x, y, color } = item;
-        if (x < gridSize && y < gridSize) {
-            const rectIndex = y * gridSize + x;
-            if (rectIndex < grid.children.length) {
-                const rect = grid.children[rectIndex];
-                setColor(rect, color);
+        grid.innerHTML = '';
+        for (let i = 0; i < gridSize; i++) {
+            for (let j = 0; j < gridSize; j++) {
+                const rect = document.createElementNS(svgns, 'rect');
+                rect.setAttribute('x', `${(j / gridSize) * 100}%`);
+                rect.setAttribute('y', `${(i / gridSize) * 100}%`);
+                rect.setAttribute('width', `${100 / gridSize}%`);
+                rect.setAttribute('height', `${100 / gridSize}%`);
+                rect.style.fill = backgroundColor;
+                rect.style.stroke = '#cccccc';
+                rect.style.strokeWidth = "0.5";
+
+                addRectEventListeners(rect);
+
+                grid.appendChild(rect);
             }
         }
-    });
 
-    window.uploadModule.toggleGridLines(grid, showGrid);
-}
+        pixels.forEach((item) => {
+            const { x, y, color } = item;
+            if (x < gridSize && y < gridSize) {
+                const rectIndex = y * gridSize + x;
+                if (rectIndex < grid.children.length) {
+                    const rect = grid.children[rectIndex];
+                    setColor(rect, color);
+                }
+            }
+        });
 
+        window.uploadModule.toggleGridLines(grid, showGrid);
+    }
+
+    function handleFileUpload(file) {
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const imbaString = e.target.result;
+                applyIMBAToGrid(imbaString);
+            };
+            reader.readAsText(file);
+        }
+    }
 
     function addRectEventListeners(rect) {
         rect.addEventListener('mousedown', function() {
@@ -323,115 +334,114 @@ function applyIMBAToGrid(imbaString) {
     }
 
     function toggleGridLines(svg, show) {
-                const rectElements = svg.querySelectorAll("rect");
-                rectElements.forEach((rect) => {
-                    if (show) {
-                        rect.style.stroke = '#cccccc';
-                        rect.style.strokeWidth = "0.5";
-                    } else {
-                        rect.style.stroke = rect.style.fill;
-                        rect.style.strokeWidth = "0";
-                    }
-                });
+        const rectElements = svg.querySelectorAll("rect");
+        rectElements.forEach((rect) => {
+            if (show) {
+                rect.style.stroke = '#cccccc';
+                rect.style.strokeWidth = "0.5";
+            } else {
+                rect.style.stroke = rect.style.fill;
+                rect.style.strokeWidth = "0";
             }
+        });
+    }
 
     function exportGridToIMBA() {
-    const data = [];
-    for (let i = 0; i < gridSize; i++) {
-        for (let j = 0; j < gridSize; j++) {
-            const rectIndex = i * gridSize + j;
-            const rect = grid.children[rectIndex];
+        const data = [];
+        for (let i = 0; i < gridSize; i++) {
+            for (let j = 0; j < gridSize; j++) {
+                const rectIndex = i * gridSize + j;
+                const rect = grid.children[rectIndex];
 
-            if (!rect) {
-                console.error(`Undefined rect at index ${rectIndex} for gridSize ${gridSize}`);
-                continue;
-            }
+                if (!rect) {
+                    console.error(`Undefined rect at index ${rectIndex} for gridSize ${gridSize}`);
+                    continue;
+                }
 
-            const color = rect.style.fill;
-            if (color !== backgroundColor) {
-                data.push({ x: j, y: i, color });
+                const color = rect.style.fill;
+                if (color !== backgroundColor) {
+                    data.push({ x: j, y: i, color });
+                }
             }
         }
+        // Fügen Sie die gridSize-Informationen hinzu
+        const exportData = {
+            gridSize: gridSize,
+            pixels: data
+        };
+        return JSON.stringify(exportData, null, 2);
     }
-    // Fügen Sie die gridSize-Informationen hinzu
-    const exportData = {
-        gridSize: gridSize,
-        pixels: data
-    };
-    return JSON.stringify(exportData, null, 2);
-}
 
-function downloadIMBA(filename) {
-    const imbaString = exportGridToIMBA();
-    const imbaBlob = new Blob([imbaString], { type: 'application/json;charset=utf-8' });
-    const url = URL.createObjectURL(imbaBlob);
+    function downloadIMBA(filename) {
+        const imbaString = exportGridToIMBA();
+        const imbaBlob = new Blob([imbaString], { type: 'application/json;charset=utf-8' });
+        const url = URL.createObjectURL(imbaBlob);
 
-    const downloadLink = document.createElement('a');
-    downloadLink.href = url;
-    downloadLink.download = filename;
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-    document.body.removeChild(downloadLink);
-    URL.revokeObjectURL(url);
-}
+        const downloadLink = document.createElement('a');
+        downloadLink.href = url;
+        downloadLink.download = filename;
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+        URL.revokeObjectURL(url);
+    }
 
-function downloadSVG(svg, filename) {
-    toggleGridLines(svg, false);
-    const serializer = new XMLSerializer();
-    const source = serializer.serializeToString(svg);
-    const rectElements = svg.querySelectorAll("rect");
-    rectElements.forEach((rect) => {
-        rect.setAttribute("fill", rect.style.fill);
-    });
-    const svgBlob = new Blob([source], { type: 'image/svg+xml;charset=utf-8' });
-    const url = URL.createObjectURL(svgBlob);
+    function downloadSVG(svg, filename) {
+        toggleGridLines(svg, false);
+        const serializer = new XMLSerializer();
+        const source = serializer.serializeToString(svg);
+        const rectElements = svg.querySelectorAll("rect");
+        rectElements.forEach((rect) => {
+            rect.setAttribute("fill", rect.style.fill);
+        });
+        const svgBlob = new Blob([source], { type: 'image/svg+xml;charset=utf-8' });
+        const url = URL.createObjectURL(svgBlob);
 
-    const downloadLink = document.createElement('a');
-    downloadLink.href = url;
-    downloadLink.download = filename;
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-    document.body.removeChild(downloadLink);
-    URL.revokeObjectURL(url);
-    toggleGridLines(svg, true);
-}
+        const downloadLink = document.createElement('a');
+        downloadLink.href = url;
+        downloadLink.download = filename;
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+        URL.revokeObjectURL(url);
+        toggleGridLines(svg, true);
+    }
 
-function downloadPNG(svg, filename) {
-    toggleGridLines(svg, false);
-    const originalWidth = 640;
-    const originalHeight = 640;
-    const newWidth = 1280;
-    const newHeight = 1280;
+    function downloadPNG(svg, filename) {
+        toggleGridLines(svg, false);
+        const originalWidth = 640;
+        const originalHeight = 640;
+        const newWidth = 1280;
+        const newHeight = 1280;
 
-    const serializedSvg = new XMLSerializer().serializeToString(svg);
-    const base64Data = btoa(unescape(encodeURIComponent(serializedSvg)));
-    const img = new Image();
-    img.onload = function() {
-        const canvas = document.createElement('canvas');
-        canvas.width = newWidth;
-        canvas.height = newHeight;
-        const ctx = canvas.getContext('2d');
+        const serializedSvg = new XMLSerializer().serializeToString(svg);
+        const base64Data = btoa(unescape(encodeURIComponent(serializedSvg)));
+        const img = new Image();
+        img.onload = function() {
+            const canvas = document.createElement('canvas');
+            canvas.width = newWidth;
+            canvas.height = newHeight;
+            const ctx = canvas.getContext('2d');
 
-        ctx.fillStyle = backgroundColor;
-        ctx.fillRect(0, 0, newWidth, newHeight);
+            ctx.fillStyle = backgroundColor;
+            ctx.fillRect(0, 0, newWidth, newHeight);
 
-        ctx.drawImage(img, 0, 0, originalWidth, originalHeight, 0, 0, newWidth, newHeight);
+            ctx.drawImage(img, 0, 0, originalWidth, originalHeight, 0, 0, newWidth, newHeight);
 
-        canvas.toBlob(function(blob) {
-            const pngUrl = URL.createObjectURL(blob);
-            const downloadLink = document.createElement('a');
-            downloadLink.href = pngUrl;
-            downloadLink.download = filename;
-            document.body.appendChild(downloadLink);
-            downloadLink.click();
-            document.body.removeChild(downloadLink);
-            URL.revokeObjectURL(pngUrl);
-        }, 'image/png');
-    };
-    img.src = 'data:image/svg+xml;base64,' + base64Data;
-    toggleGridLines(svg, true);
-}
-
+            canvas.toBlob(function(blob) {
+                const pngUrl = URL.createObjectURL(blob);
+                const downloadLink = document.createElement('a');
+                downloadLink.href = pngUrl;
+                downloadLink.download = filename;
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+                URL.revokeObjectURL(pngUrl);
+            }, 'image/png');
+        };
+        img.src = 'data:image/svg+xml;base64,' + base64Data;
+        toggleGridLines(svg, true);
+    }
 
     document.addEventListener('mouseup', function() {
         if (isDrawing) {
@@ -563,13 +573,36 @@ function downloadPNG(svg, filename) {
 
     uploadIMBAInput.addEventListener('change', (event) => {
         const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const imbaString = e.target.result;
-                applyIMBAToGrid(imbaString);
-            };
-            reader.readAsText(file);
+        handleFileUpload(file);
+    });
+
+    uploadArea.addEventListener('click', () => {
+        uploadIMBAInput.click();
+    });
+
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+        });
+    });
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, () => {
+            uploadArea.classList.add('dragging');
+        });
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, () => {
+            uploadArea.classList.remove('dragging');
+        });
+    });
+
+    uploadArea.addEventListener('drop', (event) => {
+        const files = event.dataTransfer.files;
+        if (files.length > 0) {
+            handleFileUpload(files[0]);
         }
     });
 

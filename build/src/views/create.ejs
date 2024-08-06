@@ -17,7 +17,7 @@
         </div>
       </div>
       <div class="share-wrapper center">
-        <p>download your creation, share it and don&#x27;t forget to tag <a href="https://x.com/PunkApepen" target="_blank"><span class="textlink">@PunkApepen</span></a> and <a href="https://x.com/ItMightBeArt" target="_blank"><span class="text-link">@ItMightBeArt</span></a></p>
+        <p>download your creation, share it and don&#x27;t forget to tag <a href="https://x.com/PunkApepen" target="_blank"><span class="textlink">@PunkApepen</span></a> and <a href="https://x.com/ItMightBeArt" target="_blank"><span class="textlink">@ItMightBeArt</span></a></p>
       </div>
     </div>
   </section>
@@ -88,9 +88,9 @@
         <div class="download-buttons">
           <a id="downloadSVG" href="#" class="action-btn download w-button">download svg</a>
           <a id="downloadPNG" href="#" class="action-btn download w-button">download png</a>
-          <a id="downloadIMBA" href="#" class="action-btn download-imba w-button">download imba</a>
-          <a id="submitButton" href="#" class="action-btn mint w-button">submit</a>
-          <a id="shareButton" href="#save-import" class="action-btn w-button">imba infos</a>
+          <a id="downloadIMBA" href="#" class="action-btn download download-imba w-button">download imba</a>
+          <a id="submitButton" href="#" class="action-btn submit w-button">submit</a>
+          <a id="shareButton" href="#save-import" class="action-btn info w-button">about imba</a>
         </div>
       </div>
     </div>
@@ -102,11 +102,17 @@
       <div class="s-wrapper">
         
        
-            <input class="file-upload" type="file" id="uploadIMBA" accept=".imba" />
+            <!-- <input class="file-upload" type="file" id="uploadIMBA" accept=".imba" /> -->
+            <div id="upload-area" class="upload-area">
+              <input class="file-upload" type="file" id="uploadIMBA" accept=".imba" />
+              <div id="upload-area">
+                <p>Drag & drop your .imba file here or click to upload</p>
+              </div>
+            </div>
        
         
         <div>
-          <h2 class="h2">save, import &amp; share</h2>
+          <h3>save, import &amp; share</h3>
           <p>The <code>*.imba</code> file format allows you to save your current grid design to your local machine. This file captures the state of your artwork, including the position and color of each grid cell. You can import an <code>*.imba</code> file later to continue working on your design, share it with others, or finalize it at your convenience. This format is ideal for collaborative projects, enabling seamless transitions between different stages of your work.</p>
         </div>
       </div>
@@ -139,13 +145,16 @@
   </div>
 
   <div id="infoModal" class="info-modal">
-  <div class="info-modal-content">
-    <span id="infoModalClose" class="info-modal-close">&times;</span>
-    <p id="infoModalMessage">error message</p>
+    <div class="info-modal-content">
+      <span id="infoModalClose" class="info-modal-close">&times;</span>
+      <p id="infoModalMessage">error message</p>
+    </div>
   </div>
-</div>
 
   <%- include('partials/footer') %>
+
+  <!-- close fade-in div -->
+  </div>
   
   <script src="/js/uploadModule.js"></script>
   <script src="/js/pixel-canvas.js"></script>

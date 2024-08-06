@@ -46,7 +46,7 @@ h1 {
 h2 {
   color: var(--grey);
   margin-top: 0;
-  margin-bottom: 0;
+  margin-bottom: 16px;
   font-size: 22px;
   font-weight: 400;
   line-height: 28px;
@@ -81,11 +81,10 @@ h5 {
 
 p {
   margin-bottom: 10px;
-  font-size: 12px;
 }
 
 a {
-  color: var(--grey);
+  color: var(--white);
   text-decoration: none;
   transition: all .4s;
 }
@@ -248,7 +247,6 @@ input, textarea {
     margin-top: 40px;
     display: flex;
     flex-direction: row;
-    font-size: 12px;
     gap: 24px;
 }
 .intro-text .column {
@@ -836,14 +834,26 @@ input, textarea {
     border: 2px solid #7c7c7c;
     padding-left: 24px;
 }
-.action-btn.mint {
-    background-color: #0ff;
+.action-btn.info {
+    white-space: nowrap;
     background-image: url(../images/info.svg);
+    background-position: 8px;
+    background-repeat: no-repeat;
+    background-size: 10px;
+    border: 2px solid #7c7c7c;
+    padding-left: 24px;
+}
+.action-btn.submit {
+    background-color: #0ff;
+    background-image: url(../images/submit.svg);
     background-position: 8px;
     background-repeat: no-repeat;
     background-size: 10px;
     border: 2px solid #0ff;
     padding-left: 24px;
+}
+.action-btn.submit:hover {
+    background-color: rgba(0, 255, 255, .6);
 }
   .action-btn.green {
     color: var(--imba-black);
@@ -857,6 +867,29 @@ input, textarea {
   .active {
     background-color: rgba(124, 124, 124, .6);
   }
+
+/* ///////////////////////////////////////////////
+
+            file upload 
+
+/////////////////////////////////////////////// */
+ .upload-area {
+    border: 2px dashed #ccc;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+
+.upload-area.dragging,
+.upload-area:hover {
+    background-color: var(--imba-black);
+}
+
+.upload-area input[type="file"] {
+    display: none;
+}
 
   .s-wrapper {
     gap: var(--flex-gap);
@@ -1228,8 +1261,9 @@ input, textarea {
 }
 
 .action-btn:hover {
-  background-color: var(--white);
+  background-color: rgba(124, 124, 124, .6);
   color: var(--imba-black);
+  text-decoration: none;
 }
 
 .action-btn.green {
