@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const profile = JSON.parse(localStorage.getItem('profile'));
       const username = window.location.pathname.split('/').pop();
 
-      console.log("Profile from localStorage:", profile); // Debugging
+    
 
       const response = await fetch(`/api/users/profile-data/${username}`);
       const result = await response.json();

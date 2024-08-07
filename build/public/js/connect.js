@@ -134,6 +134,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Check connection status on page load
   const profile = JSON.parse(localStorage.getItem('profile'));
-  console.log("Profile on page load:", profile); // Debugging
+  
   updateUI(profile);
 });
