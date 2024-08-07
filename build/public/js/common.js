@@ -167,3 +167,6 @@ document.addEventListener("DOMContentLoaded", () => {
     profileLink.href = `/profile/${profile.name}`;
   }
 });
+
+
+
