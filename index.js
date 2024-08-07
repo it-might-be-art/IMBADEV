@@ -22,7 +22,7 @@ app.get('/', async (req, res) => {
   try {
     const db = await connectToDatabase();
     const imagesCollection = db.collection('images');
-    const images = await imagesCollection.aggregate([{ $sample: { size: 10 } }]).toArray();
+    const images = await imagesCollection.aggregate([{ $sample: { size: 12 } }]).toArray();
     res.render('index', { title: 'Homepage', images });
   } catch (error) {
     console.error('Error fetching homepage images:', error);
