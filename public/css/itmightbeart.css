@@ -2272,7 +2272,9 @@ input, textarea {
   width: 100%;
   max-width: 100%!important;
   margin: 0!important;
-  height: 50vh;
+  min-height: 50vh;
+  height: 100%;
+  padding-top: 40px;
 }
 
 .head-wrapper {
