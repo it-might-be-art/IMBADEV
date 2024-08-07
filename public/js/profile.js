@@ -114,7 +114,7 @@ document.addEventListener("DOMContentLoaded", () => {
               deleteButton.className = 'delete-button';
               deleteButton.textContent = 'Delete';
               deleteButton.addEventListener('click', async () => {
-                await deleteImage(image._id);
+                showConfirmationModal(image._id); // Show confirmation modal
               });
               imageElement.appendChild(deleteButton);
             }
@@ -176,16 +176,23 @@ document.addEventListener("DOMContentLoaded", () => {
     imageIdToDelete = null;
   }
 
-  document.getElementById('confirmDeleteButton').addEventListener('click', () => {
-    if (imageIdToDelete) {
-      deleteImage(imageIdToDelete);
-      hideConfirmationModal();
-    }
-  });
+  const confirmDeleteButton = document.getElementById('confirmDeleteButton');
+  const cancelDeleteButton = document.getElementById('cancelDeleteButton');
 
-  document.getElementById('cancelDeleteButton').addEventListener('click', () => {
-    hideConfirmationModal();
-  });
+  if (confirmDeleteButton) {
+    confirmDeleteButton.addEventListener('click', () => {
+      if (imageIdToDelete) {
+        deleteImage(imageIdToDelete);
+        hideConfirmationModal();
+      }
+    });
+  }
+
+  if (cancelDeleteButton) {
+    cancelDeleteButton.addEventListener('click', () => {
+      hideConfirmationModal();
+    });
+  }
 
   function showInfoModal(message, type) {
     const infoModal = document.getElementById('infoModal');
@@ -278,72 +285,77 @@ document.addEventListener("DOMContentLoaded", () => {
   const profileFormElement = document.getElementById('profile-form');
   const uploadFormElement = document.getElementById('upload-form');
 
-if (profileFormElement) {
-profileFormElement.addEventListener('submit', submitProfileForm);
-}
+  if (profileFormElement) {
+    profileFormElement.addEventListener('submit', submitProfileForm);
+  }
 
-if (uploadFormElement) {
-uploadFormElement.addEventListener('submit', submitUploadForm);
-}
+  if (uploadFormElement) {
+    uploadFormElement.addEventListener('submit', submitUploadForm);
+  }
 
-// Profile picture upload with drag-and-drop and click functionality
-const profilePictureInput = document.getElementById('profilePicture');
-const profilePictureUploadArea = document.getElementById('profilePictureUploadArea');
+  // Profile picture upload with drag-and-drop and click functionality
+  const profilePictureInput = document.getElementById('profilePicture');
+  const profilePictureUploadArea = document.getElementById('profilePictureUploadArea');
 
-function handleProfilePictureUpload(file) {
-const reader = new FileReader();
-reader.onload = (e) => {
-const img = new Image();
-img.onload = () => {
-const canvas = document.createElement('canvas');
-const ctx = canvas.getContext('2d');
-canvas.width = img.width;
-canvas.height = img.height;
-ctx.drawImage(img, 0, 0);
-const dataUrl = canvas.toDataURL('image/jpeg');
-document.getElementById('profile-picture-display').src = dataUrl;
-profilePictureInput.files = new DataTransfer().files; // Clear the input file
-profilePictureInput.files.add(file); // Add the new file
-};
-img.src = e.target.result;
-};
-reader.readAsDataURL(file);
-}
+  function handleProfilePictureUpload(file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+        const dataUrl = canvas.toDataURL('image/jpeg');
+        document.getElementById('profile-picture-display').src = dataUrl;
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file); // Add the new file
+        profilePictureInput.files = dataTransfer.files; // Assign the files to the input
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
 
-profilePictureInput.addEventListener('change', (event) => {
-const file = event.target.files[0];
-handleProfilePictureUpload(file);
-});
+  if (profilePictureInput) {
+    profilePictureInput.addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      handleProfilePictureUpload(file);
+    });
+  }
 
-profilePictureUploadArea.addEventListener('click', () => {
-profilePictureInput.click();
-});
+  if (profilePictureUploadArea) {
+    profilePictureUploadArea.addEventListener('click', () => {
+      profilePictureInput.click();
+    });
 
-['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-profilePictureUploadArea.addEventListener(eventName, (e) => {
-e.preventDefault();
-e.stopPropagation();
-});
-});
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+      profilePictureUploadArea.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      });
+    });
 
-['dragenter', 'dragover'].forEach(eventName => {
-profilePictureUploadArea.addEventListener(eventName, () => {
-profilePictureUploadArea.classList.add('dragging');
-});
-});
+    ['dragenter', 'dragover'].forEach(eventName => {
+      profilePictureUploadArea.addEventListener(eventName, () => {
+        profilePictureUploadArea.classList.add('dragging');
+      });
+    });
 
-['dragleave', 'drop'].forEach(eventName => {
-profilePictureUploadArea.addEventListener(eventName, () => {
-profilePictureUploadArea.classList.remove('dragging');
-});
-});
+    ['dragleave', 'drop'].forEach(eventName => {
+      profilePictureUploadArea.addEventListener(eventName, () => {
+        profilePictureUploadArea.classList.remove('dragging');
+      });
+    });
 
-profilePictureUploadArea.addEventListener('drop', (event) => {
-const files = event.dataTransfer.files;
-if (files.length > 0) {
-handleProfilePictureUpload(files[0]);
-}
-});
+    profilePictureUploadArea.addEventListener('drop', (event) => {
+      const files = event.dataTransfer.files;
+      if (files.length > 0) {
+        handleProfilePictureUpload(files[0]);
+      }
+    });
+  }
 
-loadProfile();
+  loadProfile();
 });
