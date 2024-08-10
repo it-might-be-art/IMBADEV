@@ -67,21 +67,7 @@ async function loadImages(apiEndpoint, galleryElementId) {
       const voteCount = document.createElement('span');
       voteCount.className = 'vote-count';
       voteCount.id = `vote-count-${image._id}`;
-
-      fetch(`/api/users/votes/${image._id}`)
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            voteCount.textContent = data.votesCount;
-            updateProgressBar(image._id, data.votesCount);
-          } else {
-            voteCount.textContent = '0';
-            updateProgressBar(image._id, 0);
-          }
-        })
-        .catch(error => {
-          console.error('Error fetching votes:', error);
-        });
+      voteCount.textContent = image.votesCount || 0;
 
       voteWrapper.appendChild(voteButton);
       voteWrapper.appendChild(voteCount);
@@ -165,8 +151,5 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (profile) {
     profileLink.href = `/profile/${profile.name}`;
-  }
+    }
 });
-
-
-

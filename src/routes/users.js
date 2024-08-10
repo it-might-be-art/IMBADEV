@@ -145,12 +145,14 @@ router.get('/images', async (req, res) => {
   }
 });
 
+// Route to vote for an image
 router.post('/vote', async (req, res) => {
   const { address, imageId } = req.body;
   try {
     const db = await connectToDatabase();
     const votesCollection = db.collection('votes');
     const usersCollection = db.collection('users');
+    const imagesCollection = db.collection('images');
 
     const user = await authenticateUser(address);
 
@@ -165,8 +167,19 @@ router.post('/vote', async (req, res) => {
 
     await votesCollection.insertOne({ address, imageId: new ObjectId(imageId), createdAt: new Date() });
 
+    // Increment the votesCount in the images collection
+    const result = await imagesCollection.updateOne(
+      { _id: new ObjectId(imageId) },
+      { $inc: { votesCount: 1 } }
+    );
+
+    if (result.modifiedCount === 0) {
+      return res.status(404).json({ success: false, message: 'Image not found' });
+    }
+
     const votesCount = await votesCollection.countDocuments({ imageId: new ObjectId(imageId) });
 
+    // Update the user's vote count
     await usersCollection.updateOne({ address }, { $inc: { votes: 1 } });
 
     res.json({ success: true, votesCount, message: 'Vote recorded successfully.' });
@@ -176,20 +189,24 @@ router.post('/vote', async (req, res) => {
   }
 });
 
-// Route to fetch votes
+// Route to fetch votes for an image
 router.get('/votes/:imageId', async (req, res) => {
   const { imageId } = req.params;
   try {
     const db = await connectToDatabase();
-    const votesCollection = db.collection('votes');
+    const imagesCollection = db.collection('images');
 
     if (!ObjectId.isValid(imageId)) {
       return res.status(400).json({ success: false, message: 'Invalid imageId' });
     }
 
-    const votesCount = await votesCollection.countDocuments({ imageId: new ObjectId(imageId) });
+    const image = await imagesCollection.findOne({ _id: new ObjectId(imageId) }, { projection: { votesCount: 1 } });
 
-    res.json({ success: true, votesCount });
+    if (!image) {
+      return res.status(404).json({ success: false, message: 'Image not found' });
+    }
+
+    res.json({ success: true, votesCount: image.votesCount || 0 });
   } catch (error) {
     console.error('Error retrieving votes:', error);
     res.status(500).json({ success: false, message: error.message });

@@ -4,8 +4,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const profile = JSON.parse(localStorage.getItem('profile'));
       const username = window.location.pathname.split('/').pop();
 
-    
-
       const response = await fetch(`/api/users/profile-data/${username}`);
       const result = await response.json();
 
@@ -35,19 +33,6 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
           if (profileForm) profileForm.style.display = 'block';
           if (uploadForm) uploadForm.style.display = 'block';
-        }
-
-        // Populate social media fields
-        if (result.user.social) {
-          const xUsernameInput = document.getElementById('xUsername');
-          const warpcastUsernameInput = document.getElementById('warpcastUsername');
-          const lensUsernameInput = document.getElementById('lensUsername');
-          const instagramUsernameInput = document.getElementById('instagramUsername');
-
-          if (xUsernameInput) xUsernameInput.value = result.user.social.x || '';
-          if (warpcastUsernameInput) warpcastUsernameInput.value = result.user.social.warpcast || '';
-          if (lensUsernameInput) lensUsernameInput.value = result.user.social.lens || '';
-          if (instagramUsernameInput) instagramUsernameInput.value = result.user.social.instagram || '';
         }
 
         // Benutzerbilder laden
@@ -120,6 +105,14 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             galleryElement.appendChild(imageElement);
+          });
+
+          // Füge Event Listener für die Vote-Buttons hinzu
+          document.querySelectorAll('.vote-button').forEach(button => {
+            button.addEventListener('click', () => {
+              const imageId = button.getAttribute('data-id');
+              voteImage(imageId); // Funktion aus common.js aufrufen
+            });
           });
         }
       } else {
