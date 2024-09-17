@@ -99,14 +99,14 @@ function ensureAuthenticated(req, res, next) {
   }
 }
 
-// Route to fetch submissions images
+// Route to fetch submissions images (excluding IMBA collection)
 router.get('/submissions', async (req, res) => {
   try {
     const db = await connectToDatabase();
     const imagesCollection = db.collection('images');
     const usersCollection = db.collection('users');
 
-    const images = await imagesCollection.find().sort({ createdAt: -1 }).toArray();
+    const images = await imagesCollection.find({ IMBA: false }).sort({ createdAt: -1 }).toArray();
 
     const imagesWithCreatorNames = await Promise.all(images.map(async (image) => {
       const user = await usersCollection.findOne({ address: image.address });
@@ -120,6 +120,33 @@ router.get('/submissions', async (req, res) => {
     res.json({ success: true, images: imagesWithCreatorNames });
   } catch (error) {
     console.error('Error fetching submissions images:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+
+// New route to fetch IMBA collection images
+router.get('/imba-collection', async (req, res) => {
+  try {
+    const db = await connectToDatabase();
+    const imagesCollection = db.collection('images');
+    const usersCollection = db.collection('users');
+
+    const images = await imagesCollection.find({ IMBA: true }).sort({ createdAt: -1 }).toArray();
+
+    // Map the images to include the imageUrl field just like in the submissions route
+    const imagesWithCreatorNames = await Promise.all(images.map(async (image) => {
+      const user = await usersCollection.findOne({ address: image.address });
+      return {
+        ...image,
+        creatorName: user ? user.name : 'Unknown',
+        imageUrl: image.imagePath // Assuming imagePath already has the full S3 URL
+      };
+    }));
+
+    res.json({ success: true, images: imagesWithCreatorNames });
+  } catch (error) {
+    console.error('Error fetching IMBA collection images:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 });
@@ -449,17 +476,26 @@ router.post('/update-profile', upload.single('profilePicture'), async (req, res)
 
 // Route to upload an image (with authentication middleware)
 router.post('/upload-image', ensureAuthenticated, upload.fields([{ name: 'image' }, { name: 'imba' }]), async (req, res) => {
-  const { address, title, description } = req.body;
+  const { address, title, description, gridSize } = req.body;  // gridSize hinzufügen
   const profile = req.session.profile;
 
   if (!profile || profile.address !== address) {
     return res.status(403).json({ success: false, message: 'Forbidden' });
   }
 
-  const imageFile = req.files.image[0];
-  const imbaFile = req.files.imba[0];
-
   try {
+    // Check if the image and imba files exist
+    if (!req.files.image || !req.files.imba) {
+      throw new Error('Image or IMBA file is missing');
+    }
+
+    const imageFile = req.files.image[0];
+    const imbaFile = req.files.imba[0];
+
+    // Extracting original file extension (correct usage)
+    const imageExt = path.extname(imageFile.originalname);
+    const imbaExt = path.extname(imbaFile.originalname);
+
     const db = await connectToDatabase();
     const imagesCollection = db.collection('images');
     const usersCollection = db.collection('users');
@@ -473,19 +509,21 @@ router.post('/upload-image', ensureAuthenticated, upload.fields([{ name: 'image'
       address,
       title,
       description,
-      imagePath: imageFile.location,
-      imbaPath: imbaFile.location,
+      imagePath: `${imageFile.location}${imageExt}`,  // Correctly adding extension
+      imbaPath: `${imbaFile.location}${imbaExt}`,    // Correctly adding extension
       creator: user.address,
       creatorName: user.name,
+      gridSize: gridSize || null,   // Store gridSize if provided
       createdAt: new Date(),
+      IMBA: false
     };
 
     await imagesCollection.insertOne(newImage);
     res.json({ success: true });
 
   } catch (error) {
-    console.error('Error uploading image:', error);
-    res.status(500).json({ success: false, message: 'Error uploading image. Please try again later.' });
+    console.error('Error uploading image:', error); // Detailed error logging
+    res.status(500).json({ success: false, message: error.message });
   }
 });
 

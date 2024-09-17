@@ -86,6 +86,9 @@ app.get('/create', (req, res) => {
 app.get('/submissions', (req, res) => {
   res.render('submissions', { title: 'it might be art - submissions', currentPage: 'submissions', profile: req.session.profile });
 });
+app.get('/imba-collection', (req, res) => {
+  res.render('imba-collection', { title: 'it might be art - collection', currentPage: 'imba-collection', profile: req.session.profile });
+});
 
 app.get('/imprint', (req, res) => {
   res.render('imprint', { title: 'it might be art - imprint', currentPage: 'imprint', profile: req.session.profile });

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('partials/header', { title: title }) %>
+
+  <%- include('partials/navigation', { profile: profile }) %>
+
+  <section class="section padding-top">
+    <div class="container center">
+      <h1>imba collection</h1>
+      <p><a href="https://opensea.io/collection/it-might-be-art" target="_blank">> explore and buy</a></p>
+      <div id="submissions"></div>
+    </div>
+  </section>
+
+  <div id="infoModal" class="info-modal">
+    <div class="info-modal-content">
+      <span id="infoModalClose" class="info-modal-close">&times;</span>
+      <p id="infoModalMessage"></p>
+    </div>
+  </div>
+
+  <div class="punkapepen-wrapper"><img loading="lazy" src="./images/PunkApepen_LogoMark.svg" alt="PunkApepen - LogoMark" class="punkapepen"></div>
+
+  <%- include('partials/footer') %>
+
+<!-- close fade-in div -->
+</div>
+  
+  <script src="/js/imba-collection.js"></script>
+</body>
+</html>
