@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let showGrid = true;
     let fillColor = '#000000';
-    let backgroundColor = '#1a54f4';
+    let backgroundColor = '#d9d9d9';
     let isDrawing = false;
     let brushSize = 1;
     let isErasing = false;
@@ -120,9 +120,166 @@ document.addEventListener('DOMContentLoaded', function() {
         console.warn('Your browser does not support the EyeDropper API');
     }
 
-    const predefinedPixels = [
+    //const predefinedPixels = [
         //{ x: 23, y: 19, color: '#000000' }
+    //];
+
+    const predefinedPixels30x30 = [
+        { x: 11, y: 23, color: '#ECC189' },
+        { x: 12, y: 23, color: '#ECC189' },
+        { x: 16, y: 23, color: '#ECC189' },
+        { x: 17, y: 23, color: '#ECC189' },
+
+        { x: 11, y: 22, color: '#ECC189' },
+        { x: 12, y: 22, color: '#ECC189' },
+        { x: 13, y: 22, color: '#ECC189' },
+        
+        { x: 15, y: 22, color: '#ECC189' },
+        { x: 16, y: 22, color: '#ECC189' },
+        { x: 17, y: 22, color: '#ECC189' },
+
+        { x: 11, y: 21, color: '#ECC189' },
+        { x: 12, y: 21, color: '#ECC189' },
+        { x: 13, y: 21, color: '#ECC189' },
+        { x: 14, y: 21, color: '#ECC189' },        
+        { x: 15, y: 21, color: '#ECC189' },
+        { x: 16, y: 21, color: '#ECC189' },
+        { x: 17, y: 21, color: '#ECC189' },
+
+
+        { x: 9, y: 20, color: '#ECC189' },
+        { x: 10, y: 20, color: '#DBB077' },
+        { x: 11, y: 20, color: '#ECC189' },
+        { x: 12, y: 20, color: '#ECC189' },
+        { x: 13, y: 20, color: '#ECC189' },
+        { x: 14, y: 20, color: '#ECC189' },        
+        { x: 15, y: 20, color: '#ECC189' },
+        { x: 16, y: 20, color: '#ECC189' },
+        { x: 17, y: 20, color: '#ECC189' },
+        { x: 18, y: 20, color: '#DBB077' },
+        { x: 19, y: 20, color: '#ECC189' },
+
+        { x: 9, y: 19, color: '#ECC189' },
+        { x: 10, y: 19, color: '#DBB077' },
+        { x: 11, y: 19, color: '#ECC189' },
+        { x: 12, y: 19, color: '#ECC189' },
+        { x: 13, y: 19, color: '#ECC189' },
+        { x: 14, y: 19, color: '#ECC189' },        
+        { x: 15, y: 19, color: '#ECC189' },
+        { x: 16, y: 19, color: '#ECC189' },
+        { x: 17, y: 19, color: '#ECC189' },
+        { x: 18, y: 19, color: '#DBB077' },
+        { x: 19, y: 19, color: '#ECC189' },
+
+        { x: 9, y: 18, color: '#ECC189' },
+        { x: 10, y: 18, color: '#ECC189' },
+        { x: 11, y: 18, color: '#ECC189' },
+        { x: 12, y: 18, color: '#DBB077' },
+        { x: 13, y: 18, color: '#ECC189' },
+        { x: 14, y: 18, color: '#ECC189' },        
+        { x: 15, y: 18, color: '#ECC189' },
+        { x: 16, y: 18, color: '#DBB077' },
+        { x: 17, y: 18, color: '#ECC189' },
+        { x: 18, y: 18, color: '#ECC189' },
+        { x: 19, y: 18, color: '#ECC189' },
+
+        { x: 10, y: 17, color: '#ECC189' },
+        { x: 11, y: 17, color: '#ECC189' },
+        { x: 12, y: 17, color: '#ECC189' },
+        { x: 13, y: 17, color: '#ECC189' },
+        { x: 14, y: 17, color: '#ECC189' },        
+        { x: 15, y: 17, color: '#ECC189' },
+        { x: 16, y: 17, color: '#ECC189' },
+        { x: 17, y: 17, color: '#ECC189' },
+        { x: 18, y: 17, color: '#ECC189' },
+,
+        { x: 11, y: 16, color: '#DBB077' },
+        { x: 12, y: 16, color: '#DBB077' },
+        { x: 13, y: 16, color: '#DBB077' },
+        { x: 14, y: 16, color: '#DBB077' },        
+        { x: 15, y: 16, color: '#DBB077' },
+        { x: 16, y: 16, color: '#DBB077' },
+        { x: 17, y: 16, color: '#DBB077' },
+
+        { x: 11, y: 15, color: '#ECC189' },
+        { x: 12, y: 15, color: '#ECC189' },
+        { x: 13, y: 15, color: '#ECC189' },
+        { x: 14, y: 15, color: '#ECC189' },        
+        { x: 15, y: 15, color: '#ECC189' },
+        { x: 16, y: 15, color: '#ECC189' },
+        { x: 17, y: 15, color: '#ECC189' },
+        { x: 18, y: 15, color: '#ECC189' },
+
+        { x: 10, y: 14, color: '#ECC189' },
+        { x: 11, y: 14, color: '#ECC189' },
+        { x: 12, y: 14, color: '#ECC189' },
+        { x: 13, y: 14, color: '#ECC189' },
+        { x: 14, y: 14, color: '#ECC189' },        
+        { x: 15, y: 14, color: '#ECC189' },
+        { x: 16, y: 14, color: '#ECC189' },
+        { x: 17, y: 14, color: '#ECC189' },
+        { x: 18, y: 14, color: '#ECC189' },
+        { x: 19, y: 14, color: '#ECC189' },
+
+        { x: 9, y: 13, color: '#DBB077' },
+        { x: 10, y: 13, color: '#ECC189' },
+        { x: 11, y: 13, color: '#ECC189' },
+        { x: 12, y: 13, color: '#ffffff' },
+        { x: 13, y: 13, color: '#000000' },
+        { x: 14, y: 13, color: '#DBB077' },        
+        { x: 15, y: 13, color: '#DBB077' },
+        { x: 16, y: 13, color: '#DBB077' },
+        { x: 17, y: 13, color: '#ffffff' },
+        { x: 18, y: 13, color: '#000000' },
+        { x: 19, y: 13, color: '#ECC189' },
+
+        { x: 9, y: 12, color: '#DBB077' },
+        { x: 10, y: 12, color: '#ECC189' },
+        { x: 11, y: 12, color: '#ECC189' },
+        { x: 12, y: 12, color: '#ffffff' },
+        { x: 13, y: 12, color: '#000000' },
+        { x: 14, y: 12, color: '#ECC189' },        
+        { x: 15, y: 12, color: '#ECC189' },
+        { x: 16, y: 12, color: '#ECC189' },
+        { x: 17, y: 12, color: '#ffffff' },
+        { x: 18, y: 12, color: '#000000' },
+        { x: 19, y: 12, color: '#ECC189' },
+
+        { x: 10, y: 11, color: '#ECC189' },
+        { x: 11, y: 11, color: '#ECC189' },
+        { x: 12, y: 11, color: '#ECC189' },
+        { x: 13, y: 11, color: '#ECC189' },
+        { x: 14, y: 11, color: '#ECC189' },        
+        { x: 15, y: 11, color: '#ECC189' },
+        { x: 16, y: 11, color: '#ECC189' },
+        { x: 17, y: 11, color: '#ECC189' },
+        { x: 18, y: 11, color: '#ECC189' },
+        { x: 19, y: 11, color: '#ECC189' },
+
+        { x: 10, y: 10, color: '#ECC189' },
+        { x: 11, y: 10, color: '#ECC189' },
+        { x: 12, y: 10, color: '#ECC189' },
+        { x: 13, y: 10, color: '#ECC189' },
+        { x: 14, y: 10, color: '#ECC189' },        
+        { x: 15, y: 10, color: '#ECC189' },
+        { x: 16, y: 10, color: '#ECC189' },
+        { x: 17, y: 10, color: '#ECC189' },
+        { x: 18, y: 10, color: '#ECC189' },
+        { x: 19, y: 10, color: '#ECC189' },
+
+        { x: 11, y: 9, color: '#ECC189' },
+        { x: 12, y: 9, color: '#ECC189' },
+        { x: 13, y: 9, color: '#ECC189' },
+        { x: 14, y: 9, color: '#ECC189' },        
+        { x: 15, y: 9, color: '#ECC189' },
+        { x: 16, y: 9, color: '#ECC189' },
+        { x: 17, y: 9, color: '#ECC189' },
+        { x: 18, y: 9, color: '#ECC189' },
+        
+
     ];
+
+const predefinedPixels = gridSize === 30 ? predefinedPixels30x30 : [];
 
     function setColor(rect, color) {
         if (rect) {
@@ -160,8 +317,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 grid.appendChild(rect);
             }
         }
-        if (setPredefined) {
-            predefinedPixels.forEach(pixel => {
+        // Nur für 30x30 Raster die predefinedPixels anwenden
+        if (setPredefined && gridSize === 30) {
+            predefinedPixels30x30.forEach(pixel => {
                 const rectIndex = pixel.y * gridSize + pixel.x;
                 if (rectIndex < grid.children.length) {
                     const rect = grid.children[rectIndex];
