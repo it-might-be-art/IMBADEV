@@ -313,25 +313,27 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function paint(rect) {
-        const x = Math.floor(parseFloat(rect.getAttribute('x')) / (100 / gridSize));
-        const y = Math.floor(parseFloat(rect.getAttribute('y')) / (100 / gridSize));
-        const offset = Math.floor(brushSize / 2);
+    // Berechne die x- und y-Position mit Math.round, um sicherzustellen, dass Rundungsfehler minimiert werden
+    const x = Math.round(parseFloat(rect.getAttribute('x')) / (100 / gridSize));
+    const y = Math.round(parseFloat(rect.getAttribute('y')) / (100 / gridSize));
+    const offset = Math.floor(brushSize / 2);
 
-        for (let i = -offset; i < brushSize - offset; i++) {
-            for (let j = -offset; j < brushSize - offset; j++) {
-                const newX = x + i;
-                const newY = y + j;
-                if (newX >= 0 && newX < gridSize && newY >= 0 && newY < gridSize) {
-                    const index = newY * gridSize + newX;
-                    if (isErasing) {
-                        clearColor(grid.children[index]);
-                    } else {
-                        setColor(grid.children[index], fillColor);
-                    }
+    for (let i = -offset; i < brushSize - offset; i++) {
+        for (let j = -offset; j < brushSize - offset; j++) {
+            const newX = x + i;
+            const newY = y + j;
+            if (newX >= 0 && newX < gridSize && newY >= 0 && newY < gridSize) {
+                const index = newY * gridSize + newX;
+                if (isErasing) {
+                    clearColor(grid.children[index]);
+                } else {
+                    setColor(grid.children[index], fillColor);
                 }
             }
         }
     }
+}
+
 
     function toggleGridLines(svg, show) {
         const rectElements = svg.querySelectorAll("rect");
