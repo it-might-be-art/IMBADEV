@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let isErasing = false;
     let undoStack = [];
     let redoStack = [];
-    let gridSize = 8;
+    let gridSize = 32;
 
     function showInfoModal(message, type) {
         const infoModal = document.getElementById('infoModal');
@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', function() {
     //const predefinedPixels = [
         //{ x: 23, y: 19, color: '#000000' }
     //];
-
+    
     const predefinedPixels30x30 = [
         { x: 11, y: 23, color: '#ECC189' },
         { x: 12, y: 23, color: '#ECC189' },
@@ -279,7 +279,374 @@ document.addEventListener('DOMContentLoaded', function() {
 
     ];
 
-const predefinedPixels = gridSize === 30 ? predefinedPixels30x30 : [];
+    const predefinedPixels32x32 = [
+        { x: 8, y: 23, color: '#000000' }, { x: 7, y: 22, color: '#000000' }, { x: 7, y: 21, color: '#000000' },
+        { x: 7, y: 20, color: '#000000' }, { x: 7, y: 19, color: '#000000' }, { x: 6, y: 19, color: '#000000' },
+        { x: 5, y: 18, color: '#000000' }, { x: 5, y: 17, color: '#000000' }, { x: 5, y: 16, color: '#000000' },
+        { x: 5, y: 15, color: '#000000' }, { x: 5, y: 14, color: '#000000' }, { x: 5, y: 13, color: '#000000' },
+        { x: 6, y: 12, color: '#000000' }, { x: 7, y: 12, color: '#000000' }, { x: 7, y: 11, color: '#000000' },
+        { x: 7, y: 10, color: '#000000' }, { x: 7, y: 9, color: '#000000' }, { x: 8, y: 8, color: '#000000' },
+        { x: 9, y: 7, color: '#000000' }, { x: 10, y: 7, color: '#000000' }, { x: 11, y: 7, color: '#000000' },
+        { x: 12, y: 7, color: '#000000' }, { x: 13, y: 7, color: '#000000' }, { x: 14, y: 7, color: '#000000' },
+        { x: 15, y: 7, color: '#000000' }, { x: 16, y: 7, color: '#000000' }, { x: 17, y: 7, color: '#000000' },
+        { x: 18, y: 7, color: '#000000' }, { x: 19, y: 7, color: '#000000' }, { x: 20, y: 7, color: '#000000' },
+        { x: 21, y: 7, color: '#000000' }, { x: 22, y: 7, color: '#000000' }, { x: 23, y: 8, color: '#000000' },
+        { x: 24, y: 9, color: '#000000' }, { x: 24, y: 10, color: '#000000' }, { x: 24, y: 11, color: '#000000' },
+        { x: 24, y: 12, color: '#000000' }, { x: 24, y: 13, color: '#000000' }, { x: 24, y: 14, color: '#000000' },
+        { x: 24, y: 15, color: '#000000' }, { x: 24, y: 16, color: '#000000' }, { x: 24, y: 17, color: '#000000' },
+        { x: 24, y: 18, color: '#000000' }, { x: 24, y: 19, color: '#000000' }, { x: 24, y: 20, color: '#000000' },
+        { x: 24, y: 21, color: '#000000' }, { x: 24, y: 22, color: '#000000' }, { x: 23, y: 23, color: '#000000' },
+        { x: 9, y: 24, color: '#000000' }, { x: 10, y: 24, color: '#000000' }, { x: 11, y: 24, color: '#000000' },
+        { x: 12, y: 24, color: '#000000' }, { x: 13, y: 24, color: '#000000' }, { x: 14, y: 24, color: '#000000' },
+        { x: 15, y: 24, color: '#000000' }, { x: 16, y: 24, color: '#000000' }, { x: 17, y: 24, color: '#000000' },
+        { x: 18, y: 24, color: '#000000' }, { x: 19, y: 24, color: '#000000' }, { x: 20, y: 24, color: '#000000' },
+        { x: 21, y: 24, color: '#000000' }, { x: 22, y: 24, color: '#000000' }, { x: 7, y: 31, color: '#000000' },
+        { x: 7, y: 30, color: '#000000' }, { x: 7, y: 29, color: '#000000' }, { x: 8, y: 28, color: '#000000' },
+        { x: 9, y: 27, color: '#000000' }, { x: 10, y: 27, color: '#000000' }, { x: 11, y: 27, color: '#000000' },
+        { x: 12, y: 27, color: '#000000' }, { x: 13, y: 27, color: '#000000' }, { x: 14, y: 27, color: '#000000' },
+        { x: 15, y: 27, color: '#000000' }, { x: 16, y: 27, color: '#000000' }, { x: 17, y: 27, color: '#000000' },
+        { x: 18, y: 27, color: '#000000' }, { x: 19, y: 27, color: '#000000' }, { x: 20, y: 27, color: '#000000' },
+        { x: 21, y: 27, color: '#000000' }, { x: 22, y: 27, color: '#000000' }, { x: 23, y: 28, color: '#000000' },
+        { x: 24, y: 29, color: '#000000' }, { x: 24, y: 30, color: '#000000' }, { x: 24, y: 31, color: '#000000' },
+        { x: 11, y: 22, color: '#000000' }, { x: 12, y: 22, color: '#000000' }, { x: 13, y: 22, color: '#000000' },
+        { x: 14, y: 22, color: '#000000' }, { x: 15, y: 22, color: '#000000' }, { x: 16, y: 22, color: '#000000' },
+        { x: 17, y: 22, color: '#000000' }, { x: 18, y: 22, color: '#000000' }, { x: 19, y: 22, color: '#000000' },
+        { x: 20, y: 22, color: '#000000' }, { x: 21, y: 22, color: '#000000' }, { x: 22, y: 22, color: '#000000' },
+        { x: 23, y: 22, color: '#000000' }, { x: 11, y: 19, color: '#ffffff' }, { x: 12, y: 19, color: '#ffffff' },
+        { x: 13, y: 19, color: '#ffffff' }, { x: 14, y: 19, color: '#000000' }, { x: 15, y: 19, color: '#000000' },
+        { x: 16, y: 19, color: '#000000' }, { x: 18, y: 19, color: '#ffffff' }, { x: 19, y: 19, color: '#ffffff' },
+        { x: 20, y: 19, color: '#ffffff' }, { x: 21, y: 19, color: '#000000' }, { x: 22, y: 19, color: '#000000' },
+        { x: 23, y: 19, color: '#000000' },
+
+        { x: 9, y: 8, color: '#713F1E' },
+        { x: 10, y: 8, color: '#713F1E' },
+        { x: 11, y: 8, color: '#713F1E' },
+        { x: 12, y: 8, color: '#713F1E' },
+        { x: 13, y: 8, color: '#713F1E' },
+        { x: 14, y: 8, color: '#713F1E' },
+        { x: 15, y: 8, color: '#713F1E' },
+        { x: 16, y: 8, color: '#713F1E' },
+        { x: 17, y: 8, color: '#713F1E' },
+        { x: 18, y: 8, color: '#713F1E' },
+        { x: 19, y: 8, color: '#713F1E' },
+        { x: 20, y: 8, color: '#713F1E' },
+        { x: 21, y: 8, color: '#713F1E' },
+        { x: 22, y: 8, color: '#713F1E' },
+
+        { x: 8, y: 9, color: '#713F1E' },
+        { x: 9, y: 9, color: '#713F1E' },
+        { x: 10, y: 9, color: '#713F1E' },
+        { x: 11, y: 9, color: '#713F1E' },
+        { x: 12, y: 9, color: '#713F1E' },
+        { x: 13, y: 9, color: '#713F1E' },
+        { x: 14, y: 9, color: '#713F1E' },
+        { x: 15, y: 9, color: '#713F1E' },
+        { x: 16, y: 9, color: '#713F1E' },
+        { x: 17, y: 9, color: '#713F1E' },
+        { x: 18, y: 9, color: '#713F1E' },
+        { x: 19, y: 9, color: '#713F1E' },
+        { x: 20, y: 9, color: '#713F1E' },
+        { x: 21, y: 9, color: '#713F1E' },
+        { x: 22, y: 9, color: '#713F1E' },
+        { x: 23, y: 9, color: '#713F1E' },
+
+        { x: 8, y: 10, color: '#713F1E' },
+        { x: 9, y: 10, color: '#713F1E' },
+        { x: 10, y: 10, color: '#713F1E' },
+        { x: 11, y: 10, color: '#713F1E' },
+        { x: 12, y: 10, color: '#713F1E' },
+        { x: 13, y: 10, color: '#713F1E' },
+        { x: 14, y: 10, color: '#713F1E' },
+        { x: 15, y: 10, color: '#713F1E' },
+        { x: 16, y: 10, color: '#713F1E' },
+        { x: 17, y: 10, color: '#713F1E' },
+        { x: 18, y: 10, color: '#713F1E' },
+        { x: 19, y: 10, color: '#713F1E' },
+        { x: 20, y: 10, color: '#713F1E' },
+        { x: 21, y: 10, color: '#713F1E' },
+        { x: 22, y: 10, color: '#713F1E' },
+        { x: 23, y: 10, color: '#713F1E' },
+
+        { x: 8, y: 11, color: '#713F1E' },
+        { x: 9, y: 11, color: '#713F1E' },
+        { x: 17, y: 11, color: '#713F1E' },
+        { x: 8, y: 12, color: '#713F1E' },
+        { x: 9, y: 12, color: '#713F1E' },
+        { x: 8, y: 13, color: '#713F1E' },
+        { x: 8, y: 14, color: '#713F1E' },
+        { x: 8, y: 15, color: '#713F1E' },
+        { x: 8, y: 16, color: '#713F1E' },
+        { x: 8, y: 17, color: '#713F1E' },
+        { x: 8, y: 18, color: '#713F1E' },
+        { x: 8, y: 19, color: '#713F1E' },
+        { x: 8, y: 20, color: '#713F1E' },
+        { x: 8, y: 21, color: '#713F1E' },
+        { x: 8, y: 22, color: '#713F1E' },
+        { x: 9, y: 23, color: '#713F1E' },
+
+        { x: 9, y: 28, color: '#713F1E' },
+        { x: 10, y: 28, color: '#713F1E' },
+        { x: 11, y: 28, color: '#713F1E' },
+        { x: 12, y: 28, color: '#713F1E' },
+        { x: 13, y: 28, color: '#713F1E' },
+        { x: 14, y: 28, color: '#713F1E' },
+        { x: 15, y: 28, color: '#713F1E' },
+        { x: 16, y: 28, color: '#713F1E' },
+        { x: 17, y: 28, color: '#713F1E' },
+        { x: 18, y: 28, color: '#713F1E' },
+        { x: 19, y: 28, color: '#713F1E' },
+        { x: 20, y: 28, color: '#713F1E' },
+        { x: 21, y: 28, color: '#713F1E' },
+        { x: 22, y: 28, color: '#713F1E' },
+
+        { x: 8, y: 29, color: '#713F1E' },
+        { x: 9, y: 29, color: '#713F1E' },
+        { x: 10, y: 29, color: '#713F1E' },
+        { x: 11, y: 29, color: '#713F1E' },
+        { x: 12, y: 29, color: '#713F1E' },
+        { x: 13, y: 29, color: '#713F1E' },
+        { x: 14, y: 29, color: '#713F1E' },
+        { x: 15, y: 29, color: '#713F1E' },
+        { x: 16, y: 29, color: '#713F1E' },
+        { x: 17, y: 29, color: '#713F1E' },
+        { x: 18, y: 29, color: '#713F1E' },
+        { x: 19, y: 29, color: '#713F1E' },
+        { x: 20, y: 29, color: '#713F1E' },
+        { x: 21, y: 29, color: '#713F1E' },
+        { x: 22, y: 29, color: '#713F1E' },
+        { x: 23, y: 29, color: '#713F1E' },
+
+        { x: 8, y: 30, color: '#713F1E' },
+        { x: 9, y: 30, color: '#713F1E' },
+        { x: 10, y: 30, color: '#713F1E' },
+        { x: 8, y: 31, color: '#713F1E' },
+        { x: 9, y: 31, color: '#713F1E' },
+        { x: 10, y: 31, color: '#713F1E' },
+
+        { x: 10, y: 11, color: '#E4C8A1' },
+        { x: 11, y: 11, color: '#E4C8A1' },
+        { x: 12, y: 11, color: '#E4C8A1' },
+        { x: 13, y: 11, color: '#E4C8A1' },
+        { x: 14, y: 11, color: '#E4C8A1' },
+        { x: 15, y: 11, color: '#E4C8A1' },
+        { x: 16, y: 11, color: '#E4C8A1' },
+        { x: 18, y: 11, color: '#E4C8A1' },
+        { x: 19, y: 11, color: '#E4C8A1' },
+        { x: 20, y: 11, color: '#E4C8A1' },
+        { x: 21, y: 11, color: '#E4C8A1' },
+        { x: 22, y: 11, color: '#E4C8A1' },
+        { x: 23, y: 11, color: '#E4C8A1' },
+
+        { x: 10, y: 12, color: '#E4C8A1' },
+        { x: 11, y: 12, color: '#E4C8A1' },
+        { x: 12, y: 12, color: '#E4C8A1' },
+        { x: 13, y: 12, color: '#E4C8A1' },
+        { x: 14, y: 12, color: '#E4C8A1' },
+        { x: 15, y: 12, color: '#E4C8A1' },
+        { x: 16, y: 12, color: '#E4C8A1' },
+        { x: 17, y: 12, color: '#E4C8A1' },
+        { x: 18, y: 12, color: '#E4C8A1' },
+        { x: 19, y: 12, color: '#E4C8A1' },
+        { x: 20, y: 12, color: '#E4C8A1' },
+        { x: 21, y: 12, color: '#E4C8A1' },
+        { x: 22, y: 12, color: '#E4C8A1' },
+        { x: 23, y: 12, color: '#E4C8A1' },
+
+        { x: 6, y: 13, color: '#E4C8A1' },
+        { x: 7, y: 13, color: '#E4C8A1' },
+        { x: 9, y: 13, color: '#E4C8A1' },
+        { x: 10, y: 13, color: '#E4C8A1' },
+        { x: 17, y: 13, color: '#E4C8A1' },
+        { x: 6, y: 14, color: '#E4C8A1' },
+        { x: 9, y: 14, color: '#E4C8A1' },
+        { x: 10, y: 14, color: '#E4C8A1' },
+        { x: 17, y: 14, color: '#E4C8A1' },
+        { x: 6, y: 15, color: '#E4C8A1' },
+        { x: 9, y: 15, color: '#E4C8A1' },
+        { x: 10, y: 15, color: '#E4C8A1' },
+        { x: 17, y: 15, color: '#E4C8A1' },
+        { x: 6, y: 16, color: '#E4C8A1' },
+        { x: 9, y: 16, color: '#E4C8A1' },
+        { x: 10, y: 16, color: '#E4C8A1' },
+        { x: 17, y: 16, color: '#E4C8A1' },
+        { x: 6, y: 17, color: '#E4C8A1' },
+        { x: 9, y: 17, color: '#E4C8A1' },
+        { x: 10, y: 17, color: '#E4C8A1' },
+        { x: 17, y: 17, color: '#E4C8A1' },
+        { x: 6, y: 18, color: '#E4C8A1' },
+        { x: 7, y: 18, color: '#E4C8A1' },
+        { x: 9, y: 18, color: '#E4C8A1' },
+        { x: 10, y: 18, color: '#E4C8A1' },
+        { x: 17, y: 18, color: '#E4C8A1' },
+        { x: 9, y: 19, color: '#E4C8A1' },
+        { x: 10, y: 19, color: '#E4C8A1' },
+        { x: 17, y: 19, color: '#E4C8A1' },
+
+        { x: 9, y: 20, color: '#E4C8A1' },
+        { x: 10, y: 20, color: '#E4C8A1' },
+        { x: 11, y: 20, color: '#E4C8A1' },
+        { x: 12, y: 20, color: '#E4C8A1' },
+        { x: 13, y: 20, color: '#E4C8A1' },
+        { x: 14, y: 20, color: '#E4C8A1' },
+        { x: 15, y: 20, color: '#E4C8A1' },
+        { x: 16, y: 20, color: '#E4C8A1' },
+        { x: 17, y: 20, color: '#E4C8A1' },
+        { x: 18, y: 20, color: '#E4C8A1' },
+        { x: 19, y: 20, color: '#E4C8A1' },
+        { x: 20, y: 20, color: '#E4C8A1' },
+        { x: 21, y: 20, color: '#E4C8A1' },
+        { x: 22, y: 20, color: '#E4C8A1' },
+        { x: 23, y: 20, color: '#E4C8A1' },
+
+        { x: 9, y: 21, color: '#E4C8A1' },
+        { x: 10, y: 21, color: '#E4C8A1' },
+        { x: 11, y: 21, color: '#E4C8A1' },
+        { x: 12, y: 21, color: '#E4C8A1' },
+        { x: 13, y: 21, color: '#E4C8A1' },
+        { x: 14, y: 21, color: '#E4C8A1' },
+        { x: 15, y: 21, color: '#E4C8A1' },
+        { x: 16, y: 21, color: '#E4C8A1' },
+        { x: 17, y: 21, color: '#E4C8A1' },
+        { x: 18, y: 21, color: '#E4C8A1' },
+        { x: 19, y: 21, color: '#E4C8A1' },
+        { x: 20, y: 21, color: '#E4C8A1' },
+        { x: 21, y: 21, color: '#E4C8A1' },
+        { x: 22, y: 21, color: '#E4C8A1' },
+        { x: 23, y: 21, color: '#E4C8A1' },
+
+        { x: 9, y: 22, color: '#E4C8A1' },
+        { x: 10, y: 22, color: '#E4C8A1' },
+
+        { x: 10, y: 23, color: '#E4C8A1' },
+        { x: 11, y: 23, color: '#E4C8A1' },
+        { x: 12, y: 23, color: '#E4C8A1' },
+        { x: 13, y: 23, color: '#E4C8A1' },
+        { x: 14, y: 23, color: '#E4C8A1' },
+        { x: 15, y: 23, color: '#E4C8A1' },
+        { x: 16, y: 23, color: '#E4C8A1' },
+        { x: 17, y: 23, color: '#E4C8A1' },
+        { x: 18, y: 23, color: '#E4C8A1' },
+        { x: 19, y: 23, color: '#E4C8A1' },
+        { x: 20, y: 23, color: '#E4C8A1' },
+        { x: 21, y: 23, color: '#E4C8A1' },
+        { x: 22, y: 23, color: '#E4C8A1' },
+
+        { x: 10, y: 30, color: '#E4C8A1' },
+        { x: 11, y: 30, color: '#E4C8A1' },
+        { x: 12, y: 30, color: '#E4C8A1' },
+        { x: 13, y: 30, color: '#E4C8A1' },
+        { x: 14, y: 30, color: '#E4C8A1' },
+        { x: 15, y: 30, color: '#E4C8A1' },
+        { x: 16, y: 30, color: '#E4C8A1' },
+        { x: 17, y: 30, color: '#E4C8A1' },
+        { x: 18, y: 30, color: '#E4C8A1' },
+        { x: 19, y: 30, color: '#E4C8A1' },
+        { x: 20, y: 30, color: '#E4C8A1' },
+        { x: 21, y: 30, color: '#E4C8A1' },
+        { x: 22, y: 30, color: '#E4C8A1' },
+        { x: 23, y: 30, color: '#E4C8A1' },
+        
+        { x: 10, y: 31, color: '#E4C8A1' },
+        { x: 11, y: 31, color: '#E4C8A1' },
+        { x: 12, y: 31, color: '#E4C8A1' },
+        { x: 13, y: 31, color: '#E4C8A1' },
+        { x: 14, y: 31, color: '#E4C8A1' },
+        { x: 15, y: 31, color: '#E4C8A1' },
+        { x: 16, y: 31, color: '#E4C8A1' },
+        { x: 17, y: 31, color: '#E4C8A1' },
+        { x: 18, y: 31, color: '#E4C8A1' },
+        { x: 19, y: 31, color: '#E4C8A1' },
+        { x: 20, y: 31, color: '#E4C8A1' },
+        { x: 21, y: 31, color: '#E4C8A1' },
+        { x: 22, y: 31, color: '#E4C8A1' },
+        { x: 23, y: 31, color: '#E4C8A1' },
+
+        { x: 7, y: 14, color: '#AB9679' },
+        { x: 7, y: 15, color: '#AB9679' },
+        { x: 7, y: 16, color: '#AB9679' },
+        { x: 7, y: 17, color: '#AB9679' },
+
+        { x: 11, y: 13, color: '#AF8D5F' },
+        { x: 12, y: 13, color: '#AF8D5F' },
+        { x: 13, y: 13, color: '#AF8D5F' },
+        { x: 14, y: 13, color: '#AF8D5F' },
+        { x: 15, y: 13, color: '#AF8D5F' },
+        { x: 16, y: 13, color: '#AF8D5F' },
+        { x: 18, y: 13, color: '#AF8D5F' },
+        { x: 19, y: 13, color: '#AF8D5F' },
+        { x: 20, y: 13, color: '#AF8D5F' },
+        { x: 21, y: 13, color: '#AF8D5F' },
+        { x: 22, y: 13, color: '#AF8D5F' },
+        { x: 23, y: 13, color: '#AF8D5F' },
+
+        { x: 11, y: 14, color: '#AF8D5F' },
+        { x: 12, y: 14, color: '#AF8D5F' },
+        { x: 13, y: 14, color: '#AF8D5F' },
+        { x: 14, y: 14, color: '#AF8D5F' },
+        { x: 15, y: 14, color: '#AF8D5F' },
+        { x: 16, y: 14, color: '#AF8D5F' },
+        { x: 18, y: 14, color: '#AF8D5F' },
+        { x: 19, y: 14, color: '#AF8D5F' },
+        { x: 20, y: 14, color: '#AF8D5F' },
+        { x: 21, y: 14, color: '#AF8D5F' },
+        { x: 22, y: 14, color: '#AF8D5F' },
+        { x: 23, y: 14, color: '#AF8D5F' },
+
+        { x: 11, y: 15, color: '#AF8D5F' },
+        { x: 12, y: 15, color: '#AF8D5F' },
+        { x: 13, y: 15, color: '#AF8D5F' },
+        { x: 14, y: 15, color: '#AF8D5F' },
+        { x: 15, y: 15, color: '#AF8D5F' },
+        { x: 16, y: 15, color: '#AF8D5F' },
+        { x: 18, y: 15, color: '#AF8D5F' },
+        { x: 19, y: 15, color: '#AF8D5F' },
+        { x: 20, y: 15, color: '#AF8D5F' },
+        { x: 21, y: 15, color: '#AF8D5F' },
+        { x: 22, y: 15, color: '#AF8D5F' },
+        { x: 23, y: 15, color: '#AF8D5F' },
+
+        { x: 11, y: 16, color: '#AF8D5F' },
+        { x: 12, y: 16, color: '#AF8D5F' },
+        { x: 13, y: 16, color: '#AF8D5F' },
+        { x: 14, y: 16, color: '#AF8D5F' },
+        { x: 15, y: 16, color: '#AF8D5F' },
+        { x: 16, y: 16, color: '#AF8D5F' },
+        { x: 18, y: 16, color: '#AF8D5F' },
+        { x: 19, y: 16, color: '#AF8D5F' },
+        { x: 20, y: 16, color: '#AF8D5F' },
+        { x: 21, y: 16, color: '#AF8D5F' },
+        { x: 22, y: 16, color: '#AF8D5F' },
+        { x: 23, y: 16, color: '#AF8D5F' },
+
+        { x: 11, y: 17, color: '#AF8D5F' },
+        { x: 12, y: 17, color: '#AF8D5F' },
+        { x: 13, y: 17, color: '#AF8D5F' },
+        { x: 14, y: 17, color: '#AF8D5F' },
+        { x: 15, y: 17, color: '#AF8D5F' },
+        { x: 16, y: 17, color: '#AF8D5F' },
+        { x: 18, y: 17, color: '#AF8D5F' },
+        { x: 19, y: 17, color: '#AF8D5F' },
+        { x: 20, y: 17, color: '#AF8D5F' },
+        { x: 21, y: 17, color: '#AF8D5F' },
+        { x: 22, y: 17, color: '#AF8D5F' },
+        { x: 23, y: 17, color: '#AF8D5F' },
+
+        { x: 11, y: 18, color: '#AF8D5F' },
+        { x: 12, y: 18, color: '#AF8D5F' },
+        { x: 13, y: 18, color: '#AF8D5F' },
+        { x: 14, y: 18, color: '#AF8D5F' },
+        { x: 15, y: 18, color: '#AF8D5F' },
+        { x: 16, y: 18, color: '#AF8D5F' },
+        { x: 18, y: 18, color: '#AF8D5F' },
+        { x: 19, y: 18, color: '#AF8D5F' },
+        { x: 20, y: 18, color: '#AF8D5F' },
+        { x: 21, y: 18, color: '#AF8D5F' },
+        { x: 22, y: 18, color: '#AF8D5F' },
+        { x: 23, y: 18, color: '#AF8D5F' },
+
+    ];
+
+    const predefinedPixels = gridSize === 30 ? predefinedPixels30x30 : gridSize === 32 ? predefinedPixels32x32 : [];
 
     function setColor(rect, color) {
         if (rect) {
@@ -301,6 +668,10 @@ const predefinedPixels = gridSize === 30 ? predefinedPixels30x30 : [];
 
     function initializeGrid(setPredefined = true) {
         grid.innerHTML = '';
+    
+        // Berechne das Array `predefinedPixels` basierend auf gridSize erneut, um sicherzustellen, dass die richtige Konfiguration geladen wird
+        const predefinedPixels = gridSize === 30 ? predefinedPixels30x30 : gridSize === 32 ? predefinedPixels32x32 : [];
+    
         for (let i = 0; i < gridSize; i++) {
             for (let j = 0; j < gridSize; j++) {
                 const rect = document.createElementNS(svgns, 'rect');
@@ -311,15 +682,15 @@ const predefinedPixels = gridSize === 30 ? predefinedPixels30x30 : [];
                 rect.style.fill = backgroundColor;
                 rect.style.stroke = '#cccccc';
                 rect.style.strokeWidth = "0.5";
-
+    
                 addRectEventListeners(rect);
-
                 grid.appendChild(rect);
             }
         }
-        // Nur für 30x30 Raster die predefinedPixels anwenden
-        if (setPredefined && gridSize === 30) {
-            predefinedPixels30x30.forEach(pixel => {
+    
+        // Überprüfe und setze die vordefinierten Pixel, falls `setPredefined` und das `predefinedPixels` Array vorhanden sind
+        if (setPredefined && predefinedPixels.length > 0) {
+            predefinedPixels.forEach(pixel => {
                 const rectIndex = pixel.y * gridSize + pixel.x;
                 if (rectIndex < grid.children.length) {
                     const rect = grid.children[rectIndex];
@@ -327,7 +698,7 @@ const predefinedPixels = gridSize === 30 ? predefinedPixels30x30 : [];
                 }
             });
         }
-
+    
         saveInitialState();
     }
 
