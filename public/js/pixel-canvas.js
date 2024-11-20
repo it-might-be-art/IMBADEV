@@ -96,12 +96,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     backgroundColorPicker.on('change', (color) => {
         backgroundColor = color.toHEXA().toString();
-        grid.querySelectorAll('rect:not(.active)').forEach(rect => {
-            rect.style.fill = backgroundColor;
-            rect.style.stroke = backgroundColor;
-        });
-        window.uploadModule.toggleGridLines(grid, showGrid);
-        backgroundColorPicker.applyColor();
+        updateBackgroundColor(); // Hintergrundfarbe sofort anwenden
+        saveState(false); // Hintergrundfarbe speichern
+        backgroundColorPicker.setColor(backgroundColor, true); // Synchronisiere den Picker
+        //console.log("Hintergrundfarbe geändert zu:", backgroundColor);
     });
 
     if (window.EyeDropper) {
@@ -120,9 +118,6 @@ document.addEventListener('DOMContentLoaded', function() {
         console.warn('Your browser does not support the EyeDropper API');
     }
 
-    //const predefinedPixels = [
-        //{ x: 23, y: 19, color: '#000000' }
-    //];
     
     const predefinedPixels30x30 = [
         { x: 11, y: 23, color: '#ECC189' },
@@ -650,19 +645,35 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function setColor(rect, color) {
         if (rect) {
-            rect.classList.add('active');
             rect.style.fill = color;
             rect.style.stroke = color;
-            rect.style.strokeWidth = "0.1";
+            rect.classList.add('active');
+        }
+    }
+    
+    function clearColor(rect) {
+        if (rect) {
+            rect.style.fill = backgroundColor;
+            rect.style.stroke = backgroundColor;
+            rect.classList.remove('active');
         }
     }
 
-    function clearColor(rect) {
-        if (rect) {
-            rect.classList.remove('active');
-            rect.style.fill = backgroundColor;
-            rect.style.stroke = backgroundColor;
-            rect.style.strokeWidth = "0.5";
+    function updateBackgroundColor() {
+        grid.querySelectorAll('rect').forEach(rect => {
+            // Nur Rechtecke ohne aktive Klasse aktualisieren
+            if (!rect.classList.contains('active')) {
+                rect.style.fill = backgroundColor;
+                rect.style.stroke = backgroundColor;
+                //console.log("Aktualisiertes Rechteck:", rect, "Neue Füllfarbe:", rect.style.fill);
+            }
+        });
+        //console.log("Hintergrundfarbe geändert und auf Rechtecke angewendet:", backgroundColor);
+    }
+
+    function updateBackgroundColorPicker() {
+        if (backgroundColorPicker) {
+            backgroundColorPicker.setColor(backgroundColor, true); // Aktualisiere die angezeigte Farbe
         }
     }
 
@@ -688,7 +699,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     
-        // Überprüfe und setze die vordefinierten Pixel, falls `setPredefined` und das `predefinedPixels` Array vorhanden sind
         if (setPredefined && predefinedPixels.length > 0) {
             predefinedPixels.forEach(pixel => {
                 const rectIndex = pixel.y * gridSize + pixel.x;
@@ -698,7 +708,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
         }
-    
+        updateBackgroundColor();
         saveInitialState();
     }
 
@@ -708,27 +718,53 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    function saveState() {
-        const currentState = exportGridToIMBA();
-        if (undoStack.length === 0 || currentState !== undoStack[undoStack.length - 1]) {
+    function saveState(excludeBackground = false) {
+        const currentState = {
+            grid: exportGridToIMBA(),
+            backgroundColor: excludeBackground ? null : backgroundColor,
+        };
+    
+        // Nur hinzufügen, wenn sich der Zustand geändert hat
+        if (
+            undoStack.length === 0 ||
+            JSON.stringify(currentState) !== JSON.stringify(undoStack[undoStack.length - 1])
+        ) {
             undoStack.push(currentState);
             redoStack = [];
         }
     }
-
+    
     function undo() {
         if (undoStack.length > 1) {
             redoStack.push(undoStack.pop());
             const previousState = undoStack[undoStack.length - 1];
-            applyIMBAToGrid(previousState);
+    
+            applyIMBAToGrid(previousState.grid);
+            if (previousState.backgroundColor !== null) {
+                backgroundColor = previousState.backgroundColor;
+                updateBackgroundColor(); // Hintergrundfarbe anwenden
+                backgroundColorPicker.setColor(backgroundColor, true); // Synchronisiere den Picker
+            }
+    
+            resetActiveClasses();
+            //console.log("Undo abgeschlossen. Aktuelle Hintergrundfarbe:", backgroundColor);
         }
     }
-
+    
     function redo() {
         if (redoStack.length > 0) {
             const nextState = redoStack.pop();
             undoStack.push(nextState);
-            applyIMBAToGrid(nextState);
+    
+            applyIMBAToGrid(nextState.grid);
+            if (nextState.backgroundColor !== null) {
+                backgroundColor = nextState.backgroundColor;
+                updateBackgroundColor(); // Hintergrundfarbe anwenden
+                backgroundColorPicker.setColor(backgroundColor, true); // Synchronisiere den Picker
+            }
+    
+            resetActiveClasses();
+            //console.log("Redo abgeschlossen. Aktuelle Hintergrundfarbe:", backgroundColor);
         }
     }
 
@@ -741,43 +777,64 @@ document.addEventListener('DOMContentLoaded', function() {
         const data = JSON.parse(imbaString);
         const newGridSize = data.gridSize;
         const pixels = data.pixels || [];
-
+    
         if (newGridSize && newGridSize !== gridSize) {
             gridSize = newGridSize;
             initializeGrid(false);
             gridSizeSelector.value = gridSize;
         }
-
-        grid.innerHTML = '';
-        for (let i = 0; i < gridSize; i++) {
-            for (let j = 0; j < gridSize; j++) {
-                const rect = document.createElementNS(svgns, 'rect');
-                rect.setAttribute('x', `${(j / gridSize) * 100}%`);
-                rect.setAttribute('y', `${(i / gridSize) * 100}%`);
-                rect.setAttribute('width', `${100 / gridSize}%`);
-                rect.setAttribute('height', `${100 / gridSize}%`);
-                rect.style.fill = backgroundColor;
-                rect.style.stroke = '#cccccc';
-                rect.style.strokeWidth = "0.5";
-
-                addRectEventListeners(rect);
-
-                grid.appendChild(rect);
-            }
-        }
-
+    
+        grid.querySelectorAll('rect').forEach(rect => {
+            rect.style.fill = backgroundColor; // Setze die Standard-Hintergrundfarbe
+            rect.style.stroke = backgroundColor;
+            rect.classList.remove('active'); // Entferne vorerst alle `active`-Klassen
+        });
+    
         pixels.forEach((item) => {
             const { x, y, color } = item;
             if (x < gridSize && y < gridSize) {
                 const rectIndex = y * gridSize + x;
                 if (rectIndex < grid.children.length) {
                     const rect = grid.children[rectIndex];
-                    setColor(rect, color);
+                    rect.style.fill = color; // Setze die gespeicherte Farbe
+                    rect.style.stroke = color;
+                    rect.classList.add('active'); // Markiere das Rechteck als aktiv
                 }
             }
         });
-
+    
+        resetActiveClasses(); // Aktualisiere die Klassen basierend auf der Hintergrundfarbe
         window.uploadModule.toggleGridLines(grid, showGrid);
+    }
+
+    function resetActiveClasses() {
+        function rgbToHex(rgb) {
+            const result = rgb.match(/\d+/g).map(Number); // Extrahiere RGB-Werte als Zahlen
+            return (
+                "#" +
+                result
+                    .map(value => value.toString(16).padStart(2, "0")) // Konvertiere Zahl zu Hex
+                    .join("")
+                    .toUpperCase()
+            );
+        }
+    
+        grid.querySelectorAll("rect").forEach(rect => {
+            const currentFill = rect.style.fill; // Extrahiere die aktuelle Füllfarbe
+            const currentFillHex = currentFill.startsWith("#")
+                ? currentFill.toUpperCase() // Falls es bereits Hex ist
+                : rgbToHex(currentFill); // Falls es RGB ist, konvertiere zu Hex
+    
+            if (currentFillHex !== backgroundColor.toUpperCase()) {
+                rect.classList.add("active");
+            } else {
+                rect.classList.remove("active");
+            }
+        });
+        //console.log(
+        //    "Klassen nach Hintergrundfarbe aktualisiert. Aktuelle Hintergrundfarbe:",
+        //    backgroundColor
+        //);
     }
 
     function handleFileUpload(file) {
@@ -1137,7 +1194,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    undoButton.addEventListener('click', undo);
-    redoButton.addEventListener('click', redo);
+    undoButton.addEventListener('click', () => {
+        undo();
+        resetActiveClasses();
+        updateBackgroundColor(); // Hintergrund aktualisieren
+    });
+    
+    redoButton.addEventListener('click', () => {
+        redo();
+        resetActiveClasses();
+        updateBackgroundColor(); // Hintergrund aktualisieren
+    });
     clearCanvasButton.addEventListener('click', clearCanvas);
 });
